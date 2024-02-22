@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>PeaceRep</title>
+  <link rel="icon" href="data:;base64,iVBORwOKGO=" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js" crossorigin="anonymous"
+    referrerpolicy="no-referrer"></script>
+  <script src='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v3.1.2/mapbox-gl.css' rel='stylesheet' />
+  <link rel="icon" type="image/png" href="img/peace.png">
+</head>
+
+<body>
+
+  <div id="header">
+    <h1 id="title_header"></h1>
+
+    <img id="peace_img" src="img/logo.png" alt="PeaceRep Logo" />
+  </div>
+
+  <div id="story">
+    <div id="actor_dropdown">
+      <h4 style="margin: 5px;">Peace Actor</h4>
+      <select id="dropdown_country">
+        <option selected="selected">Russia</option>
+        <option>United Kingdom</option>
+        <option>United Nations</option>
+      </select>
+    </div>
+
+    <div id="separator" class="overview">
+      <div id="ch1_div">
+        <h1 id="num_pp"></h1> Peace Processes
+      </div>
+      <div id="ch1_div">
+        <h1 id="num_agt"></h1> Agreements
+      </div>
+      <div id="ch1_div">
+        <h1 id="num_act"></h1> Other Actors
+      </div>
+      <div id="ch1_div">
+        <h1 id="yr_active"></h1> Activity Range
+      </div>
+    </div>
+
+    <div class="graphic">
+      <div class="graphic__vis">
+        <div id="hover_description"></div>
+        <svg id="visualization"></svg>
+      </div>
+      <div class="graphic__prose">
+        <p class="trigger one" data-step="0" style="height: 600px;"></p>
+        <p class="trigger two" data-step="1" style="height: 600px;"></p>
+        <p class="trigger three" data-step="2" style="height: 600px;">To provide some historical context,
+          here are the changes in Russian presidency between 1990 and 2022</p>
+        <p class="trigger" data-step="3" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="4" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="5" style="height: 367.5px;">Step 2 arrives. The graphic should be locking into a
+          fixed position right about now. We could have a whole bunch of these “fixed” steps.</p>
+        <p class="trigger" data-step="6" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+      </div>
+    </div>
+
+    <div class="graphic1">
+      <div class="graphic__vis__1">
+        <div id="map"></div>
+      </div>
+      <div class="graphic__prose__1">
+        <p class="trigger" data-step="0" style="height: 367.5px;">Step 1 in the graphic. It triggers in the middle of
+          the viewport. For this graphic, it is the same as the initial state so the reader doesn’t miss anything.
+          Step 3 concludes our brief tour. The graphic should now go back to its original in-flow position,
+          elegantly snapping back into place. Step 3 concludes our brief tour. The graphic shouldnow go back to its
+          original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="2" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="3" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="4" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="5" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+        <p class="trigger" data-step="6" style="height: 367.5px;">Step 2 arrives. The graphic should be locking into a
+          fixed position right about now. We could have a whole bunch of these “fixed” steps.</p>
+        <p class="trigger" data-step="7" style="height: 367.5px;">Step 3 concludes our brief tour. The graphic should
+          now go back to its original in-flow position, elegantly snapping back into place.</p>
+      </div>
+    </div>
+
+    <div id="separator">
+      <div id="vik">Есть, видимо, какое-то странное соответствие между общим рисунком жизни и теми мелкими
+        историями, которые постоянно происходят с человеком и которым он не придает значения. Сейчас я ясно вижу, что
+        моя судьба уже вполне четко определилась в то время, когда я
+        еще даже не задумывался всерьез над тем, какой бы я хотел ее видеть, и больше того – уже
+        тогда она была мне показана в несколько упрощенном виде. Может быть, это было эхо будущего. А может быть, то,
+        что мы принимаем за эхо будущего, – на самом деле семя этого будущего, падающее в почву в тот самый момент,
+        который потом, издали, кажется прилетавшим
+        из будущего эхом. Короче, лето после седьмого класса было жарким и пыльным. Из его первой половины
+        мне запомнились только долгие велосипедные прогулки по одному из подмосковных шоссе.
+        На заднее колесо своего полугоночного «Спорта» я ставил специальную трещотку из куска
+        сложенной в несколько раз плотной бумаги, прикрепленной к раме прищепкой, – когда я ехал,
+      </div>
+      <div id="vik">
+        <img id="mage" src="/img/viktor.jpg" />
+      </div>
+    </div>
+
+  </div>
+  <script src="js/countries.js"></script>
+  <script src="js/d3.v6.min.js"></script>
+  <script src="js/noframework.waypoints.min.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/scrollerVis.js"></script>
+</body>
+
+</html>
