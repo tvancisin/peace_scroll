@@ -30,14 +30,14 @@ d3.selectAll(".trigger").style("padding-top", height100 / 3 + "px")
 
 //scaling vertical axis
 let y_vertical = d3.scaleTime()
-  .range([10, height-10])
+  .range([10, height - 10])
 
 let horizontal_svg = d3.select("#visualization")
-      .attr("class", "horizontal_bee")
-      .attr("width", width)
-      .attr("height", height)
-      .append("g")
-      .attr("transform", `translate(10,${margin.top})`);
+  .attr("class", "horizontal_bee")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", `translate(10,${margin.top})`);
 //scaling horizontal axis
 let x_horizontal = d3.scaleTime()
   .range([0, width])
@@ -70,7 +70,7 @@ map.on('load', () => {
     'layout': {},
     'paint': {
       'fill-color': '#7B8AD6',
-      'fill-opacity': 0.7 
+      'fill-opacity': 0.7
     }
   });
 });
@@ -163,16 +163,34 @@ Promise.all([
     d3.select("#num_act").text(num_act)
     let yr_period = d3.extent(year_division, function (d) { return d[1][0][0]; })
     d3.select("#yr_active").text(yr_period[0].getUTCFullYear() + " - " + yr_period[1].getUTCFullYear())
-    d3.select(".one").html(actor + ` is a signatory in the PA-X Agreements database
-  as it has been a signatory to ` + num_agt + ` agreements across ` + num_pp +
-      ` peace processes since ` + yr_period[0].getUTCFullYear() + `. The most recent
-   signed agreement was as ` + found[1][0].signatory_type + ` on ` + ` <a href=` +
-      found[1][0].PAX_Hyperlink + ` target="_blank">` + found[1][0].dat + `</a> in ` +
-      found[1][0].PPName)
-    d3.select(".two").text(`The year when ` + actor + ` signed the most agreements 
-  was ` + most_agt[0] + `, namely ` + most_agt[1].length + `. In contrast, the 
-  year when they signes the least amount of agreements was ` + least_agt[0] + `.
-   They only signed one agreement.`)
+
+    d3.select(".one").html(`Russia is the second most prolific international third-party 
+    signatory of peace agreements between 1990-2022. It follows the United Nations, and 
+    comes ahead of the United States, the African Union, and the European Union.`)
+
+    d3.select(".two").html(`Russia has most often acted as a third-party signatory 
+    in the 1990s. Majority of these agreements relate to the dissolution 
+    of the Soviet Union. Many of these are protracted conflicts, where 
+    Russia continues acting as a third-party signatory of peace agreements.`)
+
+    d3.select(".three").html(`Over the last decade, Russia increasingly acts
+    as a signatory on agreements related to conflicts in Syria and, reflecting
+    its increased engagements in Africa, Libya, and the Central African Republic.
+    These are internationalised conflicts, where Russia is also militarily
+    engaged in supporting conflict parties. `)
+
+
+
+    //   d3.select(".one").html(actor + ` is a signatory in the PA-X Agreements database
+    // as it has been a signatory to ` + num_agt + ` agreements across ` + num_pp +
+    //     ` peace processes since ` + yr_period[0].getUTCFullYear() + `. The most recent
+    //  signed agreement was as ` + found[1][0].signatory_type + ` on ` + ` <a href=` +
+    //     found[1][0].PAX_Hyperlink + ` target="_blank">` + found[1][0].dat + `</a> in ` +
+    //     found[1][0].PPName)
+    //   d3.select(".two").text(`The year when ` + actor + ` signed the most agreements 
+    // was ` + most_agt[0] + `, namely ` + most_agt[1].length + `. In contrast, the 
+    // year when they signes the least amount of agreements was ` + least_agt[0] + `.
+    //  They only signed one agreement.`)
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data, year_division, the_array);
   }
@@ -227,7 +245,7 @@ Promise.all([
         // if the direction is down then we use that number,
         // else, we want to trigger the previous one
         var nextStep = direction === 'down' ? step : Math.max(0, step)
-        // console.log(nextStep);
+        console.log(nextStep);
         scrollerVis.goToStep(nextStep, direction);
 
         // tell our graphic to update with a specific step

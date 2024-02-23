@@ -150,7 +150,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .tick line {
   stroke: gray;
-  stroke-opacity: 0.4;
+  stroke-opacity: 0.3;
 }
 
 #para1 {

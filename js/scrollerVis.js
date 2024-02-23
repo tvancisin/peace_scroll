@@ -7,6 +7,12 @@ context_data.forEach(function (d) {
   d.year = context_parser(d.year)
 })
 
+const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
+  "Kazakhstan", "Kyrgyzstan", "Latvia", "Lithuania", "Moldova", "Russia",
+  "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan"];
+
+const syria = ["Syria", "Libya", "Central African Republic"];
+
 class ScrollerVis {
   constructor(_config, _raw, _year, _array) {
     this.config = {
@@ -31,7 +37,7 @@ class ScrollerVis {
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
 
     vis.line = horizontal_svg.append("g")
-    vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(15);
+    vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
     horizontal_svg.append("g")
       .attr("transform", `translate(10, ` + vis.height + `)`)
       .attr("class", "myXaxis")
@@ -50,6 +56,7 @@ class ScrollerVis {
     const vis = this;
     console.log("step1", direction);
     map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
+    console.log(vis.country_array);
     if (direction === "down") {
       //adjust domain
       x_horizontal
@@ -90,10 +97,22 @@ class ScrollerVis {
         .attr('cx', d => d.x)
         .attr('cy', d => d.y)
         .attr("class", function (d) {
-          let first_word = "my_circles " +
-            d[1][0][1][0].PPName.replace(/ .*/, '') +
-            " " + d[1][0][1][0].AgtId + " " + "y" +
-            d[1][0][1][0].date.getUTCFullYear()
+          let first_word
+          if (soviet.includes(d[1][0][1][0].where_agt) && d[1][0][1][0].date.getUTCFullYear() <= 2000) {
+            first_word = "my_circles " + "soviet "
+              + d[1][0][1][0].AgtId + " " + "y" +
+              d[1][0][1][0].date.getUTCFullYear()
+          }
+          else if (syria.includes(d[1][0][1][0].where_agt)) {
+            first_word = "my_circles " + "syria "
+              + d[1][0][1][0].AgtId + " " + "y" +
+              d[1][0][1][0].date.getUTCFullYear()
+          }
+          else {
+            first_word = "my_circles " +
+              " " + d[1][0][1][0].AgtId + " " + "y" +
+              d[1][0][1][0].date.getUTCFullYear()
+          }
           return first_word;
         })
         .attr('r', 10)
@@ -110,6 +129,7 @@ class ScrollerVis {
         .style("text-anchor", "middle")
         .style("font-size", "12px")
         .style("font-family", "Montserrat");
+
       d3.selectAll(".domain")
         .attr("visibility", "hidden")
       d3.selectAll(".myXaxis, .tick line").transition()
@@ -117,9 +137,11 @@ class ScrollerVis {
 
     }
     else if (direction == "up") {
-      d3.selectAll(".y1996")
+      d3.selectAll(".soviet")
         .transition()
         .style("fill", "#7B8AD6")
+
+
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
         .join('circle')
@@ -136,16 +158,17 @@ class ScrollerVis {
   step2(direction) {
     const vis = this;
     console.log("step2", direction);
-    d3.selectAll(".y1996").transition()
+    d3.selectAll(".soviet").transition()
       .style("fill", "white")
   }
 
   step3(direction) {
     const vis = this;
     console.log("step3", direction);
+    d3.selectAll(".syria").transition().style("fill", "white")
 
     if (direction === "down") {
-      d3.selectAll(".y1996").transition().style("fill", "#7B8AD6")
+      d3.selectAll(".soviet").transition().style("fill", "#7B8AD6")
       vis.line.selectAll(".context_line")
         .data(context_data)
         .join(
@@ -266,50 +289,8 @@ class ScrollerVis {
   step4(direction) {
     const vis = this;
     console.log("step4", direction);
-
     if (direction === "down") {
-      d3.selectAll(".smart_1747").remove()
-    }
-    else {
-      d3.selectAll(".smart_1747").remove()
-    }
-
-  }
-  step5(direction) {
-    const vis = this;
-    console.log("step5", direction);
-
-    if (direction === "up") {
-      d3.selectAll('._1579')
-        .attr("opacity", 0.65)
-    }
-    else {
-      d3.selectAll('._1579')
-        .attr("opacity", 0.45);
-      d3.select(".smart_1579").remove()
-    }
-
-  }
-
-  step6(direction) {
-    const vis = this;
-    console.log("step6", direction);
-
-    if (direction === "down") {
-      d3.selectAll('.lis')
-        .attr("opacity", 0.25);
-    }
-    else {
-      d3.selectAll('.lis')
-        .attr("opacity", 0.25);
-    }
-  }
-
-  step7(direction) {
-    const vis = this;
-    console.log("step7", direction);
-    if (direction === "down") {
-
+      d3.selectAll(".syria").transition().style("fill", "#7B8AD6")
       x_horizontal.domain(d3.extent(vis.year_division, function (d) { return d[1][0][0]; }))
         .nice();
       //initial simulation
@@ -508,6 +489,15 @@ class ScrollerVis {
             .remove()
         )
     }
+
+  }
+  step5(direction) {
+  }
+
+  step6(direction) {
+  }
+
+  step7(direction) {
   }
 
   step8(direction) {
@@ -520,64 +510,12 @@ class ScrollerVis {
         .transition()
         .style("bottom", "67px")
 
-      d3.selectAll("#expan")
-        .transition()
-        .style("bottom", "50px")
-
-      d3.selectAll("#digi")
-        .transition()
-        .style("bottom", "33px")
-
-      d3.selectAll("#data")
-        .transition()
-        .style("opacity", 1)
-        .style("bottom", "19px")
-
-      d3.select(".fix")
-        .transition(1000)
-        .attr("transform", "translate(" + vis.config.margin.left + "," + (vis.config.height - 65) + ")")
-
-      d3.selectAll('._1747:not(.lla)')
-        // .transition(1000)
-        .attr("opacity", 0.95)
-
-      // vis.fixed_vis
-      //   .append("line")
-      //   .attr("class", "vancisin_1747_database")
-      //   .attr("x1", function (d) { return vis.xScale(vis.config._1747) })
-      //   .attr("y1", 70)
-      //   .attr("x2", function (d) { return vis.xScale(vis.config._1877) })
-      //   .attr("y2", 70)
-      //   .attr("stroke", "white")
-      //   .attr("stroke-width", 10)
-      //   .attr("stroke-linecap", "round")
-      //   .attr("opacity", 0.7)
-
-      // vis.fixed_vis
-      //   .append("line")
-      //   .attr("class", "vancisin_1747_database")
-      //   .attr("x1", function (d) { return vis.xScale(vis.config._1877) })
-      //   .attr("y1", 70)
-      //   .attr("x2", function (d) { return vis.xScale(vis.config._1897) })
-      //   .attr("y2", 70)
-      //   .attr("stroke", "white")
-      //   .attr("stroke-width", 10)
-      //   .attr("stroke-linecap", "round")
-      //   .attr("opacity", 0.4)
-
     }
     else {
       d3.select(".fix")
         .transition(1000)
         .attr("transform", "translate(" + vis.config.margin.left + "," + (vis.config.height - 50) + ")")
-
-      d3.selectAll('._1747:not(.lla)')
-        // .transition(1000)
-        .attr("opacity", 0.85);
-
-      d3.selectAll(".vancisin_1747_database").remove()
     }
-
   }
 
   step9(direction) {
