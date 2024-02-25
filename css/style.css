@@ -14,7 +14,6 @@ body {
   left: 0px;
   display: flex;
   width: 100%;
-  /* box-shadow: 2px 0px 10px 0px #515151; */
   z-index: 999;
 }
 
@@ -54,8 +53,8 @@ body::-webkit-scrollbar-thumb:hover {
 #separator {
   position: relative;
   display: flex;
-  left: 120px;
-  padding: 20px;
+  /* left: 120px; */
+  /* padding: 20px; */
   background-image: url("../img/ru.PNG");
   background-repeat: no-repeat;
   background-attachment: fixed;
@@ -165,6 +164,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 #map {
   position: relative;
+  left:-50px
 }
 
 .trigger {

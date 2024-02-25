@@ -98,7 +98,7 @@ class ScrollerVis {
         .attr('cy', d => d.y)
         .attr("class", function (d) {
           let first_word
-          if (soviet.includes(d[1][0][1][0].where_agt) && d[1][0][1][0].date.getUTCFullYear() <= 2000) {
+          if (soviet.includes(d[1][0][1][0].where_agt)) {
             first_word = "my_circles " + "soviet "
               + d[1][0][1][0].AgtId + " " + "y" +
               d[1][0][1][0].date.getUTCFullYear()
@@ -127,7 +127,7 @@ class ScrollerVis {
         .attr("transform", "translate(0,-4)")
         .style("fill", "white")
         .style("text-anchor", "middle")
-        .style("font-size", "12px")
+        .style("font-size", "14px")
         .style("font-family", "Montserrat");
 
       d3.selectAll(".domain")
@@ -158,17 +158,17 @@ class ScrollerVis {
   step2(direction) {
     const vis = this;
     console.log("step2", direction);
-    d3.selectAll(".soviet").transition()
-      .style("fill", "white")
+    d3.selectAll(".soviet").transition().style("fill", "white")
+    d3.selectAll(".syria").transition().style("fill", "#7B8AD6")
   }
 
   step3(direction) {
     const vis = this;
     console.log("step3", direction);
-    d3.selectAll(".syria").transition().style("fill", "white")
+    d3.selectAll(".syria").transition().duration(500).style("fill", "white")
 
     if (direction === "down") {
-      d3.selectAll(".soviet").transition().style("fill", "#7B8AD6")
+      d3.selectAll(".soviet").transition().duration(500).style("fill", "#7B8AD6")
       vis.line.selectAll(".context_line")
         .data(context_data)
         .join(
@@ -183,11 +183,11 @@ class ScrollerVis {
             .attr("stroke-opacity", 0.7)
             .attr("stroke-dasharray", "8,8")
             .attr("opacity", 0)
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("opacity", 1)
             .selection(),
           update => update
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("x1", function (d) { return x_horizontal(d.year) })
             .attr("x2", function (d) { return x_horizontal(d.year) })
             .attr("y1", function (d, i) { return vis.height * 0.2 - i * 30 })
@@ -211,11 +211,11 @@ class ScrollerVis {
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })
             .text(function (d) { return d.text })
             .attr("opacity", 0)
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("opacity", 1)
             .selection(),
           update => update
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("x", function (d) { return x_horizontal(d.year) + 2 })
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })
             .text(function (d) { return d.text })
@@ -240,11 +240,11 @@ class ScrollerVis {
             .attr("stroke", "white")
             .attr("stroke-dasharray", "8,8")
             .attr("opacity", 0)
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("opacity", 1)
             .selection(),
           update => update
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("x1", function (d) { return x_horizontal(d.year) })
             .attr("x2", function (d) { return x_horizontal(d.year) })
             .attr("y1", function (d, i) { return vis.height * 0.2 - i * 30 })
@@ -268,11 +268,11 @@ class ScrollerVis {
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })
             .text(function (d) { return d.text })
             .attr("opacity", 0)
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("opacity", 1)
             .selection(),
           update => update
-            .transition().duration(1000)
+            .transition().duration(500)
             .attr("x", function (d) { return x_horizontal(d.year) + 2 })
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })
             .text(function (d) { return d.text })
@@ -283,7 +283,6 @@ class ScrollerVis {
             .remove()
         )
     }
-
   }
 
   step4(direction) {
@@ -380,7 +379,7 @@ class ScrollerVis {
         .attr("visibility", "hidden")
       vis.x_axis = d3.axisLeft(y_vertical).ticks(5);
       horizontal_svg.selectAll(".myXaxis")
-        .attr("transform", `translate(20,10)`)
+        .attr("transform", `translate(15,0)`)
       horizontal_svg.selectAll(".myXaxis").transition()
         .call(vis.x_axis)
         .selectAll("text")
@@ -389,10 +388,10 @@ class ScrollerVis {
         .style("font-size", "10px")
         .style("font-family", "Montserrat");
     }
-    else {
+    else if (direction == "up") {
       d3.selectAll(".myXaxis, .tick line")
         .attr("visibility", "visible")
-      vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(15);
+      vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
       horizontal_svg.selectAll(".myXaxis")
         .attr("transform", `translate(10, ` + vis.height + `)`)
       horizontal_svg.selectAll(".myXaxis").transition()

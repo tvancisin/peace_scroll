@@ -18,10 +18,10 @@ d3.selectAll(".graphic__prose, .graphic__prose__1")
   .style("width", width20 + "px")
   .style("left", width80 + "px")
 d3.selectAll("#separator")
-  .style("width", width80 + "px")
+  .style("width", width100 + "px")
   .style("height", height100 + "px")
 d3.selectAll("#map")
-  .style("width", width100 + "px")
+  .style("width", width100 + 50 + "px")
   .style("height", height100 + "px")
 d3.selectAll(".graphic__vis__1")
   .style("width", width100 + "px")
@@ -69,7 +69,10 @@ map.on('load', () => {
     'source': 'states',
     'layout': {},
     'paint': {
-      'fill-color': '#7B8AD6',
+      'fill-color': ['match', ['get', 'ADMIN'],
+      "Russia", 'white',
+      '#7B8AD6',
+    ],
       'fill-opacity': 0.7
     }
   });
@@ -96,7 +99,7 @@ Promise.all([
   let un = the_three_group[0][1],
     uk = the_three_group[1][1],
     ru = the_three_group[2][1];
-
+  console.log(ru);
   d3.select('#dropdown_country').on("change", function () {
     let selected = d3.select(this).property('value')
     console.log(selected);
