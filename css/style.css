@@ -53,13 +53,18 @@ body::-webkit-scrollbar-thumb:hover {
 #separator {
   position: relative;
   display: flex;
-  /* left: 120px; */
-  /* padding: 20px; */
   background-image: url("../img/ru.PNG");
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-size: contain; 
   background-position: center;  
+  background-color: black;
+}
+
+#separator1 {
+  position: relative;
+  display: flex;
+  left: 120px;
   background-color: black;
 }
 
@@ -95,7 +100,7 @@ body::-webkit-scrollbar-thumb:hover {
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
-  height: 500px;
+  height: 1000px;
 }
 
 .graphic__vis svg {
@@ -136,15 +141,21 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 #vik {
-  width: 50%;
+  /* width: 20%; */
   float: rightleft;
-  padding: 10px;
-  border: 2px solid red;
+  margin: auto;
+  padding: 5px;
+  /* border: 2px solid red; */
 }
 
 #mage {
   position: relative;
-  height: 400px;
+  height: 420px;
+  transition: transform .2s; /* Animation */
+}
+
+#mage:hover {
+  transform: scale(1.1); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
 }
 
 .tick line {
@@ -164,7 +175,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 #map {
   position: relative;
-  left:-50px
+  left:-95px
 }
 
 .trigger {
@@ -193,4 +204,10 @@ body::-webkit-scrollbar-thumb:hover {
   width: 200px;
   height: 70px;
   background-color: black;
+}
+
+#break {
+  position: relative;
+  top:0px;
+  height: 200px;
 }
