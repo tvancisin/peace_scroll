@@ -141,17 +141,18 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 #vik {
-  /* width: 20%; */
   float: rightleft;
   margin: auto;
-  padding: 5px;
-  /* border: 2px solid red; */
+  /* padding-top: 10px; */
 }
 
 #mage {
   position: relative;
   height: 420px;
   transition: transform .2s; /* Animation */
+  -webkit-box-shadow: 0 0 8px 1px #868686;
+  -moz-box-shadow: 0 0 8px 1px #868686;
+  box-shadow: 0 0 8px 1px #868686;
 }
 
 #mage:hover {

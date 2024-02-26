@@ -73,12 +73,25 @@ map.on('load', () => {
     'layout': {},
     'paint': {
       'fill-color': ['match', ['get', 'ADMIN'],
-      "Russia", 'white',
-      '#7B8AD6',
-    ],
-      'fill-opacity': 0.7
+        "Russia", 'white',
+        '#7B8AD6',
+      ],
+      'fill-opacity': 1
     }
   });
+
+
+  map.addLayer({
+    'id': 'outline',
+    'type': 'line',
+    'source': 'states',
+    'layout': {},
+    'paint': {
+      'line-color': '#172436',
+      'line-width': 0.5
+    }
+  });
+
 });
 
 Promise.all([
