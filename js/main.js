@@ -65,7 +65,6 @@ map.on('load', () => {
     'generateId': true //This ensures that all features have unique IDs
   });
 
-  // Add a new layer to visualize the polygon.
   map.addLayer({
     'id': 'state-fills',
     'type': 'fill',
@@ -79,7 +78,6 @@ map.on('load', () => {
       'fill-opacity': 1
     }
   });
-
 
   map.addLayer({
     'id': 'outline',
