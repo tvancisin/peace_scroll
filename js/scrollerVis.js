@@ -1,4 +1,5 @@
 let hovno = 0;
+
 //context dates
 const context_data = [{ year: "1991/07/10", text: "Boris Yeltsin" }, { year: "2000/05/07", text: "Vladimir Putin" },
 { year: "2008/05/07", text: "Dmitry Medvedev" }, { year: "2012/05/07", text: "Vladimir Putin" }]
@@ -6,11 +7,11 @@ let context_parser = d3.timeParse("%Y/%m/%d");
 context_data.forEach(function (d) {
   d.year = context_parser(d.year)
 })
-
+// soviet countries
 const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
   "Kazakhstan", "Kyrgyzstan", "Latvia", "Lithuania", "Moldova", "Russia",
   "Tajikistan", "Turkmenistan", "Ukraine", "Uzbekistan"];
-
+// middle east countries
 const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
@@ -205,8 +206,8 @@ class ScrollerVis {
             .attr("class", "context_text")
             .attr('text-anchor', 'start')
             .attr("fill", "white")
-            .attr("fill-opacity", 0.7)
-            .attr("font-size", "16px")
+            .attr("fill-opacity", 1)
+            .attr("font-size", "20px")
             .attr("x", function (d) { return x_horizontal(d.year) + 2 })
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })
             .text(function (d) { return d.text })
@@ -349,7 +350,7 @@ class ScrollerVis {
             .attr("class", "context_text")
             .attr('text-anchor', 'start')
             .attr("fill", "white")
-            .attr("fill-opacity", 0.7)
+            .attr("fill-opacity", 1)
             .attr("font-size", "16px")
             .attr("x", function (d) { return x_horizontal(d.year) + 2 })
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })
@@ -467,7 +468,7 @@ class ScrollerVis {
             .attr("class", "context_text")
             .attr('text-anchor', 'start')
             .attr("fill", "white")
-            .attr("fill-opacity", 0.7)
+            .attr("fill-opacity", 1)
             .attr("font-size", "20px")
             .attr("x", function (d) { return x_horizontal(d.year) + 2 })
             .attr("y", function (d, i) { return vis.height * 0.2 - i * 30 })

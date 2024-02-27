@@ -1,9 +1,7 @@
 body {
   color: white;
   font-family: 'Montserrat';
-  /* background-color: #0F1826; */
   background-color: black;
-
 }
 
 #header {
@@ -156,11 +154,11 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 #mage:hover {
-  transform: scale(1.1); /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+  transform: scale(1.1); 
 }
 
 .tick line {
-  stroke: gray;
+  stroke: white;
   stroke-opacity: 0.3;
 }
 
@@ -169,6 +167,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 #ch1_div {
+  font-size: 24px;
   text-align: center;
   margin: auto;
   text-align: center;
