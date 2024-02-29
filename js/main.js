@@ -45,7 +45,6 @@ let horizontal_svg = d3.select("#visualization")
 let x_horizontal = d3.scaleTime()
   .range([0, width])
 
-
 //mapbox
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
 const map = new mapboxgl.Map({
@@ -231,7 +230,7 @@ Promise.all([
 
     //populating the text
     let actor = data[0].global_actor;
-    d3.select("#title_header").text(actor + " as a Global Peace Actor")
+    d3.select("#title_header").text(actor + " as a Peace Agreement Signatory")
     let num_pp = d3.groups(data, (d) => d.PPName).length
     d3.select("#num_pp").text(num_pp)
     let num_agt = d3.groups(data, (d) => d.Agt).length
@@ -252,11 +251,9 @@ Promise.all([
 
     d3.select(".three").html(`Over the last decade, Russia increasingly acts
     as a signatory on agreements related to conflicts in Syria and, reflecting
-    its increased engagements in Africa, Libya, and the Central African Republic.
+    its increased engagements in Africa: Libya, and the Central African Republic.
     These are internationalised conflicts, where Russia is also militarily
     engaged in supporting conflict parties. `)
-
-
 
     //   d3.select(".one").html(actor + ` is a signatory in the PA-X Agreements database
     // as it has been a signatory to ` + num_agt + ` agreements across ` + num_pp +
