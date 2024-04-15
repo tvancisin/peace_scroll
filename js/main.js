@@ -1,9 +1,14 @@
+//scroll to top when page refreshed
+window.onbeforeunload = function () {
+  window.scrollTo(0, 0);
+}
+//get current width and height of the screen
 const width100 = window.innerWidth - 10,
   height100 = window.innerHeight,
   width80 = width100 * 0.80,
   width20 = width100 * 0.20,
   width50 = width100 * 0.5;
-
+//margins for visualization
 const margin = { top: 45, right: 10, bottom: 0, left: 10 },
   height = height100 - margin.top - margin.bottom,
   width = width80 - margin.top - margin.bottom;
@@ -30,26 +35,28 @@ d3.selectAll(".graphic__vis__1")
   .style("width", width100 + "px")
   .style("left", 0 + "px")
 d3.selectAll(".trigger").style("padding-top", height100 / 2 + "px")
+d3.selectAll("#mage")
+  .style("width", width100/5 + "px")
 
 //scaling vertical axis
 let y_vertical = d3.scaleTime()
   .range([10, height - 10])
-
+//scaling horizontal axis
 let horizontal_svg = d3.select("#visualization")
   .attr("class", "horizontal_bee")
   .attr("width", width)
   .attr("height", height)
   .append("g")
   .attr("transform", `translate(10,${margin.top})`);
-//scaling horizontal axis
 let x_horizontal = d3.scaleTime()
   .range([0, width])
+//contex line g
+let line = horizontal_svg.append("g")
 
 //mapbox
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
 const map = new mapboxgl.Map({
   container: 'map',
-  // style: 'mapbox://styles/mapbox/dark-v11',
   style: 'mapbox://styles/sashagaribaldy/cls4l3gpq003k01r0fc2s04tv',
   center: [60.137343, 40.137451],
   zoom: 2,
@@ -88,67 +95,6 @@ map.on('load', () => {
       'line-width': 0.5
     }
   });
-
-  const secondsPerRevolution = 120;
-  // Above zoom level 5, do not rotate.
-  const maxSpinZoom = 5;
-  // Rotate at intermediate speeds between zoom levels 3 and 5.
-  const slowSpinZoom = 3;
-
-  let userInteracting = false;
-  let spinEnabled = true;
-
-  function spinGlobe() {
-    const zoom = map.getZoom();
-    if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
-      let distancePerSecond = 360 / secondsPerRevolution;
-      if (zoom > slowSpinZoom) {
-        // Slow spinning at higher zooms
-        const zoomDif =
-          (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
-        distancePerSecond *= zoomDif;
-      }
-      const center = map.getCenter();
-      center.lng -= distancePerSecond;
-      // Smoothly animate the map over one second.
-      // When this animation is complete, it calls a 'moveend' event.
-      map.easeTo({ center, duration: 1000, easing: (n) => n });
-    }
-  }
-
-  // Pause spinning on interaction
-  map.on('mousedown', () => {
-    userInteracting = true;
-  });
-
-  // Restart spinning the globe when interaction is complete
-  map.on('mouseup', () => {
-    userInteracting = false;
-    spinGlobe();
-  });
-
-  // These events account for cases where the mouse has moved
-  // off the map, so 'mouseup' will not be fired.
-  map.on('dragend', () => {
-    userInteracting = false;
-    spinGlobe();
-  });
-  map.on('pitchend', () => {
-    userInteracting = false;
-    spinGlobe();
-  });
-  map.on('rotateend', () => {
-    userInteracting = false;
-    spinGlobe();
-  });
-
-  // When animation is complete, start spinning if there is no ongoing interaction
-  map.on('moveend', () => {
-    spinGlobe();
-  });
-
-  spinGlobe();
-
 });
 
 Promise.all([
@@ -172,7 +118,7 @@ Promise.all([
   let un = the_three_group[0][1],
     uk = the_three_group[1][1],
     ru = the_three_group[2][1];
-  console.log(ru);
+
   d3.select('#dropdown_country').on("change", function () {
     let selected = d3.select(this).property('value')
     console.log(selected);

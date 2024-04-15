@@ -146,7 +146,6 @@ body::-webkit-scrollbar-thumb:hover {
 
 #mage {
   position: relative;
-  height: 420px;
   transition: transform .2s; /* Animation */
   -webkit-box-shadow: 0 0 8px 1px #868686;
   -moz-box-shadow: 0 0 8px 1px #868686;
