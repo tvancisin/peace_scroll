@@ -94,7 +94,7 @@ const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
 const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
-  constructor(_config, _raw, _year, _array) {
+  constructor(_config, _raw, _year, _array, _agt_type) {
     this.config = {
       another: _config.storyElement,
       map: _config.mapElement,
@@ -108,6 +108,7 @@ class ScrollerVis {
     this.raw_data = _raw;
     this.year_division = _year;
     this.country_array = _array;
+    this.agt_type_group = _agt_type
     this.initVis();
   }
 
@@ -116,11 +117,13 @@ class ScrollerVis {
     vis.width = vis.config.vis_width - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
 
-    vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
+
+    //BEESWARM VISUALIZATION
+    // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
+    vis.x_axis = d3.axisBottom(x_horizontal);
     horizontal_svg.append("g")
       .attr("transform", `translate(10, ` + vis.height + `)`)
       .attr("class", "myXaxis")
-
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
@@ -196,7 +199,7 @@ class ScrollerVis {
           return first_word;
         })
         .attr('r', 10)
-        .style('fill', "#7B8AD6")
+        .style("fill", "#7B8AD6")
         .style("stroke", "black")
         .style("strokewidth", 0.5)
 
@@ -313,9 +316,12 @@ class ScrollerVis {
         .style("font-family", "Montserrat");
     }
     else if (direction == "up") {
+      d3.selectAll(".polyline, .polytext, .slices").remove()
       d3.selectAll(".syria").style("fill", "white")
       d3.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
-      vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
+      //redraw x axis to horizontal
+      // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
+      vis.x_axis = d3.axisBottom(x_horizontal)
       horizontal_svg.selectAll(".myXaxis")
         .attr("transform", `translate(10, ` + vis.height + `)`)
       horizontal_svg.selectAll(".myXaxis").transition()
@@ -361,6 +367,74 @@ class ScrollerVis {
   step5(direction) {
     const vis = this;
     console.log("step5", direction);
+
+    if (direction == "down") {
+      // data
+      const data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
+      // Compute the position of each group on the pie:
+      const pie = d3.pie()
+        .sort(null) // Do not sort group by size
+        .value(d => d[1])
+      const data_ready = pie(Object.entries(data))
+      // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
+      piechart_svg
+        .selectAll('.slices')
+        .data(data_ready)
+        .join('path')
+        .attr("class", "slices")
+        .attr('fill', d => color(d.data[1]))
+        .attr("stroke", "black")
+        .style("stroke-width", "4px")
+        .style("opacity", 0.7)
+        .transition().duration(1000)
+        .attrTween('d', function (d) {
+          console.log(d);
+          const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+          return function (t) {
+            return arc(interpolate(t));
+          };
+        })
+      // Add the polylines between chart and labels:
+      piechart_svg
+        .selectAll('.polyline')
+        .data(data_ready)
+        .join('polyline')
+        .attr("stroke", "white")
+        .attr("class", "polyline")
+        .style("fill", "none")
+        .attr("stroke-width", 1)
+        .attr('points', function (d) {
+          const posA = arc.centroid(d) // line insertion in the slice
+          const posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
+          const posC = outerArc.centroid(d); // Label position = almost the same as posB
+          const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
+          posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+          return [posA, posB, posC]
+        })
+
+      // Add the polylines between chart and labels:
+      piechart_svg
+        .selectAll('.polytext')
+        .data(data_ready)
+        .join('text')
+        .attr("class", "polytext")
+        .text(d => d.data[0])
+        .attr('transform', function (d) {
+          const pos = outerArc.centroid(d);
+          const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+          pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+          return `translate(${pos})`;
+        })
+        .style('text-anchor', function (d) {
+          const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+          return (midangle < Math.PI ? 'start' : 'end')
+        })
+        .style("fill", "white")
+    }
+    else if (direction == "up") {
+      console.log("hovno");
+    }
+
 
   }
 

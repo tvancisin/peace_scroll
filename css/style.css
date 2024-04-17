@@ -59,25 +59,36 @@ body::-webkit-scrollbar-thumb:hover {
   background-color: black;
 }
 
+#separator05,
 #separator1 {
   position: relative;
   display: flex;
-  left: 120px;
-  background-color: black;
+  /* background-image: url("../img/ru.PNG"); */
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: contain; 
+  background-position: center;  
+  background-color: black;0
 }
 
 .graphic,
+.graphic05,
 .graphic1 {
   position: relative;
   width: 100%;
 }
 
 .graphic__prose,
+.graphic__prose__05,
 .graphic__prose__1 {
   position: relative;
-  font-size: 14px;
+  font-size: 16px;
   z-index: 99;
   background-color: rgba(0, 0, 0, 0.5);
+  box-shadow: -1.5px 0px 5px -3px #616161;
+
+  
+  /* box-shadow: rgba(214, 214, 214, 0.253) 0px 4px 12px; */
 }
 
 .graphic__vis {
@@ -92,6 +103,7 @@ body::-webkit-scrollbar-thumb:hover {
   z-index: 99;
 }
 
+.graphic__vis__05,
 .graphic__vis__1 {
   position: absolute;
   top: 0;
@@ -102,7 +114,14 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .graphic__vis svg {
-  /* border: 1px dashed white; */
+  top: 50%;
+  position: relative;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.graphic__vis__05 svg {
   top: 50%;
   position: relative;
   -webkit-transform: translateY(-50%);
@@ -111,7 +130,6 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .graphic__vis__1 svg {
-  border: 1px dashed white;
   top: 50%;
   position: relative;
   -webkit-transform: translateY(-50%);
@@ -122,8 +140,16 @@ body::-webkit-scrollbar-thumb:hover {
 .graphic__vis.is-fixed {
   position: fixed;
 }
-
 .graphic__vis.is-bottom {
+  top: auto;
+  bottom: 0;
+}
+
+.graphic__vis__05.is-fixed {
+  position: fixed;
+  top: 5px;
+}
+.graphic__vis__05.is-bottom {
   top: auto;
   bottom: 0;
 }
@@ -132,7 +158,6 @@ body::-webkit-scrollbar-thumb:hover {
   position: fixed;
   top: 5px;
 }
-
 .graphic__vis__1.is-bottom {
   top: auto;
   bottom: 0;
@@ -165,12 +190,14 @@ body::-webkit-scrollbar-thumb:hover {
   width: 600px;
 }
 
-#ch1_div {
+#ch1_div,
+#ch2_div {
   font-size: 24px;
   text-align: center;
   margin: auto;
   text-align: center;
 }
+
 
 #map {
   position: relative;
