@@ -3,7 +3,7 @@ window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
 //get current width and height of the screen
-const width100 = window.innerWidth - 10,
+const width100 = window.innerWidth - 15,
   height100 = window.innerHeight,
   width80 = width100 * 0.80,
   width20 = width100 * 0.20,
@@ -12,21 +12,21 @@ const width100 = window.innerWidth - 10,
 //margins for visualization
 const margin = { top: 45, right: 10, bottom: 0, left: 10 },
   height = height100 - margin.top - margin.bottom,
-  width = width80 - margin.top - margin.bottom;
+  width = width100 - margin.top - margin.bottom;
 
 //adjusting width and height for current screen
 d3.selectAll("#story")
   .style("width", width100 + "px")
 d3.selectAll(".graphic__vis, .graphic__vis__1, #visualization, #visualization1")
-  .style("width", width80 + "px")
+  .style("width", width100 + "px")
   .style("height", height100 + "px")
-d3.selectAll(".graphic__vis__05")
+d3.selectAll(".graphic__vis__05, .graphic__vis__075")
   .style("left", 140 + "px")
   .style("width", width70 + "px")
   .style("height", height100 + "px")
-d3.selectAll(".graphic__prose, .graphic__prose__05, .graphic__prose__1")
-  .style("width", width20 + "px")
-  .style("left", width80 + "px")
+d3.selectAll(".graphic__prose, .graphic__prose__05, .graphic__prose__075, .graphic__prose__1")
+  .style("width", width100 + "px")
+// .style("left", width80 + "px")
 d3.selectAll("#separator, #separator05")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
@@ -36,9 +36,10 @@ d3.selectAll("#separator1")
 d3.selectAll("#map")
   .style("width", width100 + 50 + "px")
   .style("height", height100 + "px")
-d3.selectAll(".trigger").style("padding-top", height100 / 2 + "px")
+// d3.selectAll(".trigger").style("padding-top", height100 / 2 + "px")
 d3.selectAll("#mage")
   .style("width", width100 / 5 + "px")
+d3.selectAll("p").style("width", width100 / 2 + "px")
 
 //BEESWARM VISUALIZATION
 //scaling vertical axis
@@ -56,15 +57,22 @@ let x_horizontal = d3.scaleTime()
 //contex line g
 let line = horizontal_svg.append("g")
 
-//PIECHART VISUALIZATION
-let piechart_svg = d3.select("#visualization05")
-  .attr("class", "barchart")
-  .attr("width", width70)
+//LINECHART VISUALIZATION
+let line_svg = d3.select("#visualization075")
+  .attr("width", width100 - 140)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(${width70 / 2},${height / 2})`);
+  .attr("transform", `translate(20,${margin.top})`);
+
+
+//DONUTCHART VISUALIZATION
+let piechart_svg = d3.select("#visualization05")
+  .attr("width", width100 - 140)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", `translate(${width100 / 2 - 140},${height / 2 + 35})`);
 // The arc generator
-const radius = Math.min(width, height) / 2 - 40
+const radius = Math.min(width100, height) / 2 - 50
 const arc = d3.arc()
   .innerRadius(radius * 0.5)         // This is the size of the donut hole
   .outerRadius(radius * 0.8)
@@ -76,7 +84,8 @@ const outerArc = d3.arc()
 // set the color scale
 const color = d3.scaleOrdinal()
   .domain(["Intrastate", "Interstate", "Mixed"])
-  .range(d3.schemeDark2);
+  // .range(d3.schemeDark2);
+  .range(["#4f4e4e", "#b2acab", "#726b68"]);
 
 
 //MAPBOX VISUALIZATION
@@ -200,6 +209,16 @@ Promise.all([
       minIndex = most.findIndex((d) => d[1].length === minObject),
       least_agt = most[minIndex];
 
+    //linechart data
+    let year_parser = d3.timeParse("%Y");
+    linechart_data = most.sort(function (x, y) {
+      return d3.ascending(x[0], y[0]);
+    })
+    linechart_data.forEach(function (d) {
+      d[0] = year_parser(d[0])
+
+    })
+
     //latest agreement
     const last_agt = year_division[year_division.length - 1]
     const found = last_agt[1].find(function (num) {
@@ -218,22 +237,23 @@ Promise.all([
     let yr_period = d3.extent(year_division, function (d) { return d[1][0][0]; })
     d3.select("#yr_active").text(yr_period[0].getUTCFullYear() + " - " + yr_period[1].getUTCFullYear())
 
-    d3.select(".one").html(`Russia is the second most prolific international third-party 
-    signatory of peace agreements between 1990-2022. It follows the United Nations, and 
-    comes ahead of the United States, the African Union, and the European Union.`)
+    d3.select(".p1").html(`Russia is the second most prolific international third-party
+      signatory of peace agreements between 1990-2022. It follows the United Nations, and
+      comes ahead of the United States, the African Union, and the European Union.`)
 
-    d3.select(".two").html(`Russia has most often acted as a third-party signatory 
-    in the 1990s. Majority of these agreements relate to the dissolution 
-    of the Soviet Union. Many of these are protracted conflicts, where 
-    Russia continues acting as a third-party signatory of peace agreements.`)
+    d3.select(".p2").html(`Russia has most often acted as a third-party signatory
+      in the 1990s. Majority of these agreements relate to the dissolution
+      of the Soviet Union. Many of these are protracted conflicts, where
+      Russia continues acting as a third - party signatory of peace agreements.`)
 
-    d3.select(".three").html(`Over the last decade, Russia increasingly acts
+
+    d3.select(".p3").html(`Over the last decade, Russia increasingly acts
     as a signatory on agreements related to conflicts in Syria and, reflecting
     its increased engagements in Africa: Libya, and the Central African Republic.
     These are internationalised conflicts, where Russia is also militarily
-    engaged in supporting conflict parties. `)
+    engaged in supporting conflict parties.`)
 
-    //   d3.select(".one").html(actor + ` is a signatory in the PA-X Agreements database
+    //   d3.select(".one").html(actor + ` is a signatory in the PA - X Agreements database
     // as it has been a signatory to ` + num_agt + ` agreements across ` + num_pp +
     //     ` peace processes since ` + yr_period[0].getUTCFullYear() + `. The most recent
     //  signed agreement was as ` + found[1][0].signatory_type + ` on ` + ` <a href=` +
@@ -245,7 +265,7 @@ Promise.all([
     //  They only signed one agreement.`)
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
-      year_division, the_array, agt_type_group);
+      year_division, the_array, agt_type_group, linechart_data);
   }
 
   prepare_data(ru, "Russia")
@@ -264,13 +284,16 @@ Promise.all([
   // select elements
   let graphicEl = document.querySelector('.graphic'),
     graphicEl05 = document.querySelector('.graphic05'),
+    graphicEl075 = document.querySelector('.graphic075'),
     graphicEl1 = document.querySelector('.graphic1'),
     graphicVisEl = graphicEl.querySelector('.graphic__vis'),
     graphicVisEl05 = graphicEl05.querySelector('.graphic__vis__05'),
+    graphicVisEl075 = graphicEl075.querySelector('.graphic__vis__075'),
     graphicVisEl1 = graphicEl1.querySelector('.graphic__vis__1'),
     triggerEls = selectionToArray(graphicEl.querySelectorAll('.trigger')),
-    triggerEls05 = selectionToArray(graphicEl05.querySelectorAll('.trigger'));
-  triggerEls1 = selectionToArray(graphicEl1.querySelectorAll('.trigger'));
+    triggerEls05 = selectionToArray(graphicEl05.querySelectorAll('.trigger')),
+    triggerEls075 = selectionToArray(graphicEl075.querySelectorAll('.trigger')),
+    triggerEls1 = selectionToArray(graphicEl1.querySelectorAll('.trigger'));
 
   // handle the fixed/static position of grahpic
   let toggle = function (fixed, bottom) {
@@ -288,6 +311,15 @@ Promise.all([
 
     if (bottom) graphicVisEl05.classList.add('is-bottom')
     else graphicVisEl05.classList.remove('is-bottom')
+  }
+
+  // handle the fixed/static position of grahpic
+  let toggle075 = function (fixed, bottom) {
+    if (fixed) graphicVisEl075.classList.add('is-fixed')
+    else graphicVisEl075.classList.remove('is-fixed')
+
+    if (bottom) graphicVisEl075.classList.add('is-bottom')
+    else graphicVisEl075.classList.remove('is-bottom')
   }
 
   // handle the fixed/static position of grahpic
@@ -316,7 +348,7 @@ Promise.all([
         // tell our graphic to update with a specific step
         // graphic.update(nextStep)
       },
-      offset: '30%',  // trigger halfway up the viewport
+      offset: '10%',  // trigger halfway up the viewport
     })
   })
 
@@ -337,7 +369,28 @@ Promise.all([
         // tell our graphic to update with a specific step
         // graphic.update(nextStep)
       },
-      offset: '30%',  // trigger halfway up the viewport
+      offset: '10%',  // trigger halfway up the viewport
+    })
+  })
+
+  // setup a waypoint trigger for each trigger element
+  let waypoints075 = triggerEls075.map(function (el) {
+    // get the step, cast as number					
+    let step = +el.getAttribute('data-step')
+
+    return new Waypoint({
+      element: el, // our trigger element
+      handler: function (direction) {
+        // if the direction is down then we use that number,
+        // else, we want to trigger the previous one
+        var nextStep = direction === 'down' ? step : Math.max(0, step)
+        console.log(nextStep);
+        scrollerVis.goToStep(nextStep, direction);
+
+        // tell our graphic to update with a specific step
+        // graphic.update(nextStep)
+      },
+      offset: '10%',  // trigger halfway up the viewport
     })
   })
 
@@ -358,7 +411,7 @@ Promise.all([
         // tell our graphic to update with a specific step
         // graphic.update(nextStep)
       },
-      offset: '30%',  // trigger halfway up the viewport
+      offset: '10%',  // trigger halfway up the viewport
     })
   })
 
@@ -398,6 +451,26 @@ Promise.all([
       let fixed = direction === 'up'
       let bottom = !fixed
       toggle05(fixed, bottom)
+    },
+    offset: 'bottom-in-view',
+  })
+
+  // enter (top) / exit (bottom) graphic (toggle fixed position)
+  const enterWaypoint075 = new Waypoint({
+    element: graphicEl075,
+    handler: function (direction) {
+      let fixed = direction === 'down'
+      let bottom = false
+      toggle075(fixed, bottom)
+    },
+  })
+
+  const exitWaypoint075 = new Waypoint({
+    element: graphicEl075,
+    handler: function (direction) {
+      let fixed = direction === 'up'
+      let bottom = !fixed
+      toggle075(fixed, bottom)
     },
     offset: 'bottom-in-view',
   })

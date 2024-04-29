@@ -37,15 +37,15 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: black;
 }
 
 body::-webkit-scrollbar-thumb {
-  background: #888;
+  background: #ffffff;
 }
 
 body::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #a90000;
 }
 
 #separator {
@@ -73,6 +73,7 @@ body::-webkit-scrollbar-thumb:hover {
 
 .graphic,
 .graphic05,
+.graphic075,
 .graphic1 {
   position: relative;
   width: 100%;
@@ -80,15 +81,30 @@ body::-webkit-scrollbar-thumb:hover {
 
 .graphic__prose,
 .graphic__prose__05,
+.graphic__prose__075,
 .graphic__prose__1 {
   position: relative;
   font-size: 16px;
   z-index: 99;
-  background-color: rgba(0, 0, 0, 0.5);
-  box-shadow: -1.5px 0px 5px -3px #616161;
+  /* background-color: rgba(0, 0, 0, 0.5); */
+  /* box-shadow: -1.5px 0px 5px -3px #616161; */
+}
 
-  
-  /* box-shadow: rgba(214, 214, 214, 0.253) 0px 4px 12px; */
+.trigger {
+  padding: 10px;
+  text-align: center;
+  height: 1500px;
+  font-size: 16px;
+}
+
+p {
+  position: relative;
+  margin: auto;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  font-size: 20px;
+  /* box-shadow: 0px 1px 2px #232323, 0px -1px 2px #232323; */
 }
 
 .graphic__vis {
@@ -104,6 +120,7 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .graphic__vis__05,
+.graphic__vis__075,
 .graphic__vis__1 {
   position: absolute;
   top: 0;
@@ -122,6 +139,14 @@ body::-webkit-scrollbar-thumb:hover {
 }
 
 .graphic__vis__05 svg {
+  top: 50%;
+  position: relative;
+  -webkit-transform: translateY(-50%);
+  -moz-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+.graphic__vis__075 svg {
   top: 50%;
   position: relative;
   -webkit-transform: translateY(-50%);
@@ -150,6 +175,15 @@ body::-webkit-scrollbar-thumb:hover {
   top: 5px;
 }
 .graphic__vis__05.is-bottom {
+  top: auto;
+  bottom: 0;
+}
+
+.graphic__vis__075.is-fixed {
+  position: fixed;
+  top: 5px;
+}
+.graphic__vis__075.is-bottom {
   top: auto;
   bottom: 0;
 }
@@ -204,9 +238,6 @@ body::-webkit-scrollbar-thumb:hover {
   left:-95px
 }
 
-.trigger {
-  padding: 10px;
-}
 
 #hover_description {
   position: absolute;

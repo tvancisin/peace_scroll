@@ -2,10 +2,13 @@ let hovno = 0;
 let context_parser = d3.timeParse("%Y/%m/%d");
 let mousemove_function, mouseleave_function = null;
 let hoveredPolygonId = null;
+let path;
+const pie = d3.pie()
+  .sort(null) // Do not sort group by size
+  .value(d => d[1])
 
 // re-drawing context lines/text
 const drawContext = function (context, height) {
-
   line.selectAll(".context_line")
     .data(context)
     .join(
@@ -83,6 +86,32 @@ const drawContext = function (context, height) {
     )
 }
 
+const drawDonut = function (data, direction) {
+  const data_ready = pie(Object.entries(data))
+
+  if (direction == "down") {
+    path.data(data_ready).transition().duration(1000)
+      .attrTween('d', function (d) {
+        const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
+        this._current = interpolate(0);
+        return function (t) {
+          return arc(interpolate(t));
+        };
+      })
+  }
+  else if (direction == "up") {
+    path.data(data_ready)
+      .transition().duration(1000)
+      .attrTween('d', function (d) {
+        const interpolate = d3.interpolate(this._current, d);
+        this._current = d;
+        return function (t) {
+          return arc(interpolate(t));
+        };
+      });
+  }
+}
+
 //context dates
 const context_data = [{ year: "1991/07/10", text: "Boris Yeltsin" }, { year: "2000/05/07", text: "Vladimir Putin" },
 { year: "2008/05/07", text: "Dmitry Medvedev" }, { year: "2012/05/07", text: "Vladimir Putin" }]
@@ -94,11 +123,11 @@ const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
 const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
-  constructor(_config, _raw, _year, _array, _agt_type) {
+  constructor(_config, _raw, _year, _array, _agt_type, _line) {
     this.config = {
       another: _config.storyElement,
       map: _config.mapElement,
-      vis_width: width80,
+      vis_width: width100,
       vis_height: height100,
       margin: { top: 50, right: 10, bottom: 20, left: 10 },
       steps: ['step1', 'step2', 'step3', 'step4', 'step5', 'step6',
@@ -108,7 +137,8 @@ class ScrollerVis {
     this.raw_data = _raw;
     this.year_division = _year;
     this.country_array = _array;
-    this.agt_type_group = _agt_type
+    this.agt_type_group = _agt_type;
+    this.linechart = _line;
     this.initVis();
   }
 
@@ -116,7 +146,6 @@ class ScrollerVis {
     let vis = this;
     vis.width = vis.config.vis_width - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
-
 
     //BEESWARM VISUALIZATION
     // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
@@ -126,6 +155,87 @@ class ScrollerVis {
       .attr("class", "myXaxis")
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
+
+    //LINECHART VISUALIZATION
+    console.log(this.linechart);
+    // Add X axis --> it is a date format
+    const x = d3.scaleTime()
+      .domain(d3.extent(this.linechart, function (d) { return d[0]; }))
+      .range([0, vis.width-150]);
+
+    line_svg.append("g")
+      .attr("transform", `translate(0, ${vis.height - 50})`)
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(this.linechart, function (d) { return d[1].length; })])
+      .range([vis.height - 50, 0]);
+
+    line_svg.append("g")
+      .call(d3.axisLeft(y));
+    // Add the line
+    line_svg.append("path")
+      .datum(this.linechart)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .curve(d3.curveCatmullRom.alpha(0.2))
+        .x(function (d) { return x(d[0]) })
+        .y(function (d) { return y(d[1].length) })
+      )
+
+    //DONUT CHART
+    const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
+    const data_ready = pie(Object.entries(donut_data))
+    //prepare donut for drawing
+    path = piechart_svg
+      .selectAll('path')
+      .data(data_ready)
+      .join('path')
+      .attr("class", "slices")
+      .attr('fill', d => color(d.data[1]))
+      .attr("stroke", "black")
+      .style("stroke-width", "4px")
+      .style("opacity", 0.7)
+    // Add the polylines between chart and labels:
+    piechart_svg
+      .selectAll('.polyline')
+      .data(data_ready)
+      .join('polyline')
+      .attr("class", "polyline")
+      .style("fill", "none")
+      .attr("stroke-width", 1)
+      .attr('points', function (d) {
+        const posA = arc.centroid(d) // line insertion in the slice
+        const posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
+        const posC = outerArc.centroid(d); // Label position = almost the same as posB
+        const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
+        posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+        return [posA, posB, posC]
+      })
+      .style("stroke", "white")
+      .style("opacity", 0)
+    // Add the polylines between chart and labels:
+    piechart_svg
+      .selectAll('.polytext')
+      .data(data_ready)
+      .join('text')
+      .attr("class", "polytext")
+      .text(d => d.data[0])
+      .attr('transform', function (d) {
+        const pos = outerArc.centroid(d);
+        const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+        pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+        return `translate(${pos})`;
+      })
+      .style('text-anchor', function (d) {
+        const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
+        return (midangle < Math.PI ? 'start' : 'end')
+      })
+      .style("fill", "white")
+      .style("opacity", 0)
 
     window.scrollTo({ left: 0, top: 0, behavior: "auto" });
 
@@ -310,13 +420,12 @@ class ScrollerVis {
       horizontal_svg.selectAll(".myXaxis").transition()
         .call(vis.x_axis)
         .selectAll("text")
-        .attr("transform", "translate(0,-4)")
-        .style("text-anchor", "middle")
-        .style("font-size", "10px")
+        .attr("transform", "translate(0,-4)rotate(45)")
+        .style("text-anchor", "start")
+        .style("font-size", "12px")
         .style("font-family", "Montserrat");
     }
     else if (direction == "up") {
-      d3.selectAll(".polyline, .polytext, .slices").remove()
       d3.selectAll(".syria").style("fill", "white")
       d3.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
       //redraw x axis to horizontal
@@ -331,11 +440,11 @@ class ScrollerVis {
         .attr("transform", "translate(0,-4)")
         .style("fill", "white")
         .style("text-anchor", "middle")
-        .style("font-size", "12px")
+        .style("font-size", "14px")
         .style("font-family", "Montserrat");
 
       d3.selectAll(".graphic__vis, #visualization, #visualization1")
-        .style("width", width80 + "px")
+        .style("width", width100 + "px")
         .style("height", height100 + "px")
       //adjust domain
       x_horizontal.domain(d3.extent(vis.year_division, function (d) { return d[1][0][0]; }))
@@ -369,85 +478,36 @@ class ScrollerVis {
     console.log("step5", direction);
 
     if (direction == "down") {
-      // data
-      const data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
-      // Compute the position of each group on the pie:
-      const pie = d3.pie()
-        .sort(null) // Do not sort group by size
-        .value(d => d[1])
-      const data_ready = pie(Object.entries(data))
-      // Build the pie chart: Basically, each part of the pie is a path that we build using the arc function.
-      piechart_svg
-        .selectAll('.slices')
-        .data(data_ready)
-        .join('path')
-        .attr("class", "slices")
-        .attr('fill', d => color(d.data[1]))
-        .attr("stroke", "black")
-        .style("stroke-width", "4px")
-        .style("opacity", 0.7)
-        .transition().duration(1000)
-        .attrTween('d', function (d) {
-          console.log(d);
-          const interpolate = d3.interpolate({ startAngle: 0, endAngle: 0 }, d);
-          return function (t) {
-            return arc(interpolate(t));
-          };
-        })
-      // Add the polylines between chart and labels:
-      piechart_svg
-        .selectAll('.polyline')
-        .data(data_ready)
-        .join('polyline')
-        .attr("stroke", "white")
-        .attr("class", "polyline")
-        .style("fill", "none")
-        .attr("stroke-width", 1)
-        .attr('points', function (d) {
-          const posA = arc.centroid(d) // line insertion in the slice
-          const posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
-          const posC = outerArc.centroid(d); // Label position = almost the same as posB
-          const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
-          posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
-          return [posA, posB, posC]
-        })
-
-      // Add the polylines between chart and labels:
-      piechart_svg
-        .selectAll('.polytext')
-        .data(data_ready)
-        .join('text')
-        .attr("class", "polytext")
-        .text(d => d.data[0])
-        .attr('transform', function (d) {
-          const pos = outerArc.centroid(d);
-          const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
-          pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
-          return `translate(${pos})`;
-        })
-        .style('text-anchor', function (d) {
-          const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
-          return (midangle < Math.PI ? 'start' : 'end')
-        })
-        .style("fill", "white")
+      const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
+      drawDonut(donut_data, direction)
+      d3.selectAll(".polyline, .polytext").transition().style("opacity", 1)
     }
     else if (direction == "up") {
-      console.log("hovno");
+      const zero_data = { Interstate: 0, Mixed: 0, Intrastate: 0 }
+      drawDonut(zero_data, direction)
+      d3.selectAll(".polyline, .polytext").transition().style("opacity", 0)
     }
-
-
   }
 
   step6(direction) {
     const vis = this;
     console.log("step6", direction);
-
   }
 
   step7(direction) {
     const vis = this;
     console.log("step7", direction);
+    if (direction == "down") {
+      const zero_data = { Interstate: 0, Mixed: 0, Intrastate: 0 }
+      drawDonut(zero_data, "up")
+      d3.selectAll(".polyline, .polytext").transition().style("opacity", 0)
+    }
+    else if (direction == "up") {
+      const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
+      drawDonut(donut_data, "down")
+      d3.selectAll(".polyline, .polytext").transition().style("opacity", 1)
 
+    }
   }
 
   step8(direction) {
@@ -459,6 +519,12 @@ class ScrollerVis {
   step9(direction) {
     const vis = this;
     console.log("step9", direction);
+
+  }
+
+  step10(direction) {
+    const vis = this;
+    console.log("step10", direction);
 
   }
 
