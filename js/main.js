@@ -137,35 +137,53 @@ Promise.all([
   d3.json("data/russia.json"),
   d3.csv("data/all_update.csv"),
   d3.csv("data/loc_correction.csv"),
+  d3.csv("data/agts_with_rus_uk_un_china.csv"),
 ]).then(function (files) {
-  //change agtid to number
-  files[1].forEach(function (d) {
-    d.AgtId = Number(d.AgtId.substring(0, d.AgtId.length - 2));
-  })
   //change date format to GMT
   let parser = d3.timeParse("%d/%m/%Y");
-  //parse all dates
-  files[1].forEach(function (d) {
+  //change id's to numbers
+  files[3].forEach(function (d) {
+    d.AgtId = +d.AgtId 
     d.dat = d.date
     d.date = parser(d.date)
   })
   //divide into the three actors
-  let the_three_group = d3.groups(files[1], (d) => d.global_actor);
-  let un = the_three_group[0][1],
-    uk = the_three_group[1][1],
-    ru = the_three_group[2][1];
+  let three_group = d3.groups(files[3], (d) => d.global_actor),
+  russia = three_group[0][1],
+  united_kingdom = three_group[1][1],
+  united_nations = three_group[2][1],
+  china = three_group[3][1];
+
+  // //change agtid to number
+  // files[1].forEach(function (d) {
+  //   d.AgtId = Number(d.AgtId.substring(0, d.AgtId.length - 2));
+  // })
+  // //parse all dates
+  // files[1].forEach(function (d) {
+  //   d.dat = d.date
+  //   d.date = parser(d.date)
+  // })
+  // //divide into the three actors
+  // let the_three_group = d3.groups(files[1], (d) => d.global_actor);
+  // let un = the_three_group[0][1],
+  //   uk = the_three_group[1][1],
+  //   ru = the_three_group[2][1];
+  //   console.log(ru);
 
   d3.select('#dropdown_country').on("change", function () {
     let selected = d3.select(this).property('value')
     console.log(selected);
     if (selected == "Russia") {
-      prepare_data(ru, "Russia")
+      prepare_data(russia, "Russia")
     }
     else if (selected == "United Kingdom") {
-      prepare_data(uk, "United Kingdom")
+      prepare_data(united_kingdom, "United Kingdom")
     }
     else if (selected == "United Nations") {
-      prepare_data(un, "United Nations")
+      prepare_data(united_nations, "United Nations")
+    }
+    else if (selected == "China") {
+      prepare_data(china, "United Nations")
     }
   })
 
@@ -173,6 +191,7 @@ Promise.all([
   const prepare_data = function (data, selected_actor) {
     //group by agreements
     let agt_group = d3.groups(data, d => d.AgtId)
+    console.log(agt_group);
     //group by agreement type
     let agt_type_group = d3.groups(agt_group, d => d[1][0].agt_type)
 
@@ -268,7 +287,7 @@ Promise.all([
       year_division, the_array, agt_type_group, linechart_data);
   }
 
-  prepare_data(ru, "Russia")
+  prepare_data(russia, "Russia")
 
   // let scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data_for_scroll, year_division, the_array);
   // helper function to map over dom selection

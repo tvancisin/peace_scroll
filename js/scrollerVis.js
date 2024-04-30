@@ -156,35 +156,6 @@ class ScrollerVis {
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
-    //LINECHART VISUALIZATION
-    console.log(this.linechart);
-    // Add X axis --> it is a date format
-    const x = d3.scaleTime()
-      .domain(d3.extent(this.linechart, function (d) { return d[0]; }))
-      .range([0, vis.width-150]);
-
-    line_svg.append("g")
-      .attr("transform", `translate(0, ${vis.height - 50})`)
-      .call(d3.axisBottom(x));
-
-    // Add Y axis
-    const y = d3.scaleLinear()
-      .domain([0, d3.max(this.linechart, function (d) { return d[1].length; })])
-      .range([vis.height - 50, 0]);
-
-    line_svg.append("g")
-      .call(d3.axisLeft(y));
-    // Add the line
-    line_svg.append("path")
-      .datum(this.linechart)
-      .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.line()
-        .curve(d3.curveCatmullRom.alpha(0.2))
-        .x(function (d) { return x(d[0]) })
-        .y(function (d) { return y(d[1].length) })
-      )
 
     //DONUT CHART
     const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
@@ -513,6 +484,36 @@ class ScrollerVis {
   step8(direction) {
     const vis = this;
     console.log("step8", direction);
+    
+    //LINECHART VISUALIZATION
+    console.log(this.linechart);
+    // Add X axis --> it is a date format
+    const x = d3.scaleTime()
+      .domain(d3.extent(this.linechart, function (d) { return d[0]; }))
+      .range([0, vis.width-150]);
+
+    line_svg.append("g")
+      .attr("transform", `translate(0, ${vis.height - 50})`)
+      .call(d3.axisBottom(x));
+
+    // Add Y axis
+    const y = d3.scaleLinear()
+      .domain([0, d3.max(this.linechart, function (d) { return d[1].length; })])
+      .range([vis.height - 50, 0]);
+
+    line_svg.append("g")
+      .call(d3.axisLeft(y));
+    // Add the line
+    line_svg.append("path")
+      .datum(this.linechart)
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.line()
+        .curve(d3.curveCatmullRom.alpha(0.2))
+        .x(function (d) { return x(d[0]) })
+        .y(function (d) { return y(d[1].length) })
+      )
 
   }
 

@@ -256,6 +256,7 @@ p {
 }
 
 #actor_dropdown {
+  z-index: 99;
   position: absolute;
   top: 5px;
   width: 200px;
