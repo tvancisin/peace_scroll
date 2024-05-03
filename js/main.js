@@ -57,12 +57,19 @@ let x_horizontal = d3.scaleTime()
 //contex line g
 let line = horizontal_svg.append("g")
 
-//LINECHART VISUALIZATION
-let line_svg = d3.select("#visualization075")
-  .attr("width", width100 - 140)
+//MULTILINE VISUALIZATION
+let multiline_svg = d3.select("#visualization075")
+  .attr("width", width - 140)
   .attr("height", height)
   .append("g")
   .attr("transform", `translate(20,${margin.top})`);
+const multiline_x = d3.scaleLinear()
+  .range([0, width - 140]);
+const multiline_y = d3.scaleLinear()
+  .domain([0, 25])
+  .range([height - 50, 0]);
+const multiline_color = d3.scaleOrdinal()
+  .range(['#0092CC', '#FF3333', '#DCD427', '#f0F0F0'])
 
 
 //DONUTCHART VISUALIZATION
@@ -83,9 +90,9 @@ const outerArc = d3.arc()
   .outerRadius(radius * 0.9)
 // set the color scale
 const color = d3.scaleOrdinal()
-  .domain(["Intrastate", "Interstate", "Mixed"])
+  .domain(["Pre-negotiation", "Ceasefire", "Implementation", "Framework-substantive, partial", "Framework-substantive, comprehensive", "Renewal", "Other"])
   // .range(d3.schemeDark2);
-  .range(["#4f4e4e", "#b2acab", "#726b68"]);
+  .range(["rgb(255, 221, 123)", "rgb(255, 87, 51)", "rgb(255, 64, 129)", "rgb(61, 105, 62)", "white", "gray", "rgb(29, 0, 255)"]);
 
 
 //MAPBOX VISUALIZATION
@@ -143,57 +150,51 @@ Promise.all([
   let parser = d3.timeParse("%d/%m/%Y");
   //change id's to numbers
   files[3].forEach(function (d) {
-    d.AgtId = +d.AgtId 
+    d.AgtId = +d.AgtId
     d.dat = d.date
     d.date = parser(d.date)
   })
   //divide into the three actors
   let three_group = d3.groups(files[3], (d) => d.global_actor),
-  russia = three_group[0][1],
-  united_kingdom = three_group[1][1],
-  united_nations = three_group[2][1],
-  china = three_group[3][1];
+    russia = three_group[0][1],
+    united_kingdom = three_group[1][1],
+    united_nations = three_group[2][1],
+    china = three_group[3][1];
 
-  // //change agtid to number
-  // files[1].forEach(function (d) {
-  //   d.AgtId = Number(d.AgtId.substring(0, d.AgtId.length - 2));
-  // })
-  // //parse all dates
-  // files[1].forEach(function (d) {
-  //   d.dat = d.date
-  //   d.date = parser(d.date)
-  // })
-  // //divide into the three actors
-  // let the_three_group = d3.groups(files[1], (d) => d.global_actor);
-  // let un = the_three_group[0][1],
-  //   uk = the_three_group[1][1],
-  //   ru = the_three_group[2][1];
-  //   console.log(ru);
+  //data for multiline chart
+  const multiline_data = d3.groups(files[3], d => d.global_actor, d => +d.year, d => d.AgtId);
+  multiline_data.forEach(function (d) {
+    d[1].sort(function (x, y) {
+      return d3.ascending(x[0], y[0]);
+    })
+  })
 
+  //trigger preparedata function based on dropdown
   d3.select('#dropdown_country').on("change", function () {
     let selected = d3.select(this).property('value')
     console.log(selected);
     if (selected == "Russia") {
+      d3.select("#separator").style("background-image", "url(img/ru.PNG)")
       prepare_data(russia, "Russia")
     }
     else if (selected == "United Kingdom") {
+      d3.select("#separator").style("background-image", "url(img/uk.PNG)")
       prepare_data(united_kingdom, "United Kingdom")
     }
     else if (selected == "United Nations") {
+      d3.select("#separator").style("background-image", "url(img/un.png)")
       prepare_data(united_nations, "United Nations")
     }
     else if (selected == "China") {
+      d3.select("#separator").style("background-image", "url(img/ch.PNG)")
       prepare_data(china, "United Nations")
     }
   })
 
   let scrollerVis;
   const prepare_data = function (data, selected_actor) {
-    //group by agreements
-    let agt_group = d3.groups(data, d => d.AgtId)
-    console.log(agt_group);
-    //group by agreement type
-    let agt_type_group = d3.groups(agt_group, d => d[1][0].agt_type)
+    //group by agreement stage for DONUT
+    let agt_stage_group = d3.groups(data, d => d.stage_label, d => d.AgtId)
 
     //group by dates
     let year_division = d3.groups(data, d => d.AgtId, d => d.date)
@@ -227,16 +228,6 @@ Promise.all([
       minObject = d3.min(most, (d) => d[1].length),
       minIndex = most.findIndex((d) => d[1].length === minObject),
       least_agt = most[minIndex];
-
-    //linechart data
-    let year_parser = d3.timeParse("%Y");
-    linechart_data = most.sort(function (x, y) {
-      return d3.ascending(x[0], y[0]);
-    })
-    linechart_data.forEach(function (d) {
-      d[0] = year_parser(d[0])
-
-    })
 
     //latest agreement
     const last_agt = year_division[year_division.length - 1]
@@ -284,7 +275,7 @@ Promise.all([
     //  They only signed one agreement.`)
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
-      year_division, the_array, agt_type_group, linechart_data);
+      year_division, the_array, agt_stage_group, multiline_data);
   }
 
   prepare_data(russia, "Russia")
@@ -444,15 +435,15 @@ Promise.all([
     },
   })
 
-  // const exitWaypoint = new Waypoint({
-  //   element: graphicEl,
-  //   handler: function (direction) {
-  //     let fixed = direction === 'up'
-  //     let bottom = !fixed
-  //     toggle(fixed, bottom)
-  //   },
-  //   offset: 'bottom-in-view',
-  // })
+  const exitWaypoint = new Waypoint({
+    element: graphicEl,
+    handler: function (direction) {
+      let fixed = direction === 'up'
+      let bottom = !fixed
+      toggle(fixed, bottom)
+    },
+    offset: 'bottom-in-view',
+  })
 
   // enter (top) / exit (bottom) graphic (toggle fixed position)
   const enterWaypoint05 = new Waypoint({

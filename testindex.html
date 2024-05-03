@@ -30,11 +30,11 @@
     const sumstat = d3.group(files[0], d => d.name); // nest function allows to group the calculation per level of a factor
     // console.log(sumstat); 
 
-    files[1].forEach(function (d) {
-      d.date = d.date.slice(-4)
-    })
+    // files[1].forEach(function (d) {
+    //   d.date = d.date.slice(-4)
+    // })
 
-    const act_group = d3.groups(files[1], d => d.global_actor, d => d.date, d => d.AgtId);
+    const act_group = d3.groups(files[1], d => d.global_actor, d => +d.year, d => d.AgtId);
     // console.log(act_group); 
 
     act_group.forEach(function (d) {
@@ -58,7 +58,7 @@
 
     // Add X axis --> it is a date format
     const x = d3.scaleLinear()
-      .domain(d3.extent(files[1], function (d) { return d.date; }))
+      .domain(d3.extent(files[1], function (d) { return d.year; }))
       .range([0, width]);
     svg.append("g")
       .attr("transform", `translate(0, ${height})`)

@@ -54,8 +54,8 @@ body::-webkit-scrollbar-thumb:hover {
   background-image: url("../img/ru.PNG");
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-size: contain; 
-  background-position: center;  
+  background-size: contain;
+  background-position: center;
   background-color: black;
 }
 
@@ -66,9 +66,10 @@ body::-webkit-scrollbar-thumb:hover {
   /* background-image: url("../img/ru.PNG"); */
   background-repeat: no-repeat;
   background-attachment: fixed;
-  background-size: contain; 
-  background-position: center;  
-  background-color: black;0
+  background-size: contain;
+  background-position: center;
+  background-color: black;
+  0
 }
 
 .graphic,
@@ -86,6 +87,7 @@ body::-webkit-scrollbar-thumb:hover {
   position: relative;
   font-size: 16px;
   z-index: 99;
+  pointer-events: none;
   /* background-color: rgba(0, 0, 0, 0.5); */
   /* box-shadow: -1.5px 0px 5px -3px #616161; */
 }
@@ -165,6 +167,7 @@ p {
 .graphic__vis.is-fixed {
   position: fixed;
 }
+
 .graphic__vis.is-bottom {
   top: auto;
   bottom: 0;
@@ -174,6 +177,7 @@ p {
   position: fixed;
   top: 5px;
 }
+
 .graphic__vis__05.is-bottom {
   top: auto;
   bottom: 0;
@@ -183,6 +187,7 @@ p {
   position: fixed;
   top: 5px;
 }
+
 .graphic__vis__075.is-bottom {
   top: auto;
   bottom: 0;
@@ -192,6 +197,7 @@ p {
   position: fixed;
   top: 5px;
 }
+
 .graphic__vis__1.is-bottom {
   top: auto;
   bottom: 0;
@@ -205,19 +211,20 @@ p {
 
 #mage {
   position: relative;
-  transition: transform .2s; /* Animation */
+  transition: transform .2s;
+  /* Animation */
   -webkit-box-shadow: 0 0 8px 1px #868686;
   -moz-box-shadow: 0 0 8px 1px #868686;
   box-shadow: 0 0 8px 1px #868686;
 }
 
 #mage:hover {
-  transform: scale(1.1); 
+  transform: scale(1.1);
 }
 
 .tick line {
   stroke: white;
-  stroke-opacity: 0.3;
+  stroke-opacity: 0;
 }
 
 #para1 {
@@ -226,16 +233,23 @@ p {
 
 #ch1_div,
 #ch2_div {
+  /* -webkit-text-stroke-width: 2px;
+  -webkit-text-stroke-color: black; */
+  font-family: Montserrat;
+  paint-order: stroke;
+  stroke-linecap: butt;
+  stroke-linejoin: miter;
   font-size: 24px;
   text-align: center;
   margin: auto;
   text-align: center;
+  */
 }
 
 
 #map {
   position: relative;
-  left:-95px
+  left: -95px
 }
 
 
@@ -266,6 +280,6 @@ p {
 
 #break {
   position: relative;
-  top:0px;
+  top: 0px;
   height: 200px;
 }

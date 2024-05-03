@@ -3,9 +3,13 @@ let context_parser = d3.timeParse("%Y/%m/%d");
 let mousemove_function, mouseleave_function = null;
 let hoveredPolygonId = null;
 let path;
+let zero_donut;
+let non_zero;
 const pie = d3.pie()
   .sort(null) // Do not sort group by size
-  .value(d => d[1])
+  .value(function (d) {
+    return d[1].length
+  })
 
 // re-drawing context lines/text
 const drawContext = function (context, height) {
@@ -87,7 +91,8 @@ const drawContext = function (context, height) {
 }
 
 const drawDonut = function (data, direction) {
-  const data_ready = pie(Object.entries(data))
+  const data_ready = pie(data)
+  console.log(data_ready);
 
   if (direction == "down") {
     path.data(data_ready).transition().duration(1000)
@@ -123,7 +128,7 @@ const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
 const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
-  constructor(_config, _raw, _year, _array, _agt_type, _line) {
+  constructor(_config, _raw, _year, _array, _agt_stage, _multiline) {
     this.config = {
       another: _config.storyElement,
       map: _config.mapElement,
@@ -137,8 +142,8 @@ class ScrollerVis {
     this.raw_data = _raw;
     this.year_division = _year;
     this.country_array = _array;
-    this.agt_type_group = _agt_type;
-    this.linechart = _line;
+    this.agt_stage_group = _agt_stage;
+    this.multiline_data = _multiline;
     this.initVis();
   }
 
@@ -146,7 +151,7 @@ class ScrollerVis {
     let vis = this;
     vis.width = vis.config.vis_width - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
-
+    d3.select(".myXaxis").remove()
     //BEESWARM VISUALIZATION
     // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
     vis.x_axis = d3.axisBottom(x_horizontal);
@@ -156,10 +161,13 @@ class ScrollerVis {
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
-
     //DONUT CHART
-    const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
-    const data_ready = pie(Object.entries(donut_data))
+    // zero_donut = _.cloneDeep(this.agt_stage_group)
+    zero_donut = this.agt_stage_group.map((d) => d.map(e => e));
+    zero_donut.forEach(function (d) {
+      d[1] = [];
+    })
+    const data_ready = pie(this.agt_stage_group)
     //prepare donut for drawing
     path = piechart_svg
       .selectAll('path')
@@ -167,6 +175,7 @@ class ScrollerVis {
       .join('path')
       .attr("class", "slices")
       .attr('fill', d => color(d.data[1]))
+      // .attr('fill', "gray")
       .attr("stroke", "black")
       .style("stroke-width", "4px")
       .style("opacity", 0.7)
@@ -208,6 +217,14 @@ class ScrollerVis {
       .style("fill", "white")
       .style("opacity", 0)
 
+    //MULTILINE CHART
+    multiline_x.domain(d3.extent(this.raw_data, function (d) { return d.year; }))
+    multiline_svg.append("g")
+      .attr("transform", `translate(0, ${height - 70})`)
+      .call(d3.axisBottom(multiline_x).ticks(5));
+    // multiline_svg.append("g")
+    //   .call(d3.axisLeft(multiline_y));
+
     window.scrollTo({ left: 0, top: 0, behavior: "auto" });
 
     setTimeout(function () {
@@ -220,7 +237,7 @@ class ScrollerVis {
     console.log("step1", direction);
 
     map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
-
+    d3.selectAll(".tick").remove()
     if (direction === "down") {
       //adjust domain
       x_horizontal
@@ -245,6 +262,7 @@ class ScrollerVis {
         .attr('cx', -50)
         .attr('cy', vis.height / 2)
         .on("mouseover", function (d, i) {
+          console.log(d);
           d3.select(this).style("stroke", "white")
           d3.select("#hover_description")
             .style("display", "block")
@@ -340,6 +358,18 @@ class ScrollerVis {
       d3.selectAll(".soviet").style("fill", "#7B8AD6")
       d3.selectAll(".syria").style("fill", "white")
       drawContext(context_data, vis.height)
+
+      // horizontal_svg.selectAll('.my_circles')
+      //   .data(vis.year_division)
+      //   .join('circle')
+      //   .attr('cx', d => d.x)
+      //   .attr('cy', d => d.y)
+      //   .transition().delay(function (d, i) { return i * 2 })
+      //   .attr('cx', -50)
+      //   .attr('cy', vis.height / 2)
+
+      // d3.selectAll(".myXaxis, .tick line").transition()
+      //   .attr("visibility", "visible")
     }
     else {
       d3.selectAll(".soviet").style("fill", "white")
@@ -355,83 +385,107 @@ class ScrollerVis {
     if (direction === "down") {
       drawContext([], vis.height)
       d3.selectAll(".syria").style("fill", "#7B8AD6")
-      x_horizontal.domain(d3.extent(vis.year_division, function (d) {
-        return d[1][0][0];
-      }))
-        .nice();
-      //initial simulation
-      let simulation = d3.forceSimulation(vis.year_division)
-        .force("y", d3.forceY(function (d) { return y_vertical(d[1][0][0]); }).strength(3))
-        .force("x", d3.forceX(120 / 2))
-        .force("collide", d3.forceCollide(4))
-        .stop();
-      //simulate
-      for (var i = 0; i < 200; ++i) { simulation.tick(); }
-      //voronoi
-      const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
-        voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
-      //draw circles
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
         .join('circle')
-        .transition().delay(function (d, i) { return i * 2 })
         .attr('cx', d => d.x)
         .attr('cy', d => d.y)
-        .attr('r', 4)
+        .transition().delay(function (d, i) { return i * 2 })
+        .attr('cx', -50)
+        .attr('cy', vis.height / 2)
 
-      d3.selectAll(".graphic__vis, #visualization")
-        .transition().delay(500)
-        .style("width", 130 + "px")
-        .style("height", height100 + "px")
+      d3.selectAll(".myXaxis, .tick line").transition()
+        .attr("visibility", "hidden")
+      //   x_horizontal.domain(d3.extent(vis.year_division, function (d) {
+      //     return d[1][0][0];
+      //   }))
+      //     .nice();
+      //   //initial simulation
+      //   let simulation = d3.forceSimulation(vis.year_division)
+      //     .force("y", d3.forceY(function (d) { return y_vertical(d[1][0][0]); }).strength(3))
+      //     .force("x", d3.forceX(120 / 2))
+      //     .force("collide", d3.forceCollide(4))
+      //     .stop();
+      //   //simulate
+      //   for (var i = 0; i < 200; ++i) { simulation.tick(); }
+      //   //voronoi
+      //   const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
+      //     voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
+      //   //draw circles
+      //   horizontal_svg.selectAll('.my_circles')
+      //     .data(vis.year_division)
+      //     .join('circle')
+      //     .transition().delay(function (d, i) { return i * 2 })
+      //     .attr('cx', d => d.x)
+      //     .attr('cy', d => d.y)
+      //     .attr('r', 4)
 
-      //move x axis to the left
-      d3.selectAll(".domain, .tick line").attr("visibility", "hidden")
-      vis.x_axis = d3.axisLeft(y_vertical).ticks(5);
-      horizontal_svg.selectAll(".myXaxis").attr("transform", `translate(15,0)`)
-      horizontal_svg.selectAll(".myXaxis").transition()
-        .call(vis.x_axis)
-        .selectAll("text")
-        .attr("transform", "translate(0,-4)rotate(45)")
-        .style("text-anchor", "start")
-        .style("font-size", "12px")
-        .style("font-family", "Montserrat");
+      //   d3.selectAll(".graphic__vis, #visualization")
+      //     .transition().delay(500)
+      //     .style("width", 130 + "px")
+      //     .style("height", height100 + "px")
+
+      //   //move x axis to the left
+      //   d3.selectAll(".domain, .tick line").attr("visibility", "hidden")
+      //   vis.x_axis = d3.axisLeft(y_vertical).ticks(5);
+      //   horizontal_svg.selectAll(".myXaxis").attr("transform", `translate(15,0)`)
+      //   horizontal_svg.selectAll(".myXaxis").transition()
+      //     .call(vis.x_axis)
+      //     .selectAll("text")
+      //     .attr("transform", "translate(0,-4)rotate(45)")
+      //     .style("text-anchor", "start")
+      //     .style("font-size", "12px")
+      //     .style("font-family", "Montserrat");
+      // }
+      // else if (direction == "up") {
+      //   d3.selectAll(".syria").style("fill", "white")
+      //   d3.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
+      //   //redraw x axis to horizontal
+      //   // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
+      //   vis.x_axis = d3.axisBottom(x_horizontal)
+      //   horizontal_svg.selectAll(".myXaxis")
+      //     .attr("transform", `translate(10, ` + vis.height + `)`)
+      //   horizontal_svg.selectAll(".myXaxis").transition()
+      //     .call(vis.x_axis)
+      //     .style("stroke-dasharray", "5 5")
+      //     .selectAll("text")
+      //     .attr("transform", "translate(0,-4)")
+      //     .style("fill", "white")
+      //     .style("text-anchor", "middle")
+      //     .style("font-size", "14px")
+      //     .style("font-family", "Montserrat");
+
+      //   d3.selectAll(".graphic__vis, #visualization, #visualization1")
+      //     .style("width", width100 + "px")
+      //     .style("height", height100 + "px")
+      //   //adjust domain
+      //   x_horizontal.domain(d3.extent(vis.year_division, function (d) { return d[1][0][0]; }))
+      //     .nice();
+      //   //initial simulation
+      //   let simulation = d3.forceSimulation(vis.year_division)
+      //     .force("x", d3.forceX(function (d) { return x_horizontal(d[1][0][0]); }).strength(3))
+      //     .force("y", d3.forceY(vis.height / 2))
+      //     .force("collide", d3.forceCollide(11))
+      //     .stop();
+      //   //simulate
+      //   for (var i = 0; i < 200; ++i) { simulation.tick(); }
+      //   //voronoi
+      //   const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
+      //     voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
+      //   //draw circles
+      //   horizontal_svg.selectAll('.my_circles')
+      //     .data(vis.year_division)
+      //     .join('circle')
+      //     .transition().transition().delay(function (d, i) { return i * 2 })
+      //     .attr('cx', d => d.x)
+      //     .attr('cy', d => d.y)
+      //     .attr('r', 10)
+
+      //   drawContext(context_data, this.height)
     }
     else if (direction == "up") {
       d3.selectAll(".syria").style("fill", "white")
       d3.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
-      //redraw x axis to horizontal
-      // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
-      vis.x_axis = d3.axisBottom(x_horizontal)
-      horizontal_svg.selectAll(".myXaxis")
-        .attr("transform", `translate(10, ` + vis.height + `)`)
-      horizontal_svg.selectAll(".myXaxis").transition()
-        .call(vis.x_axis)
-        .style("stroke-dasharray", "5 5")
-        .selectAll("text")
-        .attr("transform", "translate(0,-4)")
-        .style("fill", "white")
-        .style("text-anchor", "middle")
-        .style("font-size", "14px")
-        .style("font-family", "Montserrat");
-
-      d3.selectAll(".graphic__vis, #visualization, #visualization1")
-        .style("width", width100 + "px")
-        .style("height", height100 + "px")
-      //adjust domain
-      x_horizontal.domain(d3.extent(vis.year_division, function (d) { return d[1][0][0]; }))
-        .nice();
-      //initial simulation
-      let simulation = d3.forceSimulation(vis.year_division)
-        .force("x", d3.forceX(function (d) { return x_horizontal(d[1][0][0]); }).strength(3))
-        .force("y", d3.forceY(vis.height / 2))
-        .force("collide", d3.forceCollide(11))
-        .stop();
-      //simulate
-      for (var i = 0; i < 200; ++i) { simulation.tick(); }
-      //voronoi
-      const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
-        voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
-      //draw circles
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
         .join('circle')
@@ -441,6 +495,7 @@ class ScrollerVis {
         .attr('r', 10)
 
       drawContext(context_data, this.height)
+
     }
   }
 
@@ -449,13 +504,11 @@ class ScrollerVis {
     console.log("step5", direction);
 
     if (direction == "down") {
-      const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
-      drawDonut(donut_data, direction)
+      drawDonut(this.agt_stage_group, direction)
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 1)
     }
     else if (direction == "up") {
-      const zero_data = { Interstate: 0, Mixed: 0, Intrastate: 0 }
-      drawDonut(zero_data, direction)
+      drawDonut(zero_donut, direction)
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 0)
     }
   }
@@ -469,13 +522,11 @@ class ScrollerVis {
     const vis = this;
     console.log("step7", direction);
     if (direction == "down") {
-      const zero_data = { Interstate: 0, Mixed: 0, Intrastate: 0 }
-      drawDonut(zero_data, "up")
+      drawDonut(zero_donut, "up")
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 0)
     }
     else if (direction == "up") {
-      const donut_data = { Interstate: 61, Mixed: 99, Intrastate: 16 }
-      drawDonut(donut_data, "down")
+      drawDonut(this.agt_stage_group, "down")
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 1)
 
     }
@@ -484,36 +535,161 @@ class ScrollerVis {
   step8(direction) {
     const vis = this;
     console.log("step8", direction);
-    
-    //LINECHART VISUALIZATION
-    console.log(this.linechart);
-    // Add X axis --> it is a date format
-    const x = d3.scaleTime()
-      .domain(d3.extent(this.linechart, function (d) { return d[0]; }))
-      .range([0, vis.width-150]);
-
-    line_svg.append("g")
-      .attr("transform", `translate(0, ${vis.height - 50})`)
-      .call(d3.axisBottom(x));
-
-    // Add Y axis
-    const y = d3.scaleLinear()
-      .domain([0, d3.max(this.linechart, function (d) { return d[1].length; })])
-      .range([vis.height - 50, 0]);
-
-    line_svg.append("g")
-      .call(d3.axisLeft(y));
-    // Add the line
-    line_svg.append("path")
-      .datum(this.linechart)
+    //draw multiline chart
+    let multiline_path = multiline_svg.selectAll(".line")
+      .data(this.multiline_data)
+      .join("path")
+      .attr("class", "line")
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.line()
-        .curve(d3.curveCatmullRom.alpha(0.2))
-        .x(function (d) { return x(d[0]) })
-        .y(function (d) { return y(d[1].length) })
-      )
+      .attr("stroke", function (d) { return multiline_color(d[0]) })
+      // .attr("stroke", "black")
+      .attr("stroke-width", 4)
+      .attr("d", function (d) {
+        return d3.line()
+          .curve(d3.curveMonotoneX)
+          // .curve(d3.curveCatmullRom.alpha(0.4))
+          .x(function (d) { return multiline_x(d[0]); })
+          .y(function (d) { return multiline_y(+d[1].length); })
+          (d[1])
+      })
+
+    if (direction == "down") {
+      multiline_path
+        .attr("stroke-dasharray", function (d) {
+          // Get the path length of the current element
+          const pathLength = this.getTotalLength();
+          return `0 ${pathLength}`
+        })
+        .transition()
+        .duration(5000)
+        .attr("stroke-dasharray", function (d) {
+          // Get the path length of the current element
+          const pathLength = this.getTotalLength();
+          return `${pathLength} ${pathLength}`
+        });
+
+    }
+    else if (direction == "up") {
+      multiline_path
+        .attr("stroke-dasharray", function (d) {
+          // Get the path length of the current element
+          const pathLength = this.getTotalLength();
+          return `${pathLength} ${pathLength}`
+        })
+        .transition()
+        .duration(1000)
+        .attr("stroke-dasharray", function (d) {
+          // Get the path length of the current element
+          const pathLength = this.getTotalLength();
+          return `0 ${pathLength}`
+          // return `${pathLength} ${pathLength}`
+        });
+
+    }
+
+    let pos, idx;
+    var mouseG = multiline_svg.append("g") // this the black vertical line to folow mouse
+      .attr("class", "mouse-over-effects");
+
+    mouseG.append("path")
+      .attr("class", "mouse-line")
+      .style("stroke", "gray")
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+
+    var lines = document.getElementsByClassName("line");
+    var mousePerLine = mouseG.selectAll(".mouse-per-line")
+      .data(this.multiline_data)
+      .enter()
+      .append("g")
+      .attr("class", "mouse-per-line");
+
+    mousePerLine.append("circle")
+      .attr("r", 7)
+      .style("stroke", function (d) {
+        return "white"
+      })
+      .style("fill", "none")
+      .style("stroke-width", "1px")
+      .style("opacity", "0");
+
+    mousePerLine.append("text")
+      .attr("transform", "translate(10,3)");
+
+    mouseG.append("rect")
+      .attr("width", vis.width)
+      .attr("height", vis.height)
+      .attr("fill", "none")
+      .attr("pointer-events", "all")
+      .on("mouseout", function () {
+        d3.select(".mouse-line").style("opacity", "0");
+        d3.selectAll(".mouse-per-line circle").style("opacity", "0");
+        d3.selectAll(".mouse-per-line text").style("opacity", "0")
+      })
+      .on("mouseover", function () {
+        d3.select(".mouse-line").style("opacity", "1");
+        d3.selectAll(".mouse-per-line circle").style("opacity", "1");
+        d3.selectAll(".mouse-per-line text").style("opacity", "1")
+
+      })
+      .on("mousemove", function () {
+        var mouse = d3.pointer(event, this);
+        d3.select(".mouse-line")
+          .attr("d", function () {
+            var d = "M" + mouse[0] + "," + height;
+            d += " " + mouse[0] + "," + 0;
+            return d;
+          })
+        // .attr("d",function(){
+        //   var d = "M" + w +"," + mouse[1];
+        //   d+=" " +0 + "," + mouse[1];
+        //   return d;
+        // });
+
+        d3.selectAll(".mouse-per-line")
+          .attr("transform", function (d, i) {
+            // console.log(width / (mouse[0]));
+            var xDate = multiline_x.invert(mouse[0]),
+              bisect = d3.bisector(function (d) { return d.date; }).right;
+            idx = bisect(d.values, xDate);
+            // console.log("xDate:", xDate);
+            // console.log("bisect", bisect);
+            // console.log("idx:", idx)
+
+            var beginning = 0,
+              end = lines[i].getTotalLength(),
+              target = null;
+
+            // console.log("end", end);
+
+            while (true) {
+              target = Math.floor((beginning + end) / 2)
+              // console.log("Target:", target);
+              pos = lines[i].getPointAtLength(target);
+              // console.log("Position", pos.y);
+              // console.log("What is the position here:", pos)
+              if ((target === end || target == beginning) && pos.x !== mouse[0]) {
+                break;
+              }
+
+              if (pos.x > mouse[0]) end = target;
+              else if (pos.x < mouse[0]) beginning = target;
+              else break; // position found
+            }
+            d3.select(this).select("text")
+              .text(multiline_y.invert(pos.y).toFixed(1))
+              .attr("fill", function (d) {
+                return color(d.name)
+              });
+            return "translate(" + mouse[0] + "," + pos.y + ")";
+
+          });
+
+      });
+
+
+
+
 
   }
 
