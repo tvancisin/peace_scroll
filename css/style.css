@@ -69,11 +69,11 @@ body::-webkit-scrollbar-thumb:hover {
   background-size: contain;
   background-position: center;
   background-color: black;
-  0
 }
 
 .graphic,
 .graphic05,
+.graphic06,
 .graphic075,
 .graphic1 {
   position: relative;
@@ -82,21 +82,22 @@ body::-webkit-scrollbar-thumb:hover {
 
 .graphic__prose,
 .graphic__prose__05,
+.graphic__prose__06,
 .graphic__prose__075,
 .graphic__prose__1 {
   position: relative;
   font-size: 16px;
   z-index: 99;
   pointer-events: none;
-  /* background-color: rgba(0, 0, 0, 0.5); */
+  /* background-color: rgba(0, 0, 0, 0); */
   /* box-shadow: -1.5px 0px 5px -3px #616161; */
 }
 
 .trigger {
   padding: 10px;
-  text-align: center;
-  height: 1500px;
-  font-size: 16px;
+  text-align: left;
+  height: 1000px;
+  font-size: 14px;
 }
 
 p {
@@ -104,8 +105,8 @@ p {
   margin: auto;
   border-radius: 10px;
   background-color: rgba(0, 0, 0, 0.7);
-  padding: 20px;
-  font-size: 20px;
+  padding: 10px;
+  font-size: 14px;
   /* box-shadow: 0px 1px 2px #232323, 0px -1px 2px #232323; */
 }
 
@@ -122,6 +123,7 @@ p {
 }
 
 .graphic__vis__05,
+.graphic__vis__06,
 .graphic__vis__075,
 .graphic__vis__1 {
   position: absolute;
@@ -132,30 +134,10 @@ p {
   height: 1000px;
 }
 
-.graphic__vis svg {
-  top: 50%;
-  position: relative;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.graphic__vis__05 svg {
-  top: 50%;
-  position: relative;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
-.graphic__vis__075 svg {
-  top: 50%;
-  position: relative;
-  -webkit-transform: translateY(-50%);
-  -moz-transform: translateY(-50%);
-  transform: translateY(-50%);
-}
-
+.graphic__vis svg,
+.graphic__vis__05 svg,
+.graphic__vis__06 svg,
+.graphic__vis__075 svg,
 .graphic__vis__1 svg {
   top: 50%;
   position: relative;
@@ -183,6 +165,16 @@ p {
   bottom: 0;
 }
 
+.graphic__vis__06.is-fixed {
+  position: fixed;
+  top: 5px;
+}
+
+.graphic__vis__06.is-bottom {
+  top: auto;
+  bottom: 0;
+}
+
 .graphic__vis__075.is-fixed {
   position: fixed;
   top: 5px;
@@ -206,10 +198,9 @@ p {
 #vik {
   float: rightleft;
   margin: auto;
-  /* padding-top: 10px; */
 }
 
-#mage {
+#publications{
   position: relative;
   transition: transform .2s;
   /* Animation */
@@ -218,13 +209,13 @@ p {
   box-shadow: 0 0 8px 1px #868686;
 }
 
-#mage:hover {
+#publications:hover {
   transform: scale(1.1);
 }
 
 .tick line {
   stroke: white;
-  stroke-opacity: 0;
+  stroke-opacity: 1;
 }
 
 #para1 {
@@ -233,8 +224,6 @@ p {
 
 #ch1_div,
 #ch2_div {
-  /* -webkit-text-stroke-width: 2px;
-  -webkit-text-stroke-color: black; */
   font-family: Montserrat;
   paint-order: stroke;
   stroke-linecap: butt;
@@ -243,15 +232,12 @@ p {
   text-align: center;
   margin: auto;
   text-align: center;
-  */
 }
-
 
 #map {
   position: relative;
   left: -95px
 }
-
 
 #hover_description {
   position: absolute;
@@ -269,13 +255,58 @@ p {
   opacity: 0.8;
 }
 
-#actor_dropdown {
-  z-index: 99;
+/* Style The Dropdown Button */
+.dropbtn {
+  border-radius: 2px;
+  font-family: "Montserrat";
+  background-color: #313461;
+  color: white;
+  padding: 8px;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+}
+
+/* The container <div> - needed to position the dropdown content */
+.dropdown {
+  width: 105px;
+  z-index: 9;
   position: absolute;
-  top: 5px;
-  width: 200px;
-  height: 70px;
-  background-color: black;
+  top: 10px;
+  left: 10px;
+  display: inline-block;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.dropdown-content {
+  border-radius: 2px;
+  display: none;
+  position: absolute;
+  background-color: #3e3e3e;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Links inside the dropdown */
+.dropdown-content a {
+  color: white;
+  padding: 10px 10px;
+  text-decoration: none;
+  display: block;
+}
+
+/* Change color of dropdown links on hover */
+.dropdown-content a:hover {background-color: #717171}
+
+/* Show the dropdown menu on hover */
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Change the background color of the dropdown button when the dropdown content is shown */
+.dropdown:hover .dropbtn {
+  background-color: #04AA6D;
 }
 
 #break {

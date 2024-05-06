@@ -128,7 +128,7 @@ const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
 const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
-  constructor(_config, _raw, _year, _array, _agt_stage, _multiline) {
+  constructor(_config, _raw, _year, _array, _agt_stage, _multiline, _chart) {
     this.config = {
       another: _config.storyElement,
       map: _config.mapElement,
@@ -144,6 +144,7 @@ class ScrollerVis {
     this.country_array = _array;
     this.agt_stage_group = _agt_stage;
     this.multiline_data = _multiline;
+    this._chart_data = _chart
     this.initVis();
   }
 
@@ -156,14 +157,28 @@ class ScrollerVis {
     // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
     vis.x_axis = d3.axisBottom(x_horizontal);
     horizontal_svg.append("g")
-      .attr("transform", `translate(10, ` + vis.height + `)`)
+      .attr("transform", `translate(10, ` + height + `)`)
       .attr("class", "myXaxis")
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
     //DONUT CHART
     // zero_donut = _.cloneDeep(this.agt_stage_group)
-    zero_donut = this.agt_stage_group.map((d) => d.map(e => e));
+    const desiredOrder = [
+      'Pre-negotiation',
+      'Ceasefire',
+      'Framework-substantive, partial',
+      'Framework-substantive, comprehensive',
+      'Implementation',
+      'Renewal'
+    ];
+    // Sorting the data array based on the desired order
+    const sortedData = this.agt_stage_group.sort((a, b) => {
+      const indexA = desiredOrder.indexOf(a[0]);
+      const indexB = desiredOrder.indexOf(b[0]);
+      return indexA - indexB;
+    });
+    zero_donut = sortedData.map((d) => d.map(e => e));
     zero_donut.forEach(function (d) {
       d[1] = [];
     })
@@ -192,7 +207,7 @@ class ScrollerVis {
         const posB = outerArc.centroid(d) // line break: we use the other arc generator that has been built only for that
         const posC = outerArc.centroid(d); // Label position = almost the same as posB
         const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2 // we need the angle to see if the X position will be at the extreme right or extreme left
-        posC[0] = radius * 0.95 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
+        posC[0] = radius * 0.88 * (midangle < Math.PI ? 1 : -1); // multiply by 1 or -1 to put it on the right or on the left
         return [posA, posB, posC]
       })
       .style("stroke", "white")
@@ -203,11 +218,22 @@ class ScrollerVis {
       .data(data_ready)
       .join('text')
       .attr("class", "polytext")
-      .text(d => d.data[0])
+      .text(function (d) {
+        if (d.data[0] == "Framework-substantive, comprehensive") {
+          return "FS, comprehensive"
+        }
+        else if (d.data[0] == "Framework-substantive, partial") {
+          return "FS, partial"
+        }
+        else {
+          return d.data[0]
+        }
+      })
       .attr('transform', function (d) {
         const pos = outerArc.centroid(d);
         const midangle = d.startAngle + (d.endAngle - d.startAngle) / 2
-        pos[0] = radius * 0.99 * (midangle < Math.PI ? 1 : -1);
+        pos[0] = radius * 0.7 * (midangle < Math.PI ? 1 : -1);
+        pos[1] -= 10;
         return `translate(${pos})`;
       })
       .style('text-anchor', function (d) {
@@ -225,6 +251,69 @@ class ScrollerVis {
     // multiline_svg.append("g")
     //   .call(d3.axisLeft(multiline_y));
 
+
+    //BAR CHART
+    // List of subgroups = header of the csv files = soil condition here
+    const subgroups = ["All"]
+    const keys = Object.keys(this._chart_data[0]);
+    subgroups.push(keys[1])
+
+    // List of groups = species here = value of the first column called group -> I show them on the X axis
+    const groups = ['Pre-negotiation', 'Ceasefire', 'Framework-substantive, partial', 'Framework-substantive, comprehensive', 'Implementation', 'Renewal', 'Other']
+
+    // Add X axis
+    const bar_x = d3.scaleBand()
+      .domain(groups)
+      .range([0, width])
+      .padding([0.2])
+
+    barchart_svg.append("g")
+      .attr("transform", `translate(0, ${height - 10})`)
+      .call(d3.axisBottom(bar_x))
+        .selectAll("text")
+        .style("font-size", "12px")
+        .style("font-family", "Montserrat");
+
+
+    // Add Y axis
+    const bar_y = d3.scaleLinear()
+      .domain([0, 45])
+      .range([height - 10, 0]);
+
+    barchart_svg.append("g")
+      .call(d3.axisLeft(bar_y));
+
+    barchart_svg.selectAll(".domain")
+      .attr("visibility", "hidden")
+
+    // Another scale for subgroup position?
+    const xSubgroup = d3.scaleBand()
+      .domain(subgroups)
+      .range([0, bar_x.bandwidth()])
+      .padding([0.05])
+
+    // color palette = one color per subgroup
+    const bar_color = d3.scaleOrdinal()
+      .domain(subgroups)
+      .range(['#e41a1c', '#377eb8'])
+
+    // Show the bars
+    barchart_svg.append("g")
+      .selectAll("g")
+      // Enter in data = loop group per group
+      .data(this._chart_data)
+      .join("g")
+      .attr("transform", d => `translate(${bar_x(d.group)}, 0)`)
+      .selectAll("rect")
+      .data(function (d) { return subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
+      .join("rect")
+      .attr("rx", 4)
+      .attr("x", d => xSubgroup(d.key))
+      .attr("y", d => bar_y(d.value))
+      .attr("width", xSubgroup.bandwidth())
+      .attr("height", d => (height - 10) - bar_y(d.value))
+      .attr("fill", d => bar_color(d.key));
+
     window.scrollTo({ left: 0, top: 0, behavior: "auto" });
 
     setTimeout(function () {
@@ -237,7 +326,7 @@ class ScrollerVis {
     console.log("step1", direction);
 
     map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
-    d3.selectAll(".tick").remove()
+    horizontal_svg.selectAll(".tick").remove()
     if (direction === "down") {
       //adjust domain
       x_horizontal
@@ -246,38 +335,23 @@ class ScrollerVis {
       //initial simulation
       let simulation = d3.forceSimulation(vis.year_division)
         .force("x", d3.forceX((d) => x_horizontal(d[1][0][0])).strength(3))
-        .force("y", d3.forceY(vis.height / 2))
+        .force("y", d3.forceY(height / 2))
         .force("collide", d3.forceCollide(11))
         .stop();
       //simulate
       for (var i = 0; i < 200; ++i) { simulation.tick(); }
       //voronoi
       const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
-        voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
+        voronoi = delaunay.voronoi([0, 0, vis.width, height]);
+
+
 
       //draw circles
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
         .join('circle')
         .attr('cx', -50)
-        .attr('cy', vis.height / 2)
-        .on("mouseover", function (d, i) {
-          console.log(d);
-          d3.select(this).style("stroke", "white")
-          d3.select("#hover_description")
-            .style("display", "block")
-            .style("left", d.x + 20 + "px")
-            .style("top", d.y - 20 + "px")
-            .html(i[1][0][1][0].Agt)
-        })
-        .on("mouseout", function (d, i) {
-          d3.select(this).style("stroke", "black")
-          d3.select("#hover_description")
-            .style("display", "none")
-        })
-        .transition().delay(function (d, i) { return i * 2 })
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y)
+        .attr('cy', height / 2)
         .attr("class", function (d) {
           let first_word
           if (soviet.includes(d[1][0][1][0].where_agt)) {
@@ -301,6 +375,40 @@ class ScrollerVis {
         .style("fill", "#7B8AD6")
         .style("stroke", "black")
         .style("strokewidth", 0.5)
+        .on("mouseover", function (d, i) {
+          console.log(d);
+          d3.select(this).style("stroke", "white")
+          d3.select("#hover_description")
+            .style("display", "block")
+            .style("left", d.x + 20 + "px")
+            .style("top", d.y - 20 + "px")
+            .html(i[1][0][1][0].Agt)
+        })
+        .on("mouseout", function (d, i) {
+          d3.select(this).style("stroke", "black")
+          d3.select("#hover_description")
+            .style("display", "none")
+        })
+
+
+      const totalElements = horizontal_svg.selectAll('.my_circles').size();
+      const transitionDuration = 300; // Duration of transition in milliseconds
+      const delayStep = transitionDuration / totalElements;
+
+      horizontal_svg.selectAll('.my_circles')
+        .each(function (_, i) {
+          // Reverse the selection order
+          const reversedIndex = totalElements - i - 1;
+          // Calculate delay based on reversed index
+          const delay = delayStep * reversedIndex;
+          // Transition with delay
+          d3.select(this)
+            .transition()
+            .delay(delay)
+            .duration(transitionDuration)
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y)
+        });
 
       horizontal_svg.selectAll(".myXaxis").transition()
         .call(vis.x_axis)
@@ -312,9 +420,9 @@ class ScrollerVis {
         .style("font-size", "14px")
         .style("font-family", "Montserrat");
 
-      d3.selectAll(".domain")
+      horizontal_svg.selectAll(".domain")
         .attr("visibility", "hidden")
-      d3.selectAll(".myXaxis, .tick line").transition()
+      horizontal_svg.selectAll(".myXaxis, .tick line").transition()
         .attr("visibility", "visible")
 
     }
@@ -331,9 +439,9 @@ class ScrollerVis {
         .attr('cy', d => d.y)
         .transition().delay(function (d, i) { return i * 2 })
         .attr('cx', -50)
-        .attr('cy', vis.height / 2)
+        .attr('cy', height / 2)
 
-      d3.selectAll(".myXaxis, .tick line").transition()
+      horizontal_svg.selectAll(".myXaxis, .tick line").transition()
         .attr("visibility", "hidden")
     }
   }
@@ -357,7 +465,7 @@ class ScrollerVis {
     if (direction === "down") {
       d3.selectAll(".soviet").style("fill", "#7B8AD6")
       d3.selectAll(".syria").style("fill", "white")
-      drawContext(context_data, vis.height)
+      drawContext(context_data, height)
 
       // horizontal_svg.selectAll('.my_circles')
       //   .data(vis.year_division)
@@ -374,7 +482,7 @@ class ScrollerVis {
     else {
       d3.selectAll(".soviet").style("fill", "white")
       d3.selectAll(".syria").style("fill", "#7B8AD6")
-      drawContext([], vis.height)
+      drawContext([], height)
     }
   }
 
@@ -383,16 +491,34 @@ class ScrollerVis {
     console.log("step4", direction);
 
     if (direction === "down") {
-      drawContext([], vis.height)
+      drawContext([], height)
       d3.selectAll(".syria").style("fill", "#7B8AD6")
+
+      const totalElements = horizontal_svg.selectAll('.my_circles').size();
+      console.log(totalElements);
+      const transitionDuration = 300; // Duration of transition in milliseconds
+      const delayStep = transitionDuration / totalElements;
+
       horizontal_svg.selectAll('.my_circles')
-        .data(vis.year_division)
-        .join('circle')
-        .attr('cx', d => d.x)
-        .attr('cy', d => d.y)
-        .transition().delay(function (d, i) { return i * 2 })
-        .attr('cx', -50)
-        .attr('cy', vis.height / 2)
+        .each(function (_, i) {
+          // Reverse the selection order
+          const reversedIndex = totalElements - i - 1;
+          // Calculate delay based on reversed index
+          const delay = delayStep * reversedIndex;
+          // Transition with delay
+          d3.select(this)
+            .transition()
+            .delay(delay)
+            .duration(transitionDuration)
+            .attr('cx', vis.width + 100)
+            .attr('cy', height / 2)
+        });
+
+      // horizontal_svg.selectAll('.my_circles')
+      //   .transition().delay(function (d, i) { return i * 2 })
+      //   .attr('r', 3)
+      //   .attr('cx', vis.width + 100)
+      //   .attr('cy', vis.height / 2)
 
       d3.selectAll(".myXaxis, .tick line").transition()
         .attr("visibility", "hidden")
@@ -485,7 +611,7 @@ class ScrollerVis {
     }
     else if (direction == "up") {
       d3.selectAll(".syria").style("fill", "white")
-      d3.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
+      horizontal_svg.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
         .join('circle')
@@ -543,7 +669,7 @@ class ScrollerVis {
       .attr("fill", "none")
       .attr("stroke", function (d) { return multiline_color(d[0]) })
       // .attr("stroke", "black")
-      .attr("stroke-width", 4)
+      .attr("stroke-width", 2)
       .attr("d", function (d) {
         return d3.line()
           .curve(d3.curveMonotoneX)
@@ -618,7 +744,7 @@ class ScrollerVis {
 
     mouseG.append("rect")
       .attr("width", vis.width)
-      .attr("height", vis.height)
+      .attr("height", height)
       .attr("fill", "none")
       .attr("pointer-events", "all")
       .on("mouseout", function () {
@@ -679,17 +805,14 @@ class ScrollerVis {
             d3.select(this).select("text")
               .text(multiline_y.invert(pos.y).toFixed(1))
               .attr("fill", function (d) {
-                return color(d.name)
+                // return color(d.name)
+                return "white"
               });
             return "translate(" + mouse[0] + "," + pos.y + ")";
 
           });
 
       });
-
-
-
-
 
   }
 

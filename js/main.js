@@ -3,48 +3,40 @@ window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
 //get current width and height of the screen
-const width100 = window.innerWidth - 15,
+const width100 = window.innerWidth - 20,
   height100 = window.innerHeight,
   width80 = width100 * 0.80,
-  width20 = width100 * 0.20,
-  width70 = width80 - 140;
+  width20 = width100 * 0.20;
 // width50 = width100 * 0.5;
 //margins for visualization
-const margin = { top: 45, right: 10, bottom: 0, left: 10 },
+const margin = { top: 50, right: 10, bottom: 30, left: 10 },
   height = height100 - margin.top - margin.bottom,
-  width = width100 - margin.top - margin.bottom;
+  width = width80 - margin.top - margin.bottom;
 
 //adjusting width and height for current screen
 d3.selectAll("#story")
   .style("width", width100 + "px")
-d3.selectAll(".graphic__vis, .graphic__vis__1, #visualization, #visualization1")
+d3.selectAll(".graphic__vis, .graphic__vis__1, .graphic__vis__05, .graphic__vis__06, .graphic__vis__075")
+  .style("width", width80 + "px")
+  .style("height", height100 + "px")
+  .style("left", width20 + "px")
+d3.selectAll("#visualization, #visualization05, #visualization06, #visualization1, #map")
+  .style("width", width80 + "px")
+  .style("height", height100 + "px")
+d3.selectAll(".graphic__prose, .graphic__prose__05, .graphic__prose__06, .graphic__prose__075, .graphic__prose__1")
+  .style("width", width20 + "px")
+  .style("left", 0 + "px")
+d3.selectAll("#separator, #separator05, #separator1")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
-d3.selectAll(".graphic__vis__05, .graphic__vis__075")
-  .style("left", 140 + "px")
-  .style("width", width70 + "px")
-  .style("height", height100 + "px")
-d3.selectAll(".graphic__prose, .graphic__prose__05, .graphic__prose__075, .graphic__prose__1")
-  .style("width", width100 + "px")
-// .style("left", width80 + "px")
-d3.selectAll("#separator, #separator05")
-  .style("width", width100 + "px")
-  .style("height", height100 + "px")
-d3.selectAll("#separator1")
-  .style("width", width100 - 130 + "px")
-  .style("height", height100 + "px")
-d3.selectAll("#map")
-  .style("width", width100 + 50 + "px")
-  .style("height", height100 + "px")
-// d3.selectAll(".trigger").style("padding-top", height100 / 2 + "px")
-d3.selectAll("#mage")
+d3.selectAll(".trigger").style("padding-top", height100 / 3 + "px")
+d3.selectAll("#publications")
   .style("width", width100 / 5 + "px")
-d3.selectAll("p").style("width", width100 / 2 + "px")
 
 //BEESWARM VISUALIZATION
 //scaling vertical axis
 let y_vertical = d3.scaleTime()
-  .range([10, height - 10])
+  .range([10, height])
 //scaling horizontal axis
 let horizontal_svg = d3.select("#visualization")
   .attr("class", "horizontal_bee")
@@ -59,30 +51,29 @@ let line = horizontal_svg.append("g")
 
 //MULTILINE VISUALIZATION
 let multiline_svg = d3.select("#visualization075")
-  .attr("width", width - 140)
+  .attr("width", width)
   .attr("height", height)
   .append("g")
   .attr("transform", `translate(20,${margin.top})`);
 const multiline_x = d3.scaleLinear()
-  .range([0, width - 140]);
+  .range([0, width]);
 const multiline_y = d3.scaleLinear()
   .domain([0, 25])
   .range([height - 50, 0]);
 const multiline_color = d3.scaleOrdinal()
   .range(['#0092CC', '#FF3333', '#DCD427', '#f0F0F0'])
 
-
 //DONUTCHART VISUALIZATION
 let piechart_svg = d3.select("#visualization05")
-  .attr("width", width100 - 140)
+  .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(${width100 / 2 - 140},${height / 2 + 35})`);
+  .attr("transform", `translate(${width80 / 2},${height / 2 + 35})`);
 // The arc generator
-const radius = Math.min(width100, height) / 2 - 50
+const radius = Math.min(width80, height) / 2 - 50
 const arc = d3.arc()
-  .innerRadius(radius * 0.5)         // This is the size of the donut hole
-  .outerRadius(radius * 0.8)
+  .innerRadius(radius * 0.4)         // This is the size of the donut hole
+  .outerRadius(radius * 0.70)
   .cornerRadius(8)
 // Another arc that won't be drawn. Just for labels positioning
 const outerArc = d3.arc()
@@ -94,6 +85,13 @@ const color = d3.scaleOrdinal()
   // .range(d3.schemeDark2);
   .range(["rgb(255, 221, 123)", "rgb(255, 87, 51)", "rgb(255, 64, 129)", "rgb(61, 105, 62)", "white", "gray", "rgb(29, 0, 255)"]);
 
+
+//BARCHART VISUALIZATION
+let barchart_svg = d3.select("#visualization06")
+  .attr("width", width)
+  .attr("height", height)
+  .append("g")
+  .attr("transform", `translate(20,${margin.top})`);
 
 //MAPBOX VISUALIZATION
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
@@ -140,21 +138,26 @@ map.on('load', () => {
   });
 });
 
+//change date format to GMT
+let parser = d3.timeParse("%d/%m/%Y");
+
 Promise.all([
   d3.json("data/russia.json"),
   d3.csv("data/all_update.csv"),
   d3.csv("data/loc_correction.csv"),
   d3.csv("data/agts_with_rus_uk_un_china.csv"),
+  d3.csv("data/v7_paax_all_with_third.csv"),
+  d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stacked.csv"),
 ]).then(function (files) {
-  //change date format to GMT
-  let parser = d3.timeParse("%d/%m/%Y");
-  //change id's to numbers
+  console.log(files[5]);
+
+  //prepare dates and ids for timeline
   files[3].forEach(function (d) {
     d.AgtId = +d.AgtId
     d.dat = d.date
     d.date = parser(d.date)
   })
-  //divide into the three actors
+  //four actors division
   let three_group = d3.groups(files[3], (d) => d.global_actor),
     russia = three_group[0][1],
     united_kingdom = three_group[1][1],
@@ -169,30 +172,72 @@ Promise.all([
     })
   })
 
-  //trigger preparedata function based on dropdown
-  d3.select('#dropdown_country').on("change", function () {
-    let selected = d3.select(this).property('value')
-    console.log(selected);
-    if (selected == "Russia") {
-      d3.select("#separator").style("background-image", "url(img/ru.PNG)")
-      prepare_data(russia, "Russia")
-    }
-    else if (selected == "United Kingdom") {
-      d3.select("#separator").style("background-image", "url(img/uk.PNG)")
-      prepare_data(united_kingdom, "United Kingdom")
-    }
-    else if (selected == "United Nations") {
-      d3.select("#separator").style("background-image", "url(img/un.png)")
-      prepare_data(united_nations, "United Nations")
-    }
-    else if (selected == "China") {
-      d3.select("#separator").style("background-image", "url(img/ch.PNG)")
-      prepare_data(china, "United Nations")
-    }
+  //data for bar and line charts
+  files[4].forEach(function (d) {
+    d.AgtId = +d.AgtId
+    d.dat = d.date
+    d.date = parser(d.date)
+  })
+  // const all_year_agt = d3.groups(files[4], d => +d.year, d => d.AgtId);
+  const all_stage_agt = d3.groups(files[4], d => d.stage_label, d => d.AgtId);
+  const ru_stage_agt = d3.groups(russia, d => d.stage_label, d => d.AgtId);
+  const un_stage_agt = d3.groups(united_nations, d => d.stage_label, d => d.AgtId);
+  const uk_stage_agt = d3.groups(united_kingdom, d => d.stage_label, d => d.AgtId);
+  const ch_stage_agt = d3.groups(china, d => d.stage_label, d => d.AgtId);
+  //generate objects with percentages
+  const object_calc = function (data) {
+    let totalagts = 0;
+    data.forEach(function (d) {
+      totalagts += d[1].length
+    })
+    let all_percent_object = [];
+    data.forEach(function (d) {
+      all_percent_object.push({
+        stage: d[0],
+        percentage: (d[1].length / totalagts) * 100
+      })
+    })
+    return all_percent_object
+  }
+  //ready data
+  let all_percent_bar = object_calc(all_stage_agt)
+  let ru_percent_bar = object_calc(ru_stage_agt)
+  let uk_percent_bar = object_calc(uk_stage_agt)
+  let un_percent_bar = object_calc(un_stage_agt)
+  let ch_percent_bar = object_calc(ch_stage_agt)
+
+  //dropdown functions for different actors
+  d3.select("#russia").on("click", function () {
+    d3.select("#separator").style("background-image", "url(img/ru.PNG)")
+    prepare_data(russia, ru_percent_bar, "Russia")
+  })
+  d3.select("#kingdom").on("click", function () {
+    d3.select("#separator").style("background-image", "url(img/uk.PNG)")
+    prepare_data(united_kingdom, uk_percent_bar, "United Kingdom")
+  })
+  d3.select("#nations").on("click", function () {
+    d3.select("#separator").style("background-image", "url(img/un.png)")
+    prepare_data(united_nations, un_percent_bar, "United Nations")
+  })
+  d3.select("#china").on("click", function () {
+    d3.select("#separator").style("background-image", "url(img/ch.PNG)")
+    prepare_data(china, ch_percent_bar, "China")
   })
 
   let scrollerVis;
-  const prepare_data = function (data, selected_actor) {
+  const prepare_data = function (data, chart_data, selected_actor) {
+    //prepare barchart data
+    const comb_chart = all_percent_bar.map((obj1) => {
+      const obj2 = chart_data.find((obj2) => obj2.stage === obj1.stage);
+      return { ...obj1, chart_data: obj2 ? obj2.percentage : 0 };
+    });
+    // Renamed attribute names
+    const fin_comb_chart = comb_chart.map(obj => ({
+      group: obj.stage,
+      [selected_actor]: obj.percentage,
+      All: obj.chart_data
+    }));
+
     //group by agreement stage for DONUT
     let agt_stage_group = d3.groups(data, d => d.stage_label, d => d.AgtId)
 
@@ -237,7 +282,7 @@ Promise.all([
 
     //populating the text
     let actor = data[0].global_actor;
-    d3.select("#title_header").text(actor + " as a Peace Agreement Signatory")
+    d3.select("#title_header").text(actor + " as a Third-Party in Peace Agreements")
     let num_pp = d3.groups(data, (d) => d.PPName).length
     d3.select("#num_pp").text(num_pp)
     let num_agt = d3.groups(data, (d) => d.Agt).length
@@ -275,10 +320,10 @@ Promise.all([
     //  They only signed one agreement.`)
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
-      year_division, the_array, agt_stage_group, multiline_data);
+      year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart);
   }
 
-  prepare_data(russia, "Russia")
+  prepare_data(russia, ru_percent_bar, "Russia")
 
   // let scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data_for_scroll, year_division, the_array);
   // helper function to map over dom selection
@@ -294,14 +339,17 @@ Promise.all([
   // select elements
   let graphicEl = document.querySelector('.graphic'),
     graphicEl05 = document.querySelector('.graphic05'),
+    graphicEl06 = document.querySelector('.graphic06'),
     graphicEl075 = document.querySelector('.graphic075'),
     graphicEl1 = document.querySelector('.graphic1'),
     graphicVisEl = graphicEl.querySelector('.graphic__vis'),
     graphicVisEl05 = graphicEl05.querySelector('.graphic__vis__05'),
+    graphicVisEl06 = graphicEl06.querySelector('.graphic__vis__06'),
     graphicVisEl075 = graphicEl075.querySelector('.graphic__vis__075'),
     graphicVisEl1 = graphicEl1.querySelector('.graphic__vis__1'),
     triggerEls = selectionToArray(graphicEl.querySelectorAll('.trigger')),
     triggerEls05 = selectionToArray(graphicEl05.querySelectorAll('.trigger')),
+    triggerEls06 = selectionToArray(graphicEl06.querySelectorAll('.trigger')),
     triggerEls075 = selectionToArray(graphicEl075.querySelectorAll('.trigger')),
     triggerEls1 = selectionToArray(graphicEl1.querySelectorAll('.trigger'));
 
@@ -321,6 +369,15 @@ Promise.all([
 
     if (bottom) graphicVisEl05.classList.add('is-bottom')
     else graphicVisEl05.classList.remove('is-bottom')
+  }
+
+  // handle the fixed/static position of grahpic
+  let toggle06 = function (fixed, bottom) {
+    if (fixed) graphicVisEl06.classList.add('is-fixed')
+    else graphicVisEl06.classList.remove('is-fixed')
+
+    if (bottom) graphicVisEl06.classList.add('is-bottom')
+    else graphicVisEl06.classList.remove('is-bottom')
   }
 
   // handle the fixed/static position of grahpic
@@ -364,6 +421,27 @@ Promise.all([
 
   // setup a waypoint trigger for each trigger element
   let waypoints05 = triggerEls05.map(function (el) {
+    // get the step, cast as number					
+    let step = +el.getAttribute('data-step')
+
+    return new Waypoint({
+      element: el, // our trigger element
+      handler: function (direction) {
+        // if the direction is down then we use that number,
+        // else, we want to trigger the previous one
+        var nextStep = direction === 'down' ? step : Math.max(0, step)
+        console.log(nextStep);
+        scrollerVis.goToStep(nextStep, direction);
+
+        // tell our graphic to update with a specific step
+        // graphic.update(nextStep)
+      },
+      offset: '10%',  // trigger halfway up the viewport
+    })
+  })
+
+  // setup a waypoint trigger for each trigger element
+  let waypoints06 = triggerEls06.map(function (el) {
     // get the step, cast as number					
     let step = +el.getAttribute('data-step')
 
@@ -461,6 +539,26 @@ Promise.all([
       let fixed = direction === 'up'
       let bottom = !fixed
       toggle05(fixed, bottom)
+    },
+    offset: 'bottom-in-view',
+  })
+
+  // enter (top) / exit (bottom) graphic (toggle fixed position)
+  const enterWaypoint06 = new Waypoint({
+    element: graphicEl06,
+    handler: function (direction) {
+      let fixed = direction === 'down'
+      let bottom = false
+      toggle06(fixed, bottom)
+    },
+  })
+
+  const exitWaypoint06 = new Waypoint({
+    element: graphicEl06,
+    handler: function (direction) {
+      let fixed = direction === 'up'
+      let bottom = !fixed
+      toggle06(fixed, bottom)
     },
     offset: 'bottom-in-view',
   })
