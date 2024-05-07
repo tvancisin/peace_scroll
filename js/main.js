@@ -53,15 +53,28 @@ let line = horizontal_svg.append("g")
 let multiline_svg = d3.select("#visualization075")
   .attr("width", width)
   .attr("height", height)
-  .append("g")
-  .attr("transform", `translate(20,${margin.top})`);
-const multiline_x = d3.scaleLinear()
-  .range([0, width]);
-const multiline_y = d3.scaleLinear()
-  .domain([0, 25])
-  .range([height - 50, 0]);
-const multiline_color = d3.scaleOrdinal()
-  .range(['#0092CC', '#FF3333', '#DCD427', '#f0F0F0'])
+  // .attr("viewBox", [0, 0, width, height])
+  // .attr("style", "max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;")
+  // .append("g")
+  // .attr("transform", `translate(20,${margin.top})`);
+// const multiline_x = d3.scaleUtc()
+//   .range([margin.left, width - margin.right]);
+// const multiline_y = d3.scaleLinear()
+//   .domain([0, 100]).nice()
+//   .range([height - margin.bottom, margin.top]);
+// multiline_svg.append("g")
+//   .attr("transform", `translate(0,${height - margin.bottom})`)
+//   .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0));
+
+// const multiline_x = d3.scaleLinear()
+//   .range([0, width]);
+// const multiline_y = d3.scaleLinear()
+//   .domain([0, 25])
+//   .range([height - 50, 0]);
+// const multiline_color = d3.scaleOrdinal()
+//   .range(['#0092CC', '#FF3333', '#DCD427', '#f0F0F0'])
+
+
 
 //DONUTCHART VISUALIZATION
 let piechart_svg = d3.select("#visualization05")
@@ -149,7 +162,36 @@ Promise.all([
   d3.csv("data/v7_paax_all_with_third.csv"),
   d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stacked.csv"),
 ]).then(function (files) {
-  console.log(files[5]);
+  //new multiline data
+  let just_year_parser = d3.timeParse("%Y");
+  const all_year_agt = d3.groups(files[4], d => +d.year, d => d.AgtId);
+  all_year_agt.sort(function (x, y) {
+    return d3.ascending(x[0], y[0]);
+  })
+  let all_sorted = []
+  all_year_agt.forEach(function (d) {
+    all_sorted.push({
+      date: just_year_parser(d[0]),
+      value: d[1].length
+    })
+  })
+  const act_group = d3.groups(files[3], d => d.global_actor, d => +d.year, d => d.AgtId);
+  act_group.forEach(function (d) {
+    d[1].sort(function (x, y) {
+      return d3.ascending(x[0], y[0]);
+    })
+  })
+  let unemployment = []
+  act_group.forEach(function (d) {
+    d[1].forEach(function (m) {
+      unemployment.push({
+        division: d[0],
+        date: just_year_parser(m[0]),
+        unemployment: m[1].length
+      })
+    })
+  })
+  console.log(unemployment, all_sorted);
 
   //prepare dates and ids for timeline
   files[3].forEach(function (d) {
@@ -320,7 +362,8 @@ Promise.all([
     //  They only signed one agreement.`)
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
-      year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart);
+      year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart,
+    unemployment, all_sorted);
   }
 
   prepare_data(russia, ru_percent_bar, "Russia")

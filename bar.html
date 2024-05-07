@@ -6,77 +6,199 @@
 
 <!-- Create a div where the graph will take place -->
 <div id="my_dataviz"></div>
+
 <script>
 
-    // set the dimensions and margins of the graph
-    const margin = { top: 10, right: 30, bottom: 20, left: 50 },
-        width = 460 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const marginTop = 20;
+    const marginRight = 20;
+    const marginBottom = 30;
+    const marginLeft = 30;
 
-    // append the svg object to the body of the page
+    // Create the SVG container.
     const svg = d3.select("#my_dataviz")
         .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${margin.left},${margin.top})`);
+        .attr("width", width)
+        .attr("height", height)
+        .attr("viewBox", [0, 0, width, height])
+        .attr("style", "max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;");
 
-    // Parse the Data
-    d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stacked.csv").then(function (data) {
+    Promise.all([
+        d3.csv("data/unemployment.csv"),
+        d3.csv("data/agts_with_rus_uk_un_china.csv"),
+        d3.csv("data/v7_paax_all_with_third.csv"),
+    ]).then(function (files) {
+        let just_year_parser = d3.timeParse("%Y");
+        // files[1].forEach(function (d) {
+        //     d.year = just_year_parser(d.year)
+        // })
+        // console.log(files[1]);
 
-        // List of subgroups = header of the csv files = soil condition here
-        const subgroups = data.columns.slice(1)
-        console.log(subgroups);
+        const all_year_agt = d3.groups(files[2], d => +d.year, d => d.AgtId);
+        all_year_agt.sort(function (x, y) {
+            return d3.ascending(x[0], y[0]);
+        })
+        let all_sorted = []
+        all_year_agt.forEach(function (d) {
+            all_sorted.push({
+                date: just_year_parser(d[0]),
+                value: d[1].length
+            })
+        })
+        console.log(all_sorted);
 
-        // List of groups = species here = value of the first column called group -> I show them on the X axis
-        const groups = data.map(d => d.group)
+        const act_group = d3.groups(files[1], d => d.global_actor, d => +d.year, d => d.AgtId);
 
-        console.log(groups)
+        act_group.forEach(function (d) {
+            d[1].sort(function (x, y) {
+                return d3.ascending(x[0], y[0]);
+            })
+        })
 
-        // Add X axis
-        const x = d3.scaleBand()
-            .domain(groups)
-            .range([0, width])
-            .padding([0.2])
-        svg.append("g")
-            .attr("transform", `translate(0, ${height})`)
-            .call(d3.axisBottom(x).tickSize(0));
 
-        // Add Y axis
+        let unemployment = []
+        act_group.forEach(function (d) {
+            d[1].forEach(function (m) {
+                unemployment.push({
+                    division: d[0],
+                    date: just_year_parser(m[0]),
+                    unemployment: m[1].length
+                })
+            })
+        })
+        // console.log(grouped_actors);
+
+
+
+
+
+
+        // let unemployment = files[0];
+        // let parser = d3.timeParse("%Y-%m-%d");
+        // unemployment.forEach(function (d) {
+        //     d.date = parser(d.date)
+        // })
+        // Create the positional scales.
+        const x = d3.scaleUtc()
+            .domain(d3.extent(unemployment, d => d.date))
+            .range([marginLeft, width - marginRight]);
+
         const y = d3.scaleLinear()
-            .domain([0, 40])
-            .range([height, 0]);
+            .domain([0, 100]).nice()
+            .range([height - marginBottom, marginTop]);
+
         svg.append("g")
-            .call(d3.axisLeft(y));
+            .attr("transform", `translate(0,${height - marginBottom})`)
+            .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
 
-        // Another scale for subgroup position?
-        const xSubgroup = d3.scaleBand()
-            .domain(subgroups)
-            .range([0, x.bandwidth()])
-            .padding([0.05])
+        console.log(unemployment);
+        const points = unemployment.map((d) => [x(d.date), y(d.unemployment), d.division]);
+        const delaunay = d3.Delaunay.from(points)
+        const voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
 
-        // color palette = one color per subgroup
-        const color = d3.scaleOrdinal()
-            .domain(subgroups)
-            .range(['#e41a1c', '#377eb8', '#4daf4a'])
-
-        console.log(data);
-        // Show the bars
+        // Add the vertical axis.
         svg.append("g")
-            .selectAll("g")
-            // Enter in data = loop group per group
-            .data(data)
-            .join("g")
-            .attr("transform", d => `translate(${x(d.group)}, 0)`)
-            .selectAll("rect")
-            .data(function (d) { return subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
-            .join("rect")
-            .attr("x", d => xSubgroup(d.key))
-            .attr("y", d => y(d.value))
-            .attr("width", xSubgroup.bandwidth())
-            .attr("height", d => height - y(d.value))
-            .attr("fill", d => color(d.key));
+            .attr("transform", `translate(${marginLeft},0)`)
+            .call(d3.axisLeft(y))
+            .call(g => g.select(".domain").remove())
+            .call(voronoi ? () => { } : g => g.selectAll(".tick line").clone()
+                .attr("x2", width - marginLeft - marginRight)
+                .attr("stroke-opacity", 0.1))
+            .call(g => g.append("text")
+                .attr("x", -marginLeft)
+                .attr("y", 10)
+                .attr("fill", "currentColor")
+                .attr("text-anchor", "start")
+                .text("↑ Unemployment (%)"));
+
+
+        // An optional Voronoi display (for fun).
+        // if (voronoi) svg.append("path")
+        //     .attr("fill", "none")
+        //     .attr("stroke", "#ccc")
+        //     .attr("d", d3.Delaunay
+        //         .from(points)
+        //         .voronoi([0, 0, width, height])
+        //         .render());
+
+
+        // Add the area
+        svg.append("path")
+            .datum(all_sorted)
+            .attr("fill", "#cce5df")
+            .attr("stroke", "#69b3a2")
+            .attr("stroke-width", 1.5)
+            .attr("d", d3.area().curve(d3.curveMonotoneX)
+                .x(d => x(d.date))
+                .y0(y(0))
+                .y1(d => y(d.value))
+            )
+
+        // Group the points by series.
+        const groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
+        console.log(groups);
+
+        // Draw the lines.
+        const line = d3.line().curve(d3.curveMonotoneX);
+
+        const path = svg.append("g")
+            .attr("fill", "none")
+            .attr("stroke", "steelblue")
+            .attr("stroke-width", 1.5)
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .selectAll("path")
+            .data(groups.values())
+            .join("path")
+            .style("mix-blend-mode", "multiply")
+            .attr("d", line);
+
+        // Add an invisible layer for the interactive tip.
+        const dot = svg.append("g")
+            .attr("display", "none");
+
+        dot.append("circle")
+            .attr("r", 2.5);
+
+        dot.append("text")
+            .attr("text-anchor", "middle")
+            .attr("y", -8);
+
+        svg
+            .on("pointerenter", pointerentered)
+            .on("pointermove", pointermoved)
+            .on("pointerleave", pointerleft)
+            .on("touchstart", event => event.preventDefault());
+
+        // When the pointer moves, find the closest point, update the interactive tip, and highlight
+        // the corresponding line. Note: we don't actually use Voronoi here, since an exhaustive search
+        // is fast enough.
+        function pointermoved(event) {
+            const [xm, ym] = d3.pointer(event);
+            const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
+            const [x, y, k] = points[i];
+            path.style("stroke", ({ z }) => z === k ? null : "black").filter(({ z }) => z === k).raise();
+            dot.attr("transform", `translate(${x},${y})`);
+            dot.select("text").text(k);
+            console.log(unemployment[i]);
+            svg.property("value", unemployment[i]).dispatch("input", { bubbles: true });
+        }
+
+        function pointerentered() {
+            path.style("mix-blend-mode", null).style("stroke", "black");
+            dot.attr("display", null);
+        }
+
+        function pointerleft() {
+            path.style("mix-blend-mode", "multiply").style("stroke", null);
+            dot.attr("display", "none");
+            svg.node().value = null;
+            svg.dispatch("input", { bubbles: true });
+        }
 
     })
+
+</script>
 
 </script>

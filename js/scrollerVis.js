@@ -128,7 +128,8 @@ const soviet = ["Armenia", "Azerbaijan", "Belarus", "Estonia", "Georgia",
 const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
-  constructor(_config, _raw, _year, _array, _agt_stage, _multiline, _chart) {
+  constructor(_config, _raw, _year, _array, _agt_stage, _multiline, _chart,
+    _unemployment, _all_sorted) {
     this.config = {
       another: _config.storyElement,
       map: _config.mapElement,
@@ -144,7 +145,9 @@ class ScrollerVis {
     this.country_array = _array;
     this.agt_stage_group = _agt_stage;
     this.multiline_data = _multiline;
-    this._chart_data = _chart
+    this._chart_data = _chart;
+    this.unemployment = _unemployment;
+    this.all_sorted = _all_sorted
     this.initVis();
   }
 
@@ -244,10 +247,126 @@ class ScrollerVis {
       .style("opacity", 0)
 
     //MULTILINE CHART
-    multiline_x.domain(d3.extent(this.raw_data, function (d) { return d.year; }))
+    const multiline_x = d3.scaleUtc()
+      .domain(d3.extent(this.unemployment, d => d.date))
+      .range([margin.left, width - margin.right]);
+
+    const multiline_y = d3.scaleLinear()
+      .domain([0, 100]).nice()
+      .range([height - margin.bottom, margin.top]);
+
     multiline_svg.append("g")
-      .attr("transform", `translate(0, ${height - 70})`)
-      .call(d3.axisBottom(multiline_x).ticks(5));
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0));
+
+    const points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
+    const delaunay = d3.Delaunay.from(points)
+    const voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
+
+    multiline_svg.append("g")
+      .attr("transform", `translate(${margin.left},0)`)
+      .call(d3.axisLeft(multiline_y))
+      .call(g => g.select(".domain").remove())
+      .call(voronoi ? () => { } : g => g.selectAll(".tick line").clone()
+        .attr("x2", width - margin.left - margin.right)
+        .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+        .attr("x", -margin.left)
+        .attr("y", 10)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "start")
+        .text("↑ Unemployment (%)"));
+
+    console.log(this.all_sorted);
+    // Add the area
+    multiline_svg.append("path")
+      .datum(this.all_sorted)
+      .attr("fill", "#cce5df")
+      .attr("stroke", "#69b3a2")
+      .attr("stroke-width", 1.5)
+      .attr("d", d3.area().curve(d3.curveMonotoneX)
+        .x(d => multiline_x(d.date))
+        .y0(multiline_y(0))
+        .y1(d => multiline_y(d.value))
+      )
+
+    // Group the points by series.
+    const multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
+
+    // Draw the lines.
+    const line = d3.line().curve(d3.curveMonotoneX);
+
+    const multiline_path = multiline_svg.append("g")
+      .attr("fill", "none")
+      .attr("stroke", "steelblue")
+      .attr("stroke-width", 1.5)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .selectAll("path")
+      .data(multiline_groups.values())
+      .join("path")
+      .style("mix-blend-mode", "multiply")
+      .attr("d", line);
+
+    // Add an invisible layer for the interactive tip.
+    const dot = multiline_svg.append("g")
+      .attr("display", "none");
+
+    dot.append("circle")
+      .attr("r", 2.5);
+
+    dot.append("text")
+      .attr("text-anchor", "middle")
+      .attr("y", -8);
+
+    multiline_svg
+      .on("pointerenter", pointerentered)
+      .on("pointermove", pointermoved)
+      .on("pointerleave", pointerleft)
+      .on("touchstart", event => event.preventDefault());
+
+    // When the pointer moves, find the closest point, update the interactive tip, and highlight
+    // the corresponding line. Note: we don't actually use Voronoi here, since an exhaustive search
+    // is fast enough.
+    function pointermoved(event) {
+      const [xm, ym] = d3.pointer(event);
+      const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
+      const [x, y, k] = points[i];
+      multiline_path.style("stroke", ({ z }) => z === k ? null : "gray").filter(({ z }) => z === k).raise();
+      dot.attr("transform", `translate(${x},${y})`);
+      dot.select("text").text(k);
+      console.log(this.unemployment);
+      multiline_svg.property("value", this.unemployment[i]).dispatch("input", { bubbles: true });
+    }
+
+    function pointerentered() {
+      multiline_path.style("mix-blend-mode", null).style("stroke", "gray");
+      dot.attr("display", null);
+    }
+
+    function pointerleft() {
+      multiline_path.style("mix-blend-mode", "multiply").style("stroke", null);
+      dot.attr("display", "none");
+      multiline_svg.node().value = null;
+      multiline_svg.dispatch("input", { bubbles: true });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // multiline_x.domain(d3.extent(this.raw_data, function (d) { return d.year; }))
+    // multiline_svg.append("g")
+    //   .attr("transform", `translate(0, ${height - 70})`)
+    //   .call(d3.axisBottom(multiline_x).ticks(5));
     // multiline_svg.append("g")
     //   .call(d3.axisLeft(multiline_y));
 
@@ -270,9 +389,9 @@ class ScrollerVis {
     barchart_svg.append("g")
       .attr("transform", `translate(0, ${height - 10})`)
       .call(d3.axisBottom(bar_x))
-        .selectAll("text")
-        .style("font-size", "12px")
-        .style("font-family", "Montserrat");
+      .selectAll("text")
+      .style("font-size", "12px")
+      .style("font-family", "Montserrat");
 
 
     // Add Y axis
@@ -662,157 +781,173 @@ class ScrollerVis {
     const vis = this;
     console.log("step8", direction);
     //draw multiline chart
-    let multiline_path = multiline_svg.selectAll(".line")
-      .data(this.multiline_data)
-      .join("path")
-      .attr("class", "line")
-      .attr("fill", "none")
-      .attr("stroke", function (d) { return multiline_color(d[0]) })
-      // .attr("stroke", "black")
-      .attr("stroke-width", 2)
-      .attr("d", function (d) {
-        return d3.line()
-          .curve(d3.curveMonotoneX)
-          // .curve(d3.curveCatmullRom.alpha(0.4))
-          .x(function (d) { return multiline_x(d[0]); })
-          .y(function (d) { return multiline_y(+d[1].length); })
-          (d[1])
-      })
+    // let multiline_path = multiline_svg.selectAll(".line")
+    //   .data(this.multiline_data)
+    //   .join("path")
+    //   .attr("class", "line")
+    //   .attr("fill", "none")
+    //   .attr("stroke", function (d) { return multiline_color(d[0]) })
+    //   // .attr("stroke", "black")
+    //   .attr("stroke-width", 2)
+    //   .attr("d", function (d) {
+    //     return d3.line()
+    //       .curve(d3.curveMonotoneX)
+    //       // .curve(d3.curveCatmullRom.alpha(0.4))
+    //       .x(function (d) { return multiline_x(d[0]); })
+    //       .y(function (d) { return multiline_y(+d[1].length); })
+    //       (d[1])
+    //   })
 
     if (direction == "down") {
-      multiline_path
-        .attr("stroke-dasharray", function (d) {
-          // Get the path length of the current element
-          const pathLength = this.getTotalLength();
-          return `0 ${pathLength}`
-        })
-        .transition()
-        .duration(5000)
-        .attr("stroke-dasharray", function (d) {
-          // Get the path length of the current element
-          const pathLength = this.getTotalLength();
-          return `${pathLength} ${pathLength}`
-        });
+
+
+
+
+
+
+
+
+
+
+      //   multiline_path
+      //     .attr("stroke-dasharray", function (d) {
+      //       // Get the path length of the current element
+      //       const pathLength = this.getTotalLength();
+      //       return `0 ${pathLength}`
+      //     })
+      //     .transition()
+      //     .duration(5000)
+      //     .attr("stroke-dasharray", function (d) {
+      //       // Get the path length of the current element
+      //       const pathLength = this.getTotalLength();
+      //       return `${pathLength} ${pathLength}`
+      //     });
 
     }
     else if (direction == "up") {
-      multiline_path
-        .attr("stroke-dasharray", function (d) {
-          // Get the path length of the current element
-          const pathLength = this.getTotalLength();
-          return `${pathLength} ${pathLength}`
-        })
-        .transition()
-        .duration(1000)
-        .attr("stroke-dasharray", function (d) {
-          // Get the path length of the current element
-          const pathLength = this.getTotalLength();
-          return `0 ${pathLength}`
-          // return `${pathLength} ${pathLength}`
-        });
+
+
+
+
+
+
+      //   multiline_path
+      //     .attr("stroke-dasharray", function (d) {
+      //       // Get the path length of the current element
+      //       const pathLength = this.getTotalLength();
+      //       return `${pathLength} ${pathLength}`
+      //     })
+      //     .transition()
+      //     .duration(1000)
+      //     .attr("stroke-dasharray", function (d) {
+      //       // Get the path length of the current element
+      //       const pathLength = this.getTotalLength();
+      //       return `0 ${pathLength}`
+      //       // return `${pathLength} ${pathLength}`
+      //     });
 
     }
 
-    let pos, idx;
-    var mouseG = multiline_svg.append("g") // this the black vertical line to folow mouse
-      .attr("class", "mouse-over-effects");
+    // let pos, idx;
+    // var mouseG = multiline_svg.append("g") // this the black vertical line to folow mouse
+    //   .attr("class", "mouse-over-effects");
 
-    mouseG.append("path")
-      .attr("class", "mouse-line")
-      .style("stroke", "gray")
-      .style("stroke-width", "1px")
-      .style("opacity", "0");
+    // mouseG.append("path")
+    //   .attr("class", "mouse-line")
+    //   .style("stroke", "gray")
+    //   .style("stroke-width", "1px")
+    //   .style("opacity", "0");
 
-    var lines = document.getElementsByClassName("line");
-    var mousePerLine = mouseG.selectAll(".mouse-per-line")
-      .data(this.multiline_data)
-      .enter()
-      .append("g")
-      .attr("class", "mouse-per-line");
+    // var lines = document.getElementsByClassName("line");
+    // var mousePerLine = mouseG.selectAll(".mouse-per-line")
+    //   .data(this.multiline_data)
+    //   .enter()
+    //   .append("g")
+    //   .attr("class", "mouse-per-line");
 
-    mousePerLine.append("circle")
-      .attr("r", 7)
-      .style("stroke", function (d) {
-        return "white"
-      })
-      .style("fill", "none")
-      .style("stroke-width", "1px")
-      .style("opacity", "0");
+    // mousePerLine.append("circle")
+    //   .attr("r", 7)
+    //   .style("stroke", function (d) {
+    //     return "white"
+    //   })
+    //   .style("fill", "none")
+    //   .style("stroke-width", "1px")
+    //   .style("opacity", "0");
 
-    mousePerLine.append("text")
-      .attr("transform", "translate(10,3)");
+    // mousePerLine.append("text")
+    //   .attr("transform", "translate(10,3)");
 
-    mouseG.append("rect")
-      .attr("width", vis.width)
-      .attr("height", height)
-      .attr("fill", "none")
-      .attr("pointer-events", "all")
-      .on("mouseout", function () {
-        d3.select(".mouse-line").style("opacity", "0");
-        d3.selectAll(".mouse-per-line circle").style("opacity", "0");
-        d3.selectAll(".mouse-per-line text").style("opacity", "0")
-      })
-      .on("mouseover", function () {
-        d3.select(".mouse-line").style("opacity", "1");
-        d3.selectAll(".mouse-per-line circle").style("opacity", "1");
-        d3.selectAll(".mouse-per-line text").style("opacity", "1")
+    // mouseG.append("rect")
+    //   .attr("width", vis.width)
+    //   .attr("height", height)
+    //   .attr("fill", "none")
+    //   .attr("pointer-events", "all")
+    //   .on("mouseout", function () {
+    //     d3.select(".mouse-line").style("opacity", "0");
+    //     d3.selectAll(".mouse-per-line circle").style("opacity", "0");
+    //     d3.selectAll(".mouse-per-line text").style("opacity", "0")
+    //   })
+    //   .on("mouseover", function () {
+    //     d3.select(".mouse-line").style("opacity", "1");
+    //     d3.selectAll(".mouse-per-line circle").style("opacity", "1");
+    //     d3.selectAll(".mouse-per-line text").style("opacity", "1")
 
-      })
-      .on("mousemove", function () {
-        var mouse = d3.pointer(event, this);
-        d3.select(".mouse-line")
-          .attr("d", function () {
-            var d = "M" + mouse[0] + "," + height;
-            d += " " + mouse[0] + "," + 0;
-            return d;
-          })
-        // .attr("d",function(){
-        //   var d = "M" + w +"," + mouse[1];
-        //   d+=" " +0 + "," + mouse[1];
-        //   return d;
-        // });
+    //   })
+    //   .on("mousemove", function () {
+    //     var mouse = d3.pointer(event, this);
+    //     d3.select(".mouse-line")
+    //       .attr("d", function () {
+    //         var d = "M" + mouse[0] + "," + height;
+    //         d += " " + mouse[0] + "," + 0;
+    //         return d;
+    //       })
+    //     // .attr("d",function(){
+    //     //   var d = "M" + w +"," + mouse[1];
+    //     //   d+=" " +0 + "," + mouse[1];
+    //     //   return d;
+    //     // });
 
-        d3.selectAll(".mouse-per-line")
-          .attr("transform", function (d, i) {
-            // console.log(width / (mouse[0]));
-            var xDate = multiline_x.invert(mouse[0]),
-              bisect = d3.bisector(function (d) { return d.date; }).right;
-            idx = bisect(d.values, xDate);
-            // console.log("xDate:", xDate);
-            // console.log("bisect", bisect);
-            // console.log("idx:", idx)
+    //     d3.selectAll(".mouse-per-line")
+    //       .attr("transform", function (d, i) {
+    //         // console.log(width / (mouse[0]));
+    //         var xDate = multiline_x.invert(mouse[0]),
+    //           bisect = d3.bisector(function (d) { return d.date; }).right;
+    //         idx = bisect(d.values, xDate);
+    //         // console.log("xDate:", xDate);
+    //         // console.log("bisect", bisect);
+    //         // console.log("idx:", idx)
 
-            var beginning = 0,
-              end = lines[i].getTotalLength(),
-              target = null;
+    //         var beginning = 0,
+    //           end = lines[i].getTotalLength(),
+    //           target = null;
 
-            // console.log("end", end);
+    //         // console.log("end", end);
 
-            while (true) {
-              target = Math.floor((beginning + end) / 2)
-              // console.log("Target:", target);
-              pos = lines[i].getPointAtLength(target);
-              // console.log("Position", pos.y);
-              // console.log("What is the position here:", pos)
-              if ((target === end || target == beginning) && pos.x !== mouse[0]) {
-                break;
-              }
+    //         while (true) {
+    //           target = Math.floor((beginning + end) / 2)
+    //           // console.log("Target:", target);
+    //           pos = lines[i].getPointAtLength(target);
+    //           // console.log("Position", pos.y);
+    //           // console.log("What is the position here:", pos)
+    //           if ((target === end || target == beginning) && pos.x !== mouse[0]) {
+    //             break;
+    //           }
 
-              if (pos.x > mouse[0]) end = target;
-              else if (pos.x < mouse[0]) beginning = target;
-              else break; // position found
-            }
-            d3.select(this).select("text")
-              .text(multiline_y.invert(pos.y).toFixed(1))
-              .attr("fill", function (d) {
-                // return color(d.name)
-                return "white"
-              });
-            return "translate(" + mouse[0] + "," + pos.y + ")";
+    //           if (pos.x > mouse[0]) end = target;
+    //           else if (pos.x < mouse[0]) beginning = target;
+    //           else break; // position found
+    //         }
+    //         d3.select(this).select("text")
+    //           .text(multiline_y.invert(pos.y).toFixed(1))
+    //           .attr("fill", function (d) {
+    //             // return color(d.name)
+    //             return "white"
+    //           });
+    //         return "translate(" + mouse[0] + "," + pos.y + ")";
 
-          });
+    //       });
 
-      });
+    //   });
 
   }
 
@@ -825,6 +960,24 @@ class ScrollerVis {
   step10(direction) {
     const vis = this;
     console.log("step10", direction);
+
+  }
+
+  step11(direction) {
+    const vis = this;
+    console.log("step11", direction);
+
+  }
+
+  step12(direction) {
+    const vis = this;
+    console.log("step12", direction);
+
+  }
+
+  step13(direction) {
+    const vis = this;
+    console.log("step13", direction);
 
   }
 
