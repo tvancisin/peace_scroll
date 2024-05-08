@@ -3,7 +3,7 @@ window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
 //get current width and height of the screen
-const width100 = window.innerWidth - 20,
+const width100 = window.innerWidth - 10, // minus scroll width 10 px
   height100 = window.innerHeight,
   width80 = width100 * 0.80,
   width20 = width100 * 0.20;

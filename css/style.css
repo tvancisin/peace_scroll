@@ -98,6 +98,7 @@ body::-webkit-scrollbar-thumb:hover {
   text-align: left;
   height: 1000px;
   font-size: 14px;
+  border-bottom: 2px solid green;
 }
 
 p {
@@ -213,9 +214,14 @@ p {
   transform: scale(1.1);
 }
 
+
 .tick line {
   stroke: white;
   stroke-opacity: 1;
+}
+
+.myXaxis line {
+  stroke: #a90000;
 }
 
 #para1 {

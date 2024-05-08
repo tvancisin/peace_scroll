@@ -156,12 +156,12 @@ class ScrollerVis {
     vis.width = vis.config.vis_width - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
     d3.select(".myXaxis").remove()
+
     //BEESWARM VISUALIZATION
-    // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
-    vis.x_axis = d3.axisBottom(x_horizontal);
     horizontal_svg.append("g")
       .attr("transform", `translate(10, ` + height + `)`)
       .attr("class", "myXaxis")
+    vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height);
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
@@ -247,11 +247,11 @@ class ScrollerVis {
       .style("opacity", 0)
 
     //MULTILINE CHART
-    const multiline_x = d3.scaleUtc()
+    let multiline_x = d3.scaleUtc()
       .domain(d3.extent(this.unemployment, d => d.date))
       .range([margin.left, width - margin.right]);
 
-    const multiline_y = d3.scaleLinear()
+    let multiline_y = d3.scaleLinear()
       .domain([0, 100]).nice()
       .range([height - margin.bottom, margin.top]);
 
@@ -259,9 +259,9 @@ class ScrollerVis {
       .attr("transform", `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0));
 
-    const points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
-    const delaunay = d3.Delaunay.from(points)
-    const voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
+    let points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
+    let delaunay = d3.Delaunay.from(points)
+    let voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
 
     multiline_svg.append("g")
       .attr("transform", `translate(${margin.left},0)`)
@@ -292,13 +292,13 @@ class ScrollerVis {
       )
 
     // Group the points by series.
-    const multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
+    let multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     // Draw the lines.
-    const line = d3.line()
+    let line = d3.line()
       // .curve(d3.curveMonotoneX);
 
-    const multiline_path = multiline_svg.append("g")
+    let  multiline_path = multiline_svg.append("g")
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
@@ -311,7 +311,7 @@ class ScrollerVis {
       .attr("d", line);
 
     // Add an invisible layer for the interactive tip.
-    const dot = multiline_svg.append("g")
+    let dot = multiline_svg.append("g")
       .attr("display", "none");
 
     dot.append("circle")
@@ -321,9 +321,21 @@ class ScrollerVis {
       .attr("text-anchor", "middle")
       .attr("y", -8);
 
+    // const blaaa = this
+
     multiline_svg
       .on("pointerenter", pointerentered)
-      .on("pointermove", pointermoved)
+      // .on("pointermove", pointermoved)
+      .on("pointermove", function (event) {
+      const [xm, ym] = d3.pointer(event);
+      const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
+      const [x, y, k] = points[i];
+      multiline_path.style("stroke", ({ z }) => z === k ? null : "gray").filter(({ z }) => z === k).raise();
+      dot.attr("transform", `translate(${x},${y})`);
+      dot.select("text").text(k);
+      console.log(vis.unemployment);
+      multiline_svg.property("value", vis.unemployment[i]).dispatch("input", { bubbles: true });
+    })
       .on("pointerleave", pointerleft)
       .on("touchstart", event => event.preventDefault());
 
@@ -353,26 +365,6 @@ class ScrollerVis {
       multiline_svg.dispatch("input", { bubbles: true });
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    // multiline_x.domain(d3.extent(this.raw_data, function (d) { return d.year; }))
-    // multiline_svg.append("g")
-    //   .attr("transform", `translate(0, ${height - 70})`)
-    //   .call(d3.axisBottom(multiline_x).ticks(5));
-    // multiline_svg.append("g")
-    //   .call(d3.axisLeft(multiline_y));
-
-
     //BAR CHART
     // List of subgroups = header of the csv files = soil condition here
     const subgroups = ["All"]
@@ -394,7 +386,6 @@ class ScrollerVis {
       .selectAll("text")
       .style("font-size", "12px")
       .style("font-family", "Montserrat");
-
 
     // Add Y axis
     const bar_y = d3.scaleLinear()
