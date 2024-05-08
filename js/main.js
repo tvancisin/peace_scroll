@@ -87,7 +87,7 @@ const radius = Math.min(width80, height) / 2 - 50
 const arc = d3.arc()
   .innerRadius(radius * 0.4)         // This is the size of the donut hole
   .outerRadius(radius * 0.70)
-  .cornerRadius(8)
+  .cornerRadius(4)
 // Another arc that won't be drawn. Just for labels positioning
 const outerArc = d3.arc()
   .innerRadius(radius * 0.9)

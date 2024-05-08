@@ -195,7 +195,7 @@ class ScrollerVis {
       .attr('fill', d => color(d.data[1]))
       // .attr('fill', "gray")
       .attr("stroke", "black")
-      .style("stroke-width", "4px")
+      .style("stroke-width", "2px")
       .style("opacity", 0.7)
     // Add the polylines between chart and labels:
     piechart_svg
@@ -281,10 +281,11 @@ class ScrollerVis {
     // Add the area
     multiline_svg.append("path")
       .datum(this.all_sorted)
-      .attr("fill", "#cce5df")
+      .attr("fill", "white")
       .attr("stroke", "#69b3a2")
       .attr("stroke-width", 1.5)
-      .attr("d", d3.area().curve(d3.curveMonotoneX)
+      .attr("d", d3.area()
+        // .curve(d3.curveMonotoneX)
         .x(d => multiline_x(d.date))
         .y0(multiline_y(0))
         .y1(d => multiline_y(d.value))
@@ -294,7 +295,8 @@ class ScrollerVis {
     const multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
 
     // Draw the lines.
-    const line = d3.line().curve(d3.curveMonotoneX);
+    const line = d3.line()
+      // .curve(d3.curveMonotoneX);
 
     const multiline_path = multiline_svg.append("g")
       .attr("fill", "none")
