@@ -213,13 +213,20 @@ p {
   transform: scale(1.1);
 }
 
-
 .tick line {
   stroke: white;
   stroke-opacity: 1;
 }
 
 .myXaxis line {
+  opacity: 1;
+}
+
+.multi_axis path{
+ opacity: 0; 
+}
+
+.multi_y path{
   opacity: 0;
 }
 

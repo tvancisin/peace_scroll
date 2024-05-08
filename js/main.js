@@ -9,7 +9,7 @@ const width100 = window.innerWidth - 10, // minus scroll width 10 px
   width20 = width100 * 0.20;
 // width50 = width100 * 0.5;
 //margins for visualization
-const margin = { top: 50, right: 10, bottom: 30, left: 10 },
+const margin = { top: 50, right: 10, bottom: 20, left: 10 },
   height = height100 - margin.top - margin.bottom,
   width = width80 - margin.top - margin.bottom;
 
@@ -22,7 +22,7 @@ d3.selectAll(`.graphic__vis, .graphic__vis__1,
   .style("height", height100 + "px")
   .style("left", width20 + "px")
 d3.selectAll(`#visualization, #visualization05,
- #visualization06, #visualization1, #map`)
+ #visualization06,#visualization075, #visualization1, #map`)
   .style("width", width80 + "px")
   .style("height", height100 + "px")
 d3.selectAll(`.graphic__prose, .graphic__prose__05,
@@ -33,14 +33,14 @@ d3.selectAll("#separator, #separator05, #separator1")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
 d3.selectAll(".trigger")
-.style("padding-top", height100 / 3 + "px")
-.style("height", height100 + "px")
+  .style("padding-top", height100 / 3 + "px")
+  .style("height", height100 + "px")
 d3.selectAll("#publications")
   .style("width", width100 / 5 + "px")
 
 
 //BEESWARM VISUALIZATION
-let horizontal_svg = d3.select("#visualization") 
+let horizontal_svg = d3.select("#visualization")
   .attr("class", "horizontal_bee")
   .attr("width", width)
   .attr("height", height)
@@ -48,15 +48,18 @@ let horizontal_svg = d3.select("#visualization")
   .attr("transform", `translate(20,${margin.top})`);
 let x_horizontal = d3.scaleTime()
   .range([0, width])
-let y_vertical = d3.scaleTime() 
+let y_vertical = d3.scaleTime()
   .range([10, height])
 let line = horizontal_svg.append("g") //contex line 
 
 
 //MULTILINE VISUALIZATION
 let multiline_svg = d3.select("#visualization075")
-  .attr("width", width)
+  .attr("width", width + 30)
   .attr("height", height)
+  // .attr("viewBox", [0, 0, width, height])
+  .append("g")
+  .attr("transform", `translate(20,${margin.top})`);
 
 
 //DONUTCHART VISUALIZATION
@@ -68,7 +71,7 @@ let piechart_svg = d3.select("#visualization05")
 // The arc generator
 const radius = Math.min(width80, height) / 2 - 50
 const arc = d3.arc()
-  .innerRadius(radius * 0.5)  
+  .innerRadius(radius * 0.5)
   .outerRadius(radius * 0.80)
   .cornerRadius(4)
 // Another arc that won't be drawn. Just for labels positioning
@@ -346,7 +349,7 @@ Promise.all([
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
       year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart,
-    unemployment, all_sorted);
+      unemployment, all_sorted);
   }
 
   prepare_data(russia, ru_percent_bar, "Russia")

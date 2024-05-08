@@ -251,22 +251,27 @@ class ScrollerVis {
     let multiline_x = d3.scaleUtc()
       .domain(d3.extent(this.unemployment, d => d.date))
       .range([margin.left, width - margin.right]);
-
     let multiline_y = d3.scaleLinear()
       .domain([0, 100]).nice()
       .range([height - margin.bottom, margin.top]);
-
     multiline_svg.append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0));
-
+      .attr("class", "multi_axis")
+      .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0))
+      .selectAll("text")
+      .style("font-size", "12px")
+      .style("font-family", "Montserrat");
     let points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
     let delaunay = d3.Delaunay.from(points)
     let voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
 
     multiline_svg.append("g")
+      .attr("class", "multi_y")
       .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(multiline_y))
+      .call(d3.axisLeft(multiline_y).ticks(5))
+      .selectAll("text")
+      .style("font-size", "12px")
+      .style("font-family", "Montserrat")
       .call(g => g.select(".domain").remove())
       .call(voronoi ? () => { } : g => g.selectAll(".tick line").clone()
         .attr("x2", width - margin.left - margin.right)
@@ -276,16 +281,18 @@ class ScrollerVis {
         .attr("y", 10)
         .attr("fill", "currentColor")
         .attr("text-anchor", "start")
-        .text("↑ Unemployment (%)"));
+        // .text("↑ Unemployment (%)")
+      );
 
     // Add the area
     multiline_svg.append("path")
       .datum(this.all_sorted)
-      .attr("fill", "white")
-      .attr("stroke", "#69b3a2")
+      .attr("fill", "#152847")
+      .attr("stroke", "#101723")
       .attr("stroke-width", 1.5)
       .attr("d", d3.area()
         // .curve(d3.curveMonotoneX)
+        .curve(d3.curveCardinal.tension(0.6))
         .x(d => multiline_x(d.date))
         .y0(multiline_y(0))
         .y1(d => multiline_y(d.value))
@@ -293,51 +300,44 @@ class ScrollerVis {
 
     // Group the points by series.
     let multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
-
     // Draw the lines.
     let line = d3.line()
-    // .curve(d3.curveMonotoneX);
+      .curve(d3.curveCardinal.tension(0.5));
+    // .curve(d3.curveMonotoneX)
 
     let multiline_path = multiline_svg.append("g")
       .attr("fill", "none")
-      .attr("stroke", "steelblue")
-      .attr("stroke-width", 1.5)
+      .attr("stroke", "gray")
+      .attr("stroke-width", 2)
       .attr("stroke-linejoin", "round")
       .attr("stroke-linecap", "round")
       .selectAll("path")
       .data(multiline_groups.values())
       .join("path")
       .style("mix-blend-mode", "multiply")
-      .attr("d", line);
+      .attr("d", line)
+      .raise();
+
+    let these = this.unemployment;
 
     // Add an invisible layer for the interactive tip.
     let dot = multiline_svg.append("g")
       .attr("display", "none");
 
     dot.append("circle")
-      .attr("r", 2.5);
+      .attr("r", 3)
+      .style("fill", "white");
 
     dot.append("text")
       .attr("text-anchor", "middle")
       .attr("y", -8);
 
-    // const blaaa = this
-
     multiline_svg
       .on("pointerenter", pointerentered)
-      // .on("pointermove", pointermoved)
-      .on("pointermove", function (event) {
-        const [xm, ym] = d3.pointer(event);
-        const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
-        const [x, y, k] = points[i];
-        multiline_path.style("stroke", ({ z }) => z === k ? null : "gray").filter(({ z }) => z === k).raise();
-        dot.attr("transform", `translate(${x},${y})`);
-        dot.select("text").text(k);
-        console.log(vis.unemployment);
-        multiline_svg.property("value", vis.unemployment[i]).dispatch("input", { bubbles: true });
-      })
+      .on("pointermove", pointermoved)
       .on("pointerleave", pointerleft)
       .on("touchstart", event => event.preventDefault());
+    
 
     // When the pointer moves, find the closest point, update the interactive tip, and highlight
     // the corresponding line. Note: we don't actually use Voronoi here, since an exhaustive search
@@ -346,15 +346,14 @@ class ScrollerVis {
       const [xm, ym] = d3.pointer(event);
       const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
       const [x, y, k] = points[i];
-      multiline_path.style("stroke", ({ z }) => z === k ? null : "gray").filter(({ z }) => z === k).raise();
+      multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
       dot.attr("transform", `translate(${x},${y})`);
-      dot.select("text").text(k);
-      console.log(this.unemployment);
-      multiline_svg.property("value", this.unemployment[i]).dispatch("input", { bubbles: true });
+      dot.select("text").text(k).style("fill", "white");
+      multiline_svg.property("value", these[i]).dispatch("input", { bubbles: true });
     }
 
     function pointerentered() {
-      multiline_path.style("mix-blend-mode", null).style("stroke", "gray");
+      multiline_path.style("mix-blend-mode", null).style("stroke", "black");
       dot.attr("display", null);
     }
 
