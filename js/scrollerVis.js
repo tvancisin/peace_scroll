@@ -161,7 +161,8 @@ class ScrollerVis {
     horizontal_svg.append("g")
       .attr("transform", `translate(10, ` + height + `)`)
       .attr("class", "myXaxis")
-    vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height);
+    vis.x_axis = d3.axisBottom(x_horizontal) // small ticks
+    // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height);
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
@@ -277,7 +278,6 @@ class ScrollerVis {
         .attr("text-anchor", "start")
         .text("↑ Unemployment (%)"));
 
-    console.log(this.all_sorted);
     // Add the area
     multiline_svg.append("path")
       .datum(this.all_sorted)
@@ -296,9 +296,9 @@ class ScrollerVis {
 
     // Draw the lines.
     let line = d3.line()
-      // .curve(d3.curveMonotoneX);
+    // .curve(d3.curveMonotoneX);
 
-    let  multiline_path = multiline_svg.append("g")
+    let multiline_path = multiline_svg.append("g")
       .attr("fill", "none")
       .attr("stroke", "steelblue")
       .attr("stroke-width", 1.5)
@@ -327,15 +327,15 @@ class ScrollerVis {
       .on("pointerenter", pointerentered)
       // .on("pointermove", pointermoved)
       .on("pointermove", function (event) {
-      const [xm, ym] = d3.pointer(event);
-      const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
-      const [x, y, k] = points[i];
-      multiline_path.style("stroke", ({ z }) => z === k ? null : "gray").filter(({ z }) => z === k).raise();
-      dot.attr("transform", `translate(${x},${y})`);
-      dot.select("text").text(k);
-      console.log(vis.unemployment);
-      multiline_svg.property("value", vis.unemployment[i]).dispatch("input", { bubbles: true });
-    })
+        const [xm, ym] = d3.pointer(event);
+        const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
+        const [x, y, k] = points[i];
+        multiline_path.style("stroke", ({ z }) => z === k ? null : "gray").filter(({ z }) => z === k).raise();
+        dot.attr("transform", `translate(${x},${y})`);
+        dot.select("text").text(k);
+        console.log(vis.unemployment);
+        multiline_svg.property("value", vis.unemployment[i]).dispatch("input", { bubbles: true });
+      })
       .on("pointerleave", pointerleft)
       .on("touchstart", event => event.preventDefault());
 
@@ -492,8 +492,15 @@ class ScrollerVis {
           d3.select(this).style("stroke", "white")
           d3.select("#hover_description")
             .style("display", "block")
-            .style("left", d.x + 20 + "px")
-            .style("top", d.y - 20 + "px")
+            .style("left", function () {
+              if (d.x >= width100 / 2) {
+                return d.x - width20 - 150 + "px"
+              }
+              else {
+                return d.x - width20 + 20 + "px"
+              }
+            })
+            .style("top", d.y + "px")
             .html(i[1][0][1][0].Agt)
         })
         .on("mouseout", function (d, i) {

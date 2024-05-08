@@ -16,64 +16,47 @@ const margin = { top: 50, right: 10, bottom: 30, left: 10 },
 //adjusting width and height for current screen
 d3.selectAll("#story")
   .style("width", width100 + "px")
-d3.selectAll(".graphic__vis, .graphic__vis__1, .graphic__vis__05, .graphic__vis__06, .graphic__vis__075")
+d3.selectAll(`.graphic__vis, .graphic__vis__1,
+ .graphic__vis__05, .graphic__vis__06, .graphic__vis__075`)
   .style("width", width80 + "px")
   .style("height", height100 + "px")
   .style("left", width20 + "px")
-d3.selectAll("#visualization, #visualization05, #visualization06, #visualization1, #map")
+d3.selectAll(`#visualization, #visualization05,
+ #visualization06, #visualization1, #map`)
   .style("width", width80 + "px")
   .style("height", height100 + "px")
-d3.selectAll(".graphic__prose, .graphic__prose__05, .graphic__prose__06, .graphic__prose__075, .graphic__prose__1")
+d3.selectAll(`.graphic__prose, .graphic__prose__05,
+ .graphic__prose__06, .graphic__prose__075, .graphic__prose__1`)
   .style("width", width20 + "px")
   .style("left", 0 + "px")
 d3.selectAll("#separator, #separator05, #separator1")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
-d3.selectAll(".trigger").style("padding-top", height100 / 3 + "px")
+d3.selectAll(".trigger")
+.style("padding-top", height100 / 3 + "px")
+.style("height", height100 + "px")
 d3.selectAll("#publications")
   .style("width", width100 / 5 + "px")
 
+
 //BEESWARM VISUALIZATION
-//scaling vertical axis
-let y_vertical = d3.scaleTime()
-  .range([10, height])
-//scaling horizontal axis
-let horizontal_svg = d3.select("#visualization")
+let horizontal_svg = d3.select("#visualization") 
   .attr("class", "horizontal_bee")
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(10,${margin.top})`);
+  .attr("transform", `translate(20,${margin.top})`);
 let x_horizontal = d3.scaleTime()
   .range([0, width])
-//contex line g
-let line = horizontal_svg.append("g")
+let y_vertical = d3.scaleTime() 
+  .range([10, height])
+let line = horizontal_svg.append("g") //contex line 
+
 
 //MULTILINE VISUALIZATION
 let multiline_svg = d3.select("#visualization075")
   .attr("width", width)
   .attr("height", height)
-  // .attr("viewBox", [0, 0, width, height])
-  // .attr("style", "max-width: 100%; height: auto; overflow: visible; font: 10px sans-serif;")
-  // .append("g")
-  // .attr("transform", `translate(20,${margin.top})`);
-// const multiline_x = d3.scaleUtc()
-//   .range([margin.left, width - margin.right]);
-// const multiline_y = d3.scaleLinear()
-//   .domain([0, 100]).nice()
-//   .range([height - margin.bottom, margin.top]);
-// multiline_svg.append("g")
-//   .attr("transform", `translate(0,${height - margin.bottom})`)
-//   .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0));
-
-// const multiline_x = d3.scaleLinear()
-//   .range([0, width]);
-// const multiline_y = d3.scaleLinear()
-//   .domain([0, 25])
-//   .range([height - 50, 0]);
-// const multiline_color = d3.scaleOrdinal()
-//   .range(['#0092CC', '#FF3333', '#DCD427', '#f0F0F0'])
-
 
 
 //DONUTCHART VISUALIZATION
@@ -85,8 +68,8 @@ let piechart_svg = d3.select("#visualization05")
 // The arc generator
 const radius = Math.min(width80, height) / 2 - 50
 const arc = d3.arc()
-  .innerRadius(radius * 0.4)         // This is the size of the donut hole
-  .outerRadius(radius * 0.70)
+  .innerRadius(radius * 0.5)  
+  .outerRadius(radius * 0.80)
   .cornerRadius(4)
 // Another arc that won't be drawn. Just for labels positioning
 const outerArc = d3.arc()

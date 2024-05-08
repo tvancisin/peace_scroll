@@ -96,9 +96,8 @@ body::-webkit-scrollbar-thumb:hover {
 .trigger {
   padding: 10px;
   text-align: left;
-  height: 1000px;
   font-size: 14px;
-  border-bottom: 2px solid green;
+  border-bottom: 1px solid white;
 }
 
 p {
@@ -108,7 +107,7 @@ p {
   background-color: rgba(0, 0, 0, 0.7);
   padding: 10px;
   font-size: 14px;
-  /* box-shadow: 0px 1px 2px #232323, 0px -1px 2px #232323; */
+  box-shadow: 0px 1px 2px #232323, 0px -1px 2px #232323;
 }
 
 .graphic__vis {
@@ -221,7 +220,7 @@ p {
 }
 
 .myXaxis line {
-  stroke: #a90000;
+  opacity: 0;
 }
 
 #para1 {
