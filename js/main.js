@@ -171,17 +171,6 @@ Promise.all([
       return d3.ascending(x[0], y[0]);
     })
   })
-  let unemployment = []
-  act_group.forEach(function (d) {
-    d[1].forEach(function (m) {
-      unemployment.push({
-        division: d[0],
-        date: just_year_parser(m[0]),
-        unemployment: m[1].length
-      })
-    })
-  })
-  console.log(unemployment, all_sorted);
 
   //prepare dates and ids for timeline
   files[3].forEach(function (d) {
@@ -258,6 +247,26 @@ Promise.all([
 
   let scrollerVis;
   const prepare_data = function (data, chart_data, selected_actor) {
+
+  let actorIndex = act_group.findIndex(entry => entry[0] === selected_actor);
+  // Remove the array containing "Russia"
+  let actorArray = act_group.splice(actorIndex, 1)[0];
+  // Push the removed array to the end of the array of arrays
+  act_group.push(actorArray);
+  console.log(act_group);
+
+  let unemployment = []
+  act_group.forEach(function (d) {
+    d[1].forEach(function (m) {
+      unemployment.push({
+        division: d[0],
+        date: just_year_parser(m[0]),
+        unemployment: m[1].length
+      })
+    })
+  })
+
+
     //prepare barchart data
     const comb_chart = all_percent_bar.map((obj1) => {
       const obj2 = chart_data.find((obj2) => obj2.stage === obj1.stage);
@@ -353,7 +362,7 @@ Promise.all([
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
       year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart,
-      unemployment, all_sorted);
+      unemployment, all_sorted, selected_actor);
   }
 
   prepare_data(russia, ru_percent_bar, "Russia")

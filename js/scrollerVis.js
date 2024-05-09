@@ -129,7 +129,7 @@ const syria = ["Syria", "Libya", "Central African Republic"];
 
 class ScrollerVis {
   constructor(_config, _raw, _year, _array, _agt_stage, _multiline, _chart,
-    _unemployment, _all_sorted) {
+    _unemployment, _all_sorted, _selected) {
     this.config = {
       another: _config.storyElement,
       map: _config.mapElement,
@@ -148,6 +148,7 @@ class ScrollerVis {
     this._chart_data = _chart;
     this.unemployment = _unemployment;
     this.all_sorted = _all_sorted
+    this.selected_actor = _selected
     this.initVis();
   }
 
@@ -262,6 +263,7 @@ class ScrollerVis {
       .style("font-size", "12px")
       .style("font-family", "Montserrat");
     let points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
+    console.log(points);
     let delaunay = d3.Delaunay.from(points)
     let voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
 
@@ -287,7 +289,7 @@ class ScrollerVis {
     // Add the area
     multiline_svg.append("path")
       .datum(this.all_sorted)
-      .attr("fill", "#152847")
+      .attr("fill", "#379FDF")
       .attr("stroke", "#101723")
       .attr("stroke-width", 1.5)
       .attr("d", d3.area()
@@ -300,23 +302,39 @@ class ScrollerVis {
 
     // Group the points by series.
     let multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
+
     // Draw the lines.
     let line = d3.line()
       .curve(d3.curveCardinal.tension(0.5));
     // .curve(d3.curveMonotoneX)
+    let sel_actor = this.selected_actor
 
     let multiline_path = multiline_svg.append("g")
       .attr("fill", "none")
-      .attr("stroke", "gray")
-      .attr("stroke-width", 2)
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
       .selectAll("path")
       .data(multiline_groups.values())
       .join("path")
-      .style("mix-blend-mode", "multiply")
+      // .style("mix-blend-mode", "multiply")
       .attr("d", line)
-      .raise();
+      .attr("stroke", function (d) {
+        if (d[0][2] == sel_actor) {
+          return "white"
+        }
+        else {
+          return "black"
+        }
+      })
+      .attr("stroke-width", function(d){
+        if (d[0][2] == sel_actor) {
+          return 3 
+        }
+        else {
+          return 2 
+        }
+
+      })
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
 
     let these = this.unemployment;
 
@@ -325,7 +343,7 @@ class ScrollerVis {
       .attr("display", "none");
 
     dot.append("circle")
-      .attr("r", 3)
+      .attr("r", 5)
       .style("fill", "white");
 
     dot.append("text")
@@ -337,7 +355,7 @@ class ScrollerVis {
       .on("pointermove", pointermoved)
       .on("pointerleave", pointerleft)
       .on("touchstart", event => event.preventDefault());
-    
+
 
     // When the pointer moves, find the closest point, update the interactive tip, and highlight
     // the corresponding line. Note: we don't actually use Voronoi here, since an exhaustive search
@@ -353,12 +371,19 @@ class ScrollerVis {
     }
 
     function pointerentered() {
-      multiline_path.style("mix-blend-mode", null).style("stroke", "black");
+      multiline_path.style("stroke", "black");
       dot.attr("display", null);
     }
 
     function pointerleft() {
-      multiline_path.style("mix-blend-mode", "multiply").style("stroke", null);
+      multiline_path.style("stroke", function(d){
+        if (d[0][2] == sel_actor) {
+          return "white"
+        }
+        else {
+          return "black"
+        }
+      } );
       dot.attr("display", "none");
       multiline_svg.node().value = null;
       multiline_svg.dispatch("input", { bubbles: true });
@@ -574,11 +599,12 @@ class ScrollerVis {
     if (direction == "down") {
       d3.selectAll(".soviet").style("fill", "white")
       d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories.")
-      d3.select(".dot").style("background-color", "white")    }
+      d3.select(".dot").style("background-color", "white")
+    }
     else if (direction == "up") {
       d3.selectAll(".my_circles").style("fill", "#7B8AD6")
       d3.select("#legend p").text("Individual peace agreements signed by Russia (hover over for more detail).")
-      d3.select(".dot").style("background-color", "#7B8AD6")    
+      d3.select(".dot").style("background-color", "#7B8AD6")
     }
   }
 
