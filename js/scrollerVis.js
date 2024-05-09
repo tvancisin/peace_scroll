@@ -587,6 +587,7 @@ class ScrollerVis {
     console.log("step3", direction);
 
     if (direction === "down") {
+      d3.select("#legend p").text("Peace agreements addressing conflicts in Syria, Libya, and the Central African Republic.")
       d3.selectAll(".soviet").style("fill", "#7B8AD6")
       d3.selectAll(".syria").style("fill", "white")
       drawContext(context_data, height)
@@ -606,6 +607,7 @@ class ScrollerVis {
     else {
       d3.selectAll(".soviet").style("fill", "white")
       d3.selectAll(".syria").style("fill", "#7B8AD6")
+      d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories.")
       drawContext([], height)
     }
   }
@@ -749,9 +751,29 @@ class ScrollerVis {
     }
   }
 
+  //MULTILINE
   step5(direction) {
     const vis = this;
     console.log("step5", direction);
+
+  }
+
+  step6(direction) {
+    const vis = this;
+    console.log("step6", direction);
+
+  }
+
+  step7(direction) {
+    const vis = this;
+    console.log("step7", direction);
+
+  }
+
+  //DONUT
+  step8(direction) {
+    const vis = this;
+    console.log("step8", direction);
 
     if (direction == "down") {
       drawDonut(this.agt_stage_group, direction)
@@ -763,14 +785,14 @@ class ScrollerVis {
     }
   }
 
-  step6(direction) {
+  step9(direction) {
     const vis = this;
-    console.log("step6", direction);
+    console.log("step9", direction);
   }
 
-  step7(direction) {
+  step10(direction) {
     const vis = this;
-    console.log("step7", direction);
+    console.log("step10", direction);
     if (direction == "down") {
       drawDonut(zero_donut, "up")
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 0)
@@ -778,13 +800,12 @@ class ScrollerVis {
     else if (direction == "up") {
       drawDonut(this.agt_stage_group, "down")
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 1)
-
     }
   }
 
-  step8(direction) {
+  step11(direction) {
     const vis = this;
-    console.log("step8", direction);
+    console.log("step11", direction);
     //draw multiline chart
     // let multiline_path = multiline_svg.selectAll(".line")
     //   .data(this.multiline_data)
@@ -805,15 +826,6 @@ class ScrollerVis {
 
     if (direction == "down") {
 
-
-
-
-
-
-
-
-
-
       //   multiline_path
       //     .attr("stroke-dasharray", function (d) {
       //       // Get the path length of the current element
@@ -830,10 +842,6 @@ class ScrollerVis {
 
     }
     else if (direction == "up") {
-
-
-
-
 
 
       //   multiline_path
@@ -956,34 +964,14 @@ class ScrollerVis {
 
   }
 
-  step9(direction) {
-    const vis = this;
-    console.log("step9", direction);
-
-  }
-
-  step10(direction) {
-    const vis = this;
-    console.log("step10", direction);
-
-  }
-
-  step11(direction) {
-    const vis = this;
-    console.log("step11", direction);
-
-  }
-
   step12(direction) {
     const vis = this;
     console.log("step12", direction);
-
   }
 
   step13(direction) {
     const vis = this;
     console.log("step13", direction);
-
   }
 
   goToStep(stepIndex, direction) {
