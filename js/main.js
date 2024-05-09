@@ -22,7 +22,7 @@ d3.selectAll(`.graphic__vis, .graphic__vis__1,
   .style("height", height100 + "px")
   .style("left", width20 + "px")
 d3.selectAll(`#visualization, #visualization05,
- #visualization06,#visualization075, #visualization1, #map`)
+ #visualization06,#visualization075, #visualization1`)
   .style("width", width80 + "px")
   .style("height", height100 + "px")
 d3.selectAll(`.graphic__prose, .graphic__prose__05,
@@ -32,6 +32,10 @@ d3.selectAll(`.graphic__prose, .graphic__prose__05,
 d3.selectAll("#separator, #separator05, #separator1")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
+d3.select("#map")
+  .style("width", width80 + "px")
+  .style("height", height100 + "px")
+  .style("left", 0 + "px")
 d3.selectAll(".trigger")
   .style("padding-top", height100 / 3 + "px")
   .style("height", height100 + "px")
@@ -90,7 +94,7 @@ let barchart_svg = d3.select("#visualization06")
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(20,${margin.top})`);
+  .attr("transform", `translate(30,${margin.top})`);
 
 //MAPBOX VISUALIZATION
 mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';

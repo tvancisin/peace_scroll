@@ -392,7 +392,10 @@ class ScrollerVis {
       .range([height - 10, 0]);
 
     barchart_svg.append("g")
-      .call(d3.axisLeft(bar_y));
+      .call(d3.axisLeft(bar_y).ticks(5))
+      .selectAll("text")
+      .style("font-size", "12px")
+      .style("font-family", "Montserrat");
 
     barchart_svg.selectAll(".domain")
       .attr("visibility", "hidden")
