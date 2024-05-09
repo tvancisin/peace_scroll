@@ -47,6 +47,32 @@ h1 {
   top: 45px;
 }
 
+#legend {
+  position: absolute;
+  top: 50px;
+  left: 5px;
+  font-size: 12px;
+}
+
+.dot {
+  height: 18px;
+  width: 18px;
+  background-color: #7B8AD6;
+  border-radius: 50%;
+  display: inline-block;
+  position: absolute;
+  margin-right: 3px;
+  margin-top: 10px;
+}
+
+#leg_p{
+  margin: auto;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0);
+  padding-left: 30px;
+  font-size: 14px;
+}
+
 body::-webkit-scrollbar {
   width: 10px;
 }
@@ -112,7 +138,7 @@ body::-webkit-scrollbar-thumb:hover {
   padding: 10px;
   text-align: left;
   font-size: 14px;
-  border-bottom: 1px solid white;
+  /* border-bottom: 1px solid white; */
 }
 
 p {
@@ -215,7 +241,7 @@ p {
   margin: auto;
 }
 
-#publications{
+#publications {
   position: relative;
   transition: transform .2s;
   /* Animation */
@@ -237,11 +263,11 @@ p {
   opacity: 1;
 }
 
-.multi_axis path{
- opacity: 0; 
+.multi_axis path {
+  opacity: 0;
 }
 
-.multi_y path{
+.multi_y path {
   opacity: 0;
 }
 
@@ -309,9 +335,9 @@ p {
   border-radius: 2px;
   display: none;
   position: absolute;
-  background-color: #3e3e3e;
+  background-color: #0F1826;
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
 }
 
@@ -324,7 +350,9 @@ p {
 }
 
 /* Change color of dropdown links on hover */
-.dropdown-content a:hover {background-color: #717171}
+.dropdown-content a:hover {
+  background-color: #717171
+}
 
 /* Show the dropdown menu on hover */
 .dropdown:hover .dropdown-content {

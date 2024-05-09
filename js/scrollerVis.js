@@ -573,7 +573,8 @@ class ScrollerVis {
 
     if (direction == "down") {
       d3.selectAll(".soviet").style("fill", "white")
-    }
+      d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories")
+      d3.select(".dot").style("background-color", "white")    }
     else if (direction == "up") {
       d3.selectAll(".my_circles").style("fill", "#7B8AD6")
     }

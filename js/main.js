@@ -54,7 +54,16 @@ let x_horizontal = d3.scaleTime()
   .range([0, width])
 let y_vertical = d3.scaleTime()
   .range([10, height])
-let line = horizontal_svg.append("g") //contex line 
+let line = horizontal_svg.append("g") //contex line
+
+// horizontal_svg 
+//   .append("circle")
+//   .attr("cx", 20)
+//   .attr("cy", 20)
+//   .attr("fill", "white")
+//   .attr("r", 5)
+//   .attr("transform", `translate(10,20)`);
+
 
 
 //MULTILINE VISUALIZATION
