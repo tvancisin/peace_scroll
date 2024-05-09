@@ -129,7 +129,7 @@ body::-webkit-scrollbar-thumb:hover {
   position: relative;
   font-size: 16px;
   z-index: 99;
-  pointer-events: none;
+  /* pointer-events: none; */
   /* background-color: rgba(0, 0, 0, 0); */
   /* box-shadow: -1.5px 0px 5px -3px #616161; */
 }
@@ -368,4 +368,8 @@ p {
   position: relative;
   top: 0px;
   height: 200px;
+}
+
+a {
+  color: yellowgreen;
 }
