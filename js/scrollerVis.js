@@ -167,6 +167,152 @@ class ScrollerVis {
     //scale for vertical bees
     y_vertical.domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
 
+
+    //MULTILINE CHART
+    let multiline_x = d3.scaleUtc()
+      .domain(d3.extent(this.unemployment, d => d.date))
+      .range([margin.left, width - margin.right]);
+    let multiline_y = d3.scaleLinear()
+      .domain([0, 100]).nice()
+      .range([height - margin.bottom, margin.top]);
+    multiline_svg.append("g")
+      .attr("transform", `translate(0,${height - margin.bottom})`)
+      .attr("class", "multi_axis")
+      .call(d3.axisBottom(multiline_x).ticks(5))
+      .selectAll("text")
+      .style("font-size", "12px")
+      .style("font-family", "Montserrat");
+    let points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
+    let delaunay = d3.Delaunay.from(points)
+    let voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
+
+    multiline_svg.append("g")
+      .attr("class", "multi_y")
+      .attr("transform", `translate(${margin.left},0)`)
+      .call(d3.axisLeft(multiline_y).ticks(5))
+      .selectAll("text")
+      .style("font-size", "12px")
+      .style("font-family", "Montserrat")
+      .call(g => g.select(".domain").remove())
+      .call(voronoi ? () => { } : g => g.selectAll(".tick line").clone()
+        .attr("x2", width - margin.left - margin.right)
+        .attr("stroke-opacity", 0.1))
+      .call(g => g.append("text")
+        .attr("x", -margin.left)
+        .attr("y", 10)
+        .attr("fill", "currentColor")
+        .attr("text-anchor", "start")
+        // .text("↑ Unemployment (%)")
+      );
+
+    // Add the area
+    multiline_svg.append("path")
+      .datum(this.all_sorted)
+      .attr("fill", "#379FDF")
+      .attr("opacity", 0.7)
+      .attr("stroke", "none")
+      .attr("stroke-width", 2)
+      .attr("d", d3.area()
+        // .curve(d3.curveMonotoneX)
+        .curve(d3.curveCardinal.tension(0.6))
+        .x(d => multiline_x(d.date))
+        .y0(multiline_y(0))
+        .y1(d => multiline_y(d.value))
+      )
+
+    // Group the points by series.
+    let multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
+
+    // Draw the lines.
+    let line = d3.line()
+      .curve(d3.curveCardinal.tension(0.5));
+    // .curve(d3.curveMonotoneX)
+    let sel_actor = this.selected_actor
+
+    let multiline_path = multiline_svg.append("g")
+      .attr("fill", "none")
+      .selectAll("path")
+      .data(multiline_groups.values())
+      .join("path")
+      // .style("mix-blend-mode", "multiply")
+      .attr("d", line)
+      .attr("stroke", function (d) {
+        if (d[0][2] == sel_actor) {
+          return "white"
+        }
+        else {
+          return "black"
+        }
+      })
+      .attr("stroke-width", function (d) {
+        if (d[0][2] == sel_actor) {
+          return 3
+        }
+        else {
+          return 2
+        }
+
+      })
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+
+    let these = this.unemployment;
+
+    // Add an invisible layer for the interactive tip.
+    let dot = multiline_svg.append("g")
+      .attr("display", "none");
+
+    dot.append("circle")
+      .attr("r", 5)
+      .style("fill", "white");
+
+    dot.append("text")
+      .attr("text-anchor", "middle")
+      .attr("y", -8);
+
+    multiline_svg
+      .on("pointerenter", pointerentered)
+      .on("pointermove", pointermoved)
+      .on("pointerleave", pointerleft)
+      .on("touchstart", event => event.preventDefault());
+
+    // When the pointer moves, find the closest point, update the interactive tip, and highlight
+    // the corresponding line. Note: we don't actually use Voronoi here, since an exhaustive search
+    // is fast enough.
+    function pointermoved(event) {
+      const [xm, ym] = d3.pointer(event);
+      const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
+      const [x, y, k] = points[i];
+      multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
+      dot.attr("transform", `translate(${x},${y})`);
+      dot.select("text").text(k)
+        .style("fill", "white")
+      // .style("stroke", "black")
+      // .style("stroke-width", 3)
+      // .style("paint-order", "stroke fill");
+      multiline_svg.property("value", these[i]).dispatch("input", { bubbles: true });
+    }
+
+    function pointerentered() {
+      multiline_path.style("stroke", "black");
+      dot.attr("display", null);
+    }
+
+    function pointerleft() {
+      multiline_path.style("stroke", function (d) {
+        if (d[0][2] == sel_actor) {
+          return "white"
+        }
+        else {
+          return "black"
+        }
+      });
+      dot.attr("display", "none");
+      multiline_svg.node().value = null;
+      multiline_svg.dispatch("input", { bubbles: true });
+    }
+
+
     //DONUT CHART
     // zero_donut = _.cloneDeep(this.agt_stage_group)
     const desiredOrder = [
@@ -225,10 +371,10 @@ class ScrollerVis {
       .attr("class", "polytext")
       .text(function (d) {
         if (d.data[0] == "Framework-substantive, comprehensive") {
-          return "FS, comprehensive"
+          return "Comprehensive"
         }
         else if (d.data[0] == "Framework-substantive, partial") {
-          return "FS, partial"
+          return "Partial"
         }
         else {
           return d.data[0]
@@ -248,176 +394,38 @@ class ScrollerVis {
       .style("fill", "white")
       .style("opacity", 0)
 
-    //MULTILINE CHART
-    let multiline_x = d3.scaleUtc()
-      .domain(d3.extent(this.unemployment, d => d.date))
-      .range([margin.left, width - margin.right]);
-    let multiline_y = d3.scaleLinear()
-      .domain([0, 100]).nice()
-      .range([height - margin.bottom, margin.top]);
-    multiline_svg.append("g")
-      .attr("transform", `translate(0,${height - margin.bottom})`)
-      .attr("class", "multi_axis")
-      .call(d3.axisBottom(multiline_x).ticks(width / 80).tickSizeOuter(0))
-      .selectAll("text")
-      .style("font-size", "12px")
-      .style("font-family", "Montserrat");
-    let points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
-    console.log(points);
-    let delaunay = d3.Delaunay.from(points)
-    let voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
 
-    multiline_svg.append("g")
-      .attr("class", "multi_y")
-      .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(multiline_y).ticks(5))
-      .selectAll("text")
-      .style("font-size", "12px")
-      .style("font-family", "Montserrat")
-      .call(g => g.select(".domain").remove())
-      .call(voronoi ? () => { } : g => g.selectAll(".tick line").clone()
-        .attr("x2", width - margin.left - margin.right)
-        .attr("stroke-opacity", 0.1))
-      .call(g => g.append("text")
-        .attr("x", -margin.left)
-        .attr("y", 10)
-        .attr("fill", "currentColor")
-        .attr("text-anchor", "start")
-        // .text("↑ Unemployment (%)")
-      );
-
-    // Add the area
-    multiline_svg.append("path")
-      .datum(this.all_sorted)
-      .attr("fill", "#379FDF")
-      .attr("stroke", "#101723")
-      .attr("stroke-width", 1.5)
-      .attr("d", d3.area()
-        // .curve(d3.curveMonotoneX)
-        .curve(d3.curveCardinal.tension(0.6))
-        .x(d => multiline_x(d.date))
-        .y0(multiline_y(0))
-        .y1(d => multiline_y(d.value))
-      )
-
-    // Group the points by series.
-    let multiline_groups = d3.rollup(points, v => Object.assign(v, { z: v[0][2] }), d => d[2]);
-
-    // Draw the lines.
-    let line = d3.line()
-      .curve(d3.curveCardinal.tension(0.5));
-    // .curve(d3.curveMonotoneX)
-    let sel_actor = this.selected_actor
-
-    let multiline_path = multiline_svg.append("g")
-      .attr("fill", "none")
-      .selectAll("path")
-      .data(multiline_groups.values())
-      .join("path")
-      // .style("mix-blend-mode", "multiply")
-      .attr("d", line)
-      .attr("stroke", function (d) {
-        if (d[0][2] == sel_actor) {
-          return "white"
-        }
-        else {
-          return "black"
-        }
-      })
-      .attr("stroke-width", function(d){
-        if (d[0][2] == sel_actor) {
-          return 3 
-        }
-        else {
-          return 2 
-        }
-
-      })
-      .attr("stroke-linejoin", "round")
-      .attr("stroke-linecap", "round")
-
-    let these = this.unemployment;
-
-    // Add an invisible layer for the interactive tip.
-    let dot = multiline_svg.append("g")
-      .attr("display", "none");
-
-    dot.append("circle")
-      .attr("r", 5)
-      .style("fill", "white");
-
-    dot.append("text")
-      .attr("text-anchor", "middle")
-      .attr("y", -8);
-
-    multiline_svg
-      .on("pointerenter", pointerentered)
-      .on("pointermove", pointermoved)
-      .on("pointerleave", pointerleft)
-      .on("touchstart", event => event.preventDefault());
-
-
-    // When the pointer moves, find the closest point, update the interactive tip, and highlight
-    // the corresponding line. Note: we don't actually use Voronoi here, since an exhaustive search
-    // is fast enough.
-    function pointermoved(event) {
-      const [xm, ym] = d3.pointer(event);
-      const i = d3.leastIndex(points, ([x, y]) => Math.hypot(x - xm, y - ym));
-      const [x, y, k] = points[i];
-      multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
-      dot.attr("transform", `translate(${x},${y})`);
-      dot.select("text").text(k).style("fill", "white");
-      multiline_svg.property("value", these[i]).dispatch("input", { bubbles: true });
-    }
-
-    function pointerentered() {
-      multiline_path.style("stroke", "black");
-      dot.attr("display", null);
-    }
-
-    function pointerleft() {
-      multiline_path.style("stroke", function(d){
-        if (d[0][2] == sel_actor) {
-          return "white"
-        }
-        else {
-          return "black"
-        }
-      } );
-      dot.attr("display", "none");
-      multiline_svg.node().value = null;
-      multiline_svg.dispatch("input", { bubbles: true });
-    }
 
     //BAR CHART
-    // List of subgroups = header of the csv files = soil condition here
-    const subgroups = ["All"]
-    const keys = Object.keys(this._chart_data[0]);
-    subgroups.push(keys[1])
+    vis.chart_data = this._chart_data
+    // List of subgroups
+    vis.subgroups = ["All"]
+    let keeys = Object.keys(this._chart_data[0]);
+    vis.subgroups.push(keeys[2])
 
     // List of groups = species here = value of the first column called group -> I show them on the X axis
-    const groups = ['Pre-negotiation', 'Ceasefire', 'Framework-substantive, partial', 'Framework-substantive, comprehensive', 'Implementation', 'Renewal', 'Other']
+    vis.groups = ['Pre-negotiation', 'Ceasefire', 'Partial', 'Comprehensive', 'Implementation', 'Renewal', 'Other']
 
     // Add X axis
-    const bar_x = d3.scaleBand()
-      .domain(groups)
+    vis.bar_x = d3.scaleBand()
+      .domain(vis.groups)
       .range([0, width])
       .padding([0.2])
 
     barchart_svg.append("g")
       .attr("transform", `translate(0, ${height - 10})`)
-      .call(d3.axisBottom(bar_x))
+      .call(d3.axisBottom(vis.bar_x))
       .selectAll("text")
       .style("font-size", "12px")
       .style("font-family", "Montserrat");
 
     // Add Y axis
-    const bar_y = d3.scaleLinear()
+    vis.bar_y = d3.scaleLinear()
       .domain([0, 45])
       .range([height - 10, 0]);
 
     barchart_svg.append("g")
-      .call(d3.axisLeft(bar_y).ticks(5))
+      .call(d3.axisLeft(vis.bar_y).ticks(5))
       .selectAll("text")
       .style("font-size", "12px")
       .style("font-family", "Montserrat");
@@ -426,32 +434,23 @@ class ScrollerVis {
       .attr("visibility", "hidden")
 
     // Another scale for subgroup position?
-    const xSubgroup = d3.scaleBand()
-      .domain(subgroups)
-      .range([0, bar_x.bandwidth()])
+    vis.xSubgroup = d3.scaleBand()
+      .domain(vis.subgroups)
+      .range([0, vis.bar_x.bandwidth()])
       .padding([0.05])
 
     // color palette = one color per subgroup
-    const bar_color = d3.scaleOrdinal()
-      .domain(subgroups)
-      .range(['#e41a1c', '#377eb8'])
+    vis.bar_color = d3.scaleOrdinal()
+      .domain(vis.subgroups)
+      .range(['#379FDF', 'white'])
 
-    // Show the bars
-    barchart_svg.append("g")
-      .selectAll("g")
-      // Enter in data = loop group per group
-      .data(this._chart_data)
-      .join("g")
-      .attr("transform", d => `translate(${bar_x(d.group)}, 0)`)
-      .selectAll("rect")
-      .data(function (d) { return subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
-      .join("rect")
-      .attr("rx", 4)
-      .attr("x", d => xSubgroup(d.key))
-      .attr("y", d => bar_y(d.value))
-      .attr("width", xSubgroup.bandwidth())
-      .attr("height", d => (height - 10) - bar_y(d.value))
-      .attr("fill", d => bar_color(d.key));
+    vis._chart_data.forEach(obj => {
+      if (obj.group === 'Framework-substantive, partial') {
+        obj.group = 'Partial';
+      } else if (obj.group === 'Framework-substantive, comprehensive') {
+        obj.group = 'Comprehensive';
+      }
+    });
 
     window.scrollTo({ left: 0, top: 0, behavior: "auto" });
 
@@ -464,7 +463,7 @@ class ScrollerVis {
     const vis = this;
     console.log("step1", direction);
 
-    map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
+    // map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
     horizontal_svg.selectAll(".tick").remove()
     if (direction === "down") {
       //adjust domain
@@ -482,8 +481,6 @@ class ScrollerVis {
       //voronoi
       const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
         voronoi = delaunay.voronoi([0, 0, vis.width, height]);
-
-
 
       //draw circles
       horizontal_svg.selectAll('.my_circles')
@@ -832,162 +829,31 @@ class ScrollerVis {
   step11(direction) {
     const vis = this;
     console.log("step11", direction);
-    //draw multiline chart
-    // let multiline_path = multiline_svg.selectAll(".line")
-    //   .data(this.multiline_data)
-    //   .join("path")
-    //   .attr("class", "line")
-    //   .attr("fill", "none")
-    //   .attr("stroke", function (d) { return multiline_color(d[0]) })
-    //   // .attr("stroke", "black")
-    //   .attr("stroke-width", 2)
-    //   .attr("d", function (d) {
-    //     return d3.line()
-    //       .curve(d3.curveMonotoneX)
-    //       // .curve(d3.curveCatmullRom.alpha(0.4))
-    //       .x(function (d) { return multiline_x(d[0]); })
-    //       .y(function (d) { return multiline_y(+d[1].length); })
-    //       (d[1])
-    //   })
-
     if (direction == "down") {
-
-      //   multiline_path
-      //     .attr("stroke-dasharray", function (d) {
-      //       // Get the path length of the current element
-      //       const pathLength = this.getTotalLength();
-      //       return `0 ${pathLength}`
-      //     })
-      //     .transition()
-      //     .duration(5000)
-      //     .attr("stroke-dasharray", function (d) {
-      //       // Get the path length of the current element
-      //       const pathLength = this.getTotalLength();
-      //       return `${pathLength} ${pathLength}`
-      //     });
+      console.log(vis.chart_data);
+      barchart_svg.selectAll("rect").remove()
+      barchart_svg.append("g")
+        .selectAll("g")
+        .data(vis.chart_data)
+        .join("g")
+        .attr("transform", d => `translate(${vis.bar_x(d.group)}, 0)`)
+        .selectAll("rect")
+        .data(function (d) { return vis.subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
+        .join("rect")
+        .attr("rx", 2)
+        .attr("fill", d => vis.bar_color(d.key))
+        .attr("x", d => vis.xSubgroup(d.key))
+        .attr("width", vis.xSubgroup.bandwidth())
+        .attr("y", height)
+        .attr("height", 0)
+        .transition().duration(800)
+        .attr("y", d => vis.bar_y(d.value))
+        .attr("height", d => (height - 10) - vis.bar_y(d.value))
 
     }
     else if (direction == "up") {
-
-
-      //   multiline_path
-      //     .attr("stroke-dasharray", function (d) {
-      //       // Get the path length of the current element
-      //       const pathLength = this.getTotalLength();
-      //       return `${pathLength} ${pathLength}`
-      //     })
-      //     .transition()
-      //     .duration(1000)
-      //     .attr("stroke-dasharray", function (d) {
-      //       // Get the path length of the current element
-      //       const pathLength = this.getTotalLength();
-      //       return `0 ${pathLength}`
-      //       // return `${pathLength} ${pathLength}`
-      //     });
-
+      barchart_svg.selectAll("rect").remove()
     }
-
-    // let pos, idx;
-    // var mouseG = multiline_svg.append("g") // this the black vertical line to folow mouse
-    //   .attr("class", "mouse-over-effects");
-
-    // mouseG.append("path")
-    //   .attr("class", "mouse-line")
-    //   .style("stroke", "gray")
-    //   .style("stroke-width", "1px")
-    //   .style("opacity", "0");
-
-    // var lines = document.getElementsByClassName("line");
-    // var mousePerLine = mouseG.selectAll(".mouse-per-line")
-    //   .data(this.multiline_data)
-    //   .enter()
-    //   .append("g")
-    //   .attr("class", "mouse-per-line");
-
-    // mousePerLine.append("circle")
-    //   .attr("r", 7)
-    //   .style("stroke", function (d) {
-    //     return "white"
-    //   })
-    //   .style("fill", "none")
-    //   .style("stroke-width", "1px")
-    //   .style("opacity", "0");
-
-    // mousePerLine.append("text")
-    //   .attr("transform", "translate(10,3)");
-
-    // mouseG.append("rect")
-    //   .attr("width", vis.width)
-    //   .attr("height", height)
-    //   .attr("fill", "none")
-    //   .attr("pointer-events", "all")
-    //   .on("mouseout", function () {
-    //     d3.select(".mouse-line").style("opacity", "0");
-    //     d3.selectAll(".mouse-per-line circle").style("opacity", "0");
-    //     d3.selectAll(".mouse-per-line text").style("opacity", "0")
-    //   })
-    //   .on("mouseover", function () {
-    //     d3.select(".mouse-line").style("opacity", "1");
-    //     d3.selectAll(".mouse-per-line circle").style("opacity", "1");
-    //     d3.selectAll(".mouse-per-line text").style("opacity", "1")
-
-    //   })
-    //   .on("mousemove", function () {
-    //     var mouse = d3.pointer(event, this);
-    //     d3.select(".mouse-line")
-    //       .attr("d", function () {
-    //         var d = "M" + mouse[0] + "," + height;
-    //         d += " " + mouse[0] + "," + 0;
-    //         return d;
-    //       })
-    //     // .attr("d",function(){
-    //     //   var d = "M" + w +"," + mouse[1];
-    //     //   d+=" " +0 + "," + mouse[1];
-    //     //   return d;
-    //     // });
-
-    //     d3.selectAll(".mouse-per-line")
-    //       .attr("transform", function (d, i) {
-    //         // console.log(width / (mouse[0]));
-    //         var xDate = multiline_x.invert(mouse[0]),
-    //           bisect = d3.bisector(function (d) { return d.date; }).right;
-    //         idx = bisect(d.values, xDate);
-    //         // console.log("xDate:", xDate);
-    //         // console.log("bisect", bisect);
-    //         // console.log("idx:", idx)
-
-    //         var beginning = 0,
-    //           end = lines[i].getTotalLength(),
-    //           target = null;
-
-    //         // console.log("end", end);
-
-    //         while (true) {
-    //           target = Math.floor((beginning + end) / 2)
-    //           // console.log("Target:", target);
-    //           pos = lines[i].getPointAtLength(target);
-    //           // console.log("Position", pos.y);
-    //           // console.log("What is the position here:", pos)
-    //           if ((target === end || target == beginning) && pos.x !== mouse[0]) {
-    //             break;
-    //           }
-
-    //           if (pos.x > mouse[0]) end = target;
-    //           else if (pos.x < mouse[0]) beginning = target;
-    //           else break; // position found
-    //         }
-    //         d3.select(this).select("text")
-    //           .text(multiline_y.invert(pos.y).toFixed(1))
-    //           .attr("fill", function (d) {
-    //             // return color(d.name)
-    //             return "white"
-    //           });
-    //         return "translate(" + mouse[0] + "," + pos.y + ")";
-
-    //       });
-
-    //   });
-
   }
 
   step12(direction) {

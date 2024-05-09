@@ -96,50 +96,50 @@ let barchart_svg = d3.select("#visualization06")
   .append("g")
   .attr("transform", `translate(30,${margin.top})`);
 
-//MAPBOX VISUALIZATION
-mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
-const map = new mapboxgl.Map({
-  container: 'map',
-  style: 'mapbox://styles/sashagaribaldy/cls4l3gpq003k01r0fc2s04tv',
-  center: [60.137343, 40.137451],
-  zoom: 2,
-  attributionControl: false
-});
-//load initial map
-map.on('load', () => {
-  // Add a data source containing GeoJSON data.
-  map.addSource('states', {
-    'type': 'geojson',
-    'data': geo_data,
-    'generateId': true //This ensures that all features have unique IDs
-  });
+// //MAPBOX VISUALIZATION
+// mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
+// const map = new mapboxgl.Map({
+//   container: 'map',
+//   style: 'mapbox://styles/sashagaribaldy/cls4l3gpq003k01r0fc2s04tv',
+//   center: [60.137343, 40.137451],
+//   zoom: 2,
+//   attributionControl: false
+// });
+// //load initial map
+// map.on('load', () => {
+//   // Add a data source containing GeoJSON data.
+//   map.addSource('states', {
+//     'type': 'geojson',
+//     'data': geo_data,
+//     'generateId': true //This ensures that all features have unique IDs
+//   });
 
-  map.addLayer({
-    'id': 'state-fills',
-    'type': 'fill',
-    'source': 'states',
-    'layout': {},
-    'paint': {
-      'fill-color': ['match', ['get', 'ADMIN'],
-        "Russia", '#dd1e36',
-        '#7B8AD6',
-        // 'white',
-      ],
-      'fill-opacity': 0.8
-    }
-  });
+//   map.addLayer({
+//     'id': 'state-fills',
+//     'type': 'fill',
+//     'source': 'states',
+//     'layout': {},
+//     'paint': {
+//       'fill-color': ['match', ['get', 'ADMIN'],
+//         "Russia", '#dd1e36',
+//         '#7B8AD6',
+//         // 'white',
+//       ],
+//       'fill-opacity': 0.8
+//     }
+//   });
 
-  map.addLayer({
-    'id': 'outline',
-    'type': 'line',
-    'source': 'states',
-    'layout': {},
-    'paint': {
-      'line-color': '#172436',
-      'line-width': 0.5
-    }
-  });
-});
+//   map.addLayer({
+//     'id': 'outline',
+//     'type': 'line',
+//     'source': 'states',
+//     'layout': {},
+//     'paint': {
+//       'line-color': '#172436',
+//       'line-width': 0.5
+//     }
+//   });
+// });
 
 //change date format to GMT
 let parser = d3.timeParse("%d/%m/%Y");
@@ -178,12 +178,13 @@ Promise.all([
     d.dat = d.date
     d.date = parser(d.date)
   })
+
   //four actors division
-  let three_group = d3.groups(files[3], (d) => d.global_actor),
-    russia = three_group[0][1],
-    united_kingdom = three_group[1][1],
-    united_nations = three_group[2][1],
-    china = three_group[3][1];
+  let four_group = d3.groups(files[3], (d) => d.global_actor),
+    russia = four_group[0][1],
+    united_kingdom = four_group[1][1],
+    united_nations = four_group[2][1],
+    china = four_group[3][1];
 
   //data for multiline chart
   const multiline_data = d3.groups(files[3], d => d.global_actor, d => +d.year, d => d.AgtId);
@@ -247,25 +248,22 @@ Promise.all([
 
   let scrollerVis;
   const prepare_data = function (data, chart_data, selected_actor) {
+    let actorIndex = act_group.findIndex(entry => entry[0] === selected_actor);
+    // Remove the array containing "Russia"
+    let actorArray = act_group.splice(actorIndex, 1)[0];
+    // Push the removed array to the end of the array of arrays
+    act_group.push(actorArray);
 
-  let actorIndex = act_group.findIndex(entry => entry[0] === selected_actor);
-  // Remove the array containing "Russia"
-  let actorArray = act_group.splice(actorIndex, 1)[0];
-  // Push the removed array to the end of the array of arrays
-  act_group.push(actorArray);
-  console.log(act_group);
-
-  let unemployment = []
-  act_group.forEach(function (d) {
-    d[1].forEach(function (m) {
-      unemployment.push({
-        division: d[0],
-        date: just_year_parser(m[0]),
-        unemployment: m[1].length
+    let unemployment = []
+    act_group.forEach(function (d) {
+      d[1].forEach(function (m) {
+        unemployment.push({
+          division: d[0],
+          date: just_year_parser(m[0]),
+          unemployment: m[1].length
+        })
       })
     })
-  })
-
 
     //prepare barchart data
     const comb_chart = all_percent_bar.map((obj1) => {
@@ -275,13 +273,13 @@ Promise.all([
     // Renamed attribute names
     const fin_comb_chart = comb_chart.map(obj => ({
       group: obj.stage,
-      [selected_actor]: obj.percentage,
-      All: obj.chart_data
+      All: obj.percentage,
+      [selected_actor]: obj.chart_data
     }));
+
 
     //group by agreement stage for DONUT
     let agt_stage_group = d3.groups(data, d => d.stage_label, d => d.AgtId)
-
     //group by dates
     let year_division = d3.groups(data, d => d.AgtId, d => d.date)
     //sorting years chronologically
