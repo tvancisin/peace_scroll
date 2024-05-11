@@ -138,7 +138,7 @@ class ScrollerVis {
       margin: { top: 50, right: 10, bottom: 20, left: 10 },
       steps: ['step1', 'step2', 'step3', 'step4', 'step5', 'step6',
         'step7', 'step8', 'step9', 'step10', 'step11', 'step12',
-        'step13']
+        'step13', 'step14']
     }
     this.raw_data = _raw;
     this.year_division = _year;
@@ -463,7 +463,7 @@ class ScrollerVis {
     const vis = this;
     console.log("step1", direction);
 
-    // map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
+    map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
     horizontal_svg.selectAll(".tick").remove()
     if (direction === "down") {
       //adjust domain
@@ -481,6 +481,13 @@ class ScrollerVis {
       //voronoi
       const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
         voronoi = delaunay.voronoi([0, 0, vis.width, height]);
+        
+      function containsSovietCountry(string) {
+          return soviet.some(country => string.includes(country));
+        }
+      function containsSyriaCountry(string) {
+          return syria.some(country => string.includes(country));
+        }
 
       //draw circles
       horizontal_svg.selectAll('.my_circles')
@@ -489,13 +496,13 @@ class ScrollerVis {
         .attr('cx', -50)
         .attr('cy', height / 2)
         .attr("class", function (d) {
-          let first_word
-          if (soviet.includes(d[1][0][1][0].where_agt)) {
+          let first_word;
+          if (containsSovietCountry(d[1][0][1][0].Con)) {
             first_word = "my_circles " + "soviet "
               + d[1][0][1][0].AgtId + " " + "y" +
               d[1][0][1][0].date.getUTCFullYear()
           }
-          else if (syria.includes(d[1][0][1][0].where_agt)) {
+          else if (containsSyriaCountry(d[1][0][1][0].Con)) {
             first_word = "my_circles " + "syria "
               + d[1][0][1][0].AgtId + " " + "y" +
               d[1][0][1][0].date.getUTCFullYear()
@@ -512,7 +519,6 @@ class ScrollerVis {
         .style("stroke", "black")
         .style("strokewidth", 0.5)
         .on("mouseover", function (d, i) {
-          console.log(d);
           d3.select(this).style("stroke", "white")
           d3.select("#hover_description")
             .style("display", "block")
@@ -595,13 +601,9 @@ class ScrollerVis {
 
     if (direction == "down") {
       d3.selectAll(".soviet").style("fill", "white")
-      d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories.")
-      d3.select(".dot").style("background-color", "white")
     }
     else if (direction == "up") {
       d3.selectAll(".my_circles").style("fill", "#7B8AD6")
-      d3.select("#legend p").text("Individual peace agreements signed by Russia (hover over for more detail).")
-      d3.select(".dot").style("background-color", "#7B8AD6")
     }
   }
 
@@ -610,10 +612,12 @@ class ScrollerVis {
     console.log("step3", direction);
 
     if (direction === "down") {
-      d3.select("#legend p").text("Peace agreements addressing conflicts in Syria, Libya, and the Central African Republic.")
       d3.selectAll(".soviet").style("fill", "#7B8AD6")
       d3.selectAll(".syria").style("fill", "white")
-      drawContext(context_data, height)
+      console.log(this.selected_actor);
+      if (this.selected_actor == "Russia") {
+        drawContext(context_data, height)
+      }
 
       // horizontal_svg.selectAll('.my_circles')
       //   .data(vis.year_division)
@@ -631,7 +635,9 @@ class ScrollerVis {
       d3.selectAll(".soviet").style("fill", "white")
       d3.selectAll(".syria").style("fill", "#7B8AD6")
       d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories.")
-      drawContext([], height)
+      if (this.selected_actor == "Russia") {
+        drawContext([], height)
+      }
     }
   }
 
@@ -768,8 +774,9 @@ class ScrollerVis {
         .attr('cx', d => d.x)
         .attr('cy', d => d.y)
         .attr('r', 10)
-
-      drawContext(context_data, this.height)
+      if (this.selected_actor == "Russia") {
+        drawContext(context_data, this.height)
+      }
 
     }
   }
@@ -864,6 +871,11 @@ class ScrollerVis {
   step13(direction) {
     const vis = this;
     console.log("step13", direction);
+  }
+
+  step14(direction) {
+    const vis = this;
+    console.log("step14", direction);
   }
 
   goToStep(stepIndex, direction) {

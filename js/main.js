@@ -40,7 +40,7 @@ d3.selectAll(".trigger")
   .style("padding-top", height100 / 3 + "px")
   .style("height", height100 + "px")
 d3.selectAll("#publications")
-  .style("width", width100 / 5 + "px")
+  .style("height", 250 + "px")
 
 
 //BEESWARM VISUALIZATION
@@ -96,50 +96,50 @@ let barchart_svg = d3.select("#visualization06")
   .append("g")
   .attr("transform", `translate(30,${margin.top})`);
 
-// //MAPBOX VISUALIZATION
-// mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
-// const map = new mapboxgl.Map({
-//   container: 'map',
-//   style: 'mapbox://styles/sashagaribaldy/cls4l3gpq003k01r0fc2s04tv',
-//   center: [60.137343, 40.137451],
-//   zoom: 2,
-//   attributionControl: false
-// });
-// //load initial map
-// map.on('load', () => {
-//   // Add a data source containing GeoJSON data.
-//   map.addSource('states', {
-//     'type': 'geojson',
-//     'data': geo_data,
-//     'generateId': true //This ensures that all features have unique IDs
-//   });
+//MAPBOX VISUALIZATION
+mapboxgl.accessToken = 'pk.eyJ1Ijoic2FzaGFnYXJpYmFsZHkiLCJhIjoiY2xyajRlczBlMDhqMTJpcXF3dHJhdTVsNyJ9.P_6mX_qbcbxLDS1o_SxpFg';
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/sashagaribaldy/cls4l3gpq003k01r0fc2s04tv',
+  center: [60.137343, 40.137451],
+  zoom: 2,
+  attributionControl: false
+});
+//load initial map
+map.on('load', () => {
+  // Add a data source containing GeoJSON data.
+  map.addSource('states', {
+    'type': 'geojson',
+    'data': geo_data,
+    'generateId': true //This ensures that all features have unique IDs
+  });
 
-//   map.addLayer({
-//     'id': 'state-fills',
-//     'type': 'fill',
-//     'source': 'states',
-//     'layout': {},
-//     'paint': {
-//       'fill-color': ['match', ['get', 'ADMIN'],
-//         "Russia", '#dd1e36',
-//         '#7B8AD6',
-//         // 'white',
-//       ],
-//       'fill-opacity': 0.8
-//     }
-//   });
+  map.addLayer({
+    'id': 'state-fills',
+    'type': 'fill',
+    'source': 'states',
+    'layout': {},
+    'paint': {
+      'fill-color': ['match', ['get', 'ADMIN'],
+        "Russia", 'white',
+        '#7B8AD6',
+        // 'white',
+      ],
+      'fill-opacity': 0.8
+    }
+  });
 
-//   map.addLayer({
-//     'id': 'outline',
-//     'type': 'line',
-//     'source': 'states',
-//     'layout': {},
-//     'paint': {
-//       'line-color': '#172436',
-//       'line-width': 0.5
-//     }
-//   });
-// });
+  map.addLayer({
+    'id': 'outline',
+    'type': 'line',
+    'source': 'states',
+    'layout': {},
+    'paint': {
+      'line-color': '#172436',
+      'line-width': 0.5
+    }
+  });
+});
 
 //change date format to GMT
 let parser = d3.timeParse("%d/%m/%Y");
@@ -185,6 +185,8 @@ Promise.all([
     united_kingdom = four_group[1][1],
     united_nations = four_group[2][1],
     china = four_group[3][1];
+
+  // console.log(russia);
 
   //data for multiline chart
   const multiline_data = d3.groups(files[3], d => d.global_actor, d => +d.year, d => d.AgtId);
@@ -248,6 +250,7 @@ Promise.all([
 
   let scrollerVis;
   const prepare_data = function (data, chart_data, selected_actor) {
+    let agt_group = d3.groups(data, d => d.AgtId)
     let actorIndex = act_group.findIndex(entry => entry[0] === selected_actor);
     // Remove the array containing "Russia"
     let actorArray = act_group.splice(actorIndex, 1)[0];
@@ -288,6 +291,9 @@ Promise.all([
     })
 
     function find_id(curr_id) {
+      // let id_countries = d3.groups(files[2], d => d.AgtId == curr_id)
+      const result = files[2].filter((d) => d.AgtId == curr_id);
+      console.log(curr_id, result);
       let country = files[2].find(function (x) {
         return x.AgtId == curr_id
       })
@@ -295,13 +301,18 @@ Promise.all([
     }
 
     let the_array = [];
-    data.forEach(function (d) {
-      let curr_id = d.AgtId;
-      let country = find_id(curr_id)
-      d.where_agt = country
-      if (the_array.includes(country) == false) {
-        the_array.push(country)
-      };
+    agt_group.forEach(function (d) {
+      d[1].forEach(function (x) {
+        let check_actor = x.AgtId;
+        let country = files[2].filter(function (x) {
+          return x.AgtId == check_actor
+        })
+        country.forEach(function (x) {
+          if (the_array.includes(x.country_entity) == false) {
+            the_array.push(x.country_entity)
+          };
+        })
+      })
     })
 
     //overview data
@@ -331,32 +342,78 @@ Promise.all([
     let yr_period = d3.extent(year_division, function (d) { return d[1][0][0]; })
     d3.select("#yr_active").text(yr_period[0].getUTCFullYear() + " - " + yr_period[1].getUTCFullYear())
 
-    d3.select(".p1").html(`Russia is the second most prolific international third-party
+    if (selected_actor == "Russia") {
+      d3.select(".p1").html(`Russia is the second most prolific international third-party
       signatory of peace agreements between 1990-2022. It follows the United Nations, and
-      comes ahead of the United States, the African Union, and the European Union.`)
-
-    d3.select(".p2").html(`Russia has most often acted as a third-party signatory
+      comes ahead of the United States, the African Union, and the European Union.</br></br>
+      <span class="dot"></span><p id="leg_p">Individual peace agreements signed by Russia 
+      (hover over for more detail)</p>`)
+      d3.select(".p2").html(`Russia has most often acted as a third-party signatory
       in the 1990s. Majority of these agreements relate to the dissolution
       of the Soviet Union. Many of these are protracted conflicts, where
-      Russia continues acting as a third - party signatory of peace agreements.`)
+      Russia continues acting as a third - party signatory of peace agreements.</br></br>
+      <span class="dot1"></span><p id="leg_p">Peace agreements addressing conflicts in the 
+      former Soviet Union territories.</p>`)
+      d3.select(".p3").html(`Over the last decade, Russia increasingly acts
+      as a signatory on agreements related to conflicts in Syria and, reflecting
+      its increased engagements in Africa: Libya, and the Central African Republic.
+      These are internationalised conflicts, where Russia is also militarily
+      engaged in supporting conflict parties.</br></br>
+      <span class="dot1"></span><p id="leg_p">Peace agreements addressing conflicts
+      in Syria, Libya, and the Central African Republic.`)
+
+      d3.select(".p4").html(`Russia is the most prolific signatory of
+      peace agreements of all UN Security Council Permanent Members. In a number of years 
+      (1995, 2016-2018) it has signed more agreements than the United Nations.`)
+
+      d3.select(".p6").html(`Russia primarily signs pre-negotiation and
+      ceasefire agreements. These represent over half of
+      all agreements signed. For more details on the categories see
+      <a href="https://www.peaceagreements.org/files/Definitions_v7.pdf" target="_blank">here</a>.`)
+
+      d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation 
+      agreements and less framework-substantive comprehensive agreements and implementation 
+      agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
+      <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
+      d3.select(".p9").html(`Pre-negotiation agreements represent 29% of all agreements with 
+      third-party signatories, but 35% of all agreements signed by Russia.</br></br><span class="dot2">
+      </span><p id="leg_p">Overall agreements (% of all).</p>
+      <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
+      d3.select(".p10").html(`Comprehensive agreements represent 5% of all agreements signed,
+       but only 3% of all agreements signed by Russia.</br></br> Implementation agreements 
+       represent 20% of all agreements signed, but only 17% of all agreements 
+       signed by Russia. </br></br><span class="dot2">
+      </span><p id="leg_p">Overall agreements (% of all).</p>
+      <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
 
 
-    d3.select(".p3").html(`Over the last decade, Russia increasingly acts
-    as a signatory on agreements related to conflicts in Syria and, reflecting
-    its increased engagements in Africa: Libya, and the Central African Republic.
-    These are internationalised conflicts, where Russia is also militarily
-    engaged in supporting conflict parties.`)
+      d3.select(".p12").html(`The geographic spread of Russian engagement as a 
+      third-party signatory of peace agreements reflects its permanent seat on 
+      the United Nations Security Council and its role as a regional power. `)
+      d3.select(".p13").html(`Like other members of the Permanent Five, Russia 
+      participates in large international conferences and in UN Security Council 
+      resolutions that function as peace agreements. This gives it a global reach. `)
+      d3.select(".p14").html(`But most of its focus – and where its activity has 
+      been over the last decade – relates to conflicts in its neighbourhood and a 
+      number of select locales, where Russia is acting both as a military partner 
+      and a peacemaker.`)
+    }
+    else if (selected_actor == "China") {
+      d3.select(".p1").html(`China is not the most prolific third-party signatory of
+      peace agreements since 1990, ranking XX of all actors, who have acted as 
+      third-party signatories. In terms of frequency, this puts it alongside actors 
+      such as XX, XX, and XX. `)
+      d3.select(".p2").html(`As one of the UN Security Council (UNSC) permanent members, 
+      China has participated in all major international conferences (e.g., for Cambodia, 
+      Bosnia and Herzegovina, Afghanistan, Libya), with the key exception of negotiations 
+      relating to Israel and Palestine.`)
+      d3.select(".p3").html(`Nearly all agreements signed by China as a third-party have 
+      been the result of large international conferences or UNSC resolutions. Most 
+      agreements China has signed include the UN or other permanent members of the 
+      UN Security Council. `)
+    }
 
-    //   d3.select(".one").html(actor + ` is a signatory in the PA - X Agreements database
-    // as it has been a signatory to ` + num_agt + ` agreements across ` + num_pp +
-    //     ` peace processes since ` + yr_period[0].getUTCFullYear() + `. The most recent
-    //  signed agreement was as ` + found[1][0].signatory_type + ` on ` + ` <a href=` +
-    //     found[1][0].PAX_Hyperlink + ` target="_blank">` + found[1][0].dat + `</a> in ` +
-    //     found[1][0].PPName)
-    //   d3.select(".two").text(`The year when ` + actor + ` signed the most agreements 
-    // was ` + most_agt[0] + `, namely ` + most_agt[1].length + `. In contrast, the 
-    // year when they signes the least amount of agreements was ` + least_agt[0] + `.
-    //  They only signed one agreement.`)
+
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
       year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart,
