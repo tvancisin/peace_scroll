@@ -156,12 +156,12 @@ class ScrollerVis {
     let vis = this;
     vis.width = vis.config.vis_width - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
-    d3.select(".myXaxis").remove()
+    d3.select(".bee_x_axis").remove()
 
     //BEESWARM VISUALIZATION
     horizontal_svg.append("g")
       .attr("transform", `translate(10, ` + height + `)`)
-      .attr("class", "myXaxis")
+      .attr("class", "bee_x_axis")
     vis.x_axis = d3.axisBottom(x_horizontal) // small ticks
     // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height);
     //scale for vertical bees
@@ -176,8 +176,8 @@ class ScrollerVis {
       .domain([0, 100]).nice()
       .range([height - margin.bottom, margin.top]);
     multiline_svg.append("g")
+      .attr("class", "multiline_x_axis")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .attr("class", "multi_axis")
       .call(d3.axisBottom(multiline_x).ticks(5))
       .selectAll("text")
       .style("font-size", "12px")
@@ -187,7 +187,7 @@ class ScrollerVis {
     let voronoi = delaunay.voronoi([-1, -1, width + 1, height + 1])
 
     multiline_svg.append("g")
-      .attr("class", "multi_y")
+      .attr("class", "multiline_y_axis")
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(multiline_y).ticks(5))
       .selectAll("text")
@@ -413,6 +413,7 @@ class ScrollerVis {
       .padding([0.2])
 
     barchart_svg.append("g")
+      .attr("class", "x_axis")
       .attr("transform", `translate(0, ${height - 10})`)
       .call(d3.axisBottom(vis.bar_x))
       .selectAll("text")
@@ -425,6 +426,7 @@ class ScrollerVis {
       .range([height - 10, 0]);
 
     barchart_svg.append("g")
+      .attr("class", "y_axis")
       .call(d3.axisLeft(vis.bar_y).ticks(5))
       .selectAll("text")
       .style("font-size", "12px")
@@ -488,7 +490,10 @@ class ScrollerVis {
       function containsSyriaCountry(string) {
         return syria.some(country => string.includes(country));
       }
-
+      let current_author = this.selected_actor
+      let china_highlight = ['Text of Joint Statement (29/09/2005)', 'Agreement on the Resolution of the Conflict in the Republic of South Sudan (ARCSS) (17/08/2015)',
+        'Agreement on the Cessation of Hostilities, Protection of Civilians and Humanitarian Access, Republic of South Sudan (21/12/2017)',
+        'The Nationwide Ceasefire Agreement (NCA) between The Government of the Republic of the Union of Myanmar and the Ethnic Armed Organizations (EAO) (15/10/2015)']
       //draw circles
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
@@ -496,23 +501,45 @@ class ScrollerVis {
         .attr('cx', -50)
         .attr('cy', height / 2)
         .attr("class", function (d) {
-          let first_word;
-          if (containsSovietCountry(d[1][0][1][0].Con)) {
-            first_word = "my_circles " + "soviet "
-              + d[1][0][1][0].AgtId + " " + "y" +
-              d[1][0][1][0].date.getUTCFullYear()
+          if (current_author == "Russia") {
+            let first_word;
+            if (containsSovietCountry(d[1][0][1][0].Con)) {
+              first_word = "my_circles " + "soviet "
+                + d[1][0][1][0].AgtId + " " + "y" +
+                d[1][0][1][0].date.getUTCFullYear()
+            }
+            else if (containsSyriaCountry(d[1][0][1][0].Con)) {
+              first_word = "my_circles " + "syria "
+                + d[1][0][1][0].AgtId + " " + "y" +
+                d[1][0][1][0].date.getUTCFullYear()
+            }
+            else {
+              first_word = "my_circles " +
+                " " + d[1][0][1][0].AgtId + " " + "y" +
+                d[1][0][1][0].date.getUTCFullYear()
+            }
+            return first_word;
           }
-          else if (containsSyriaCountry(d[1][0][1][0].Con)) {
-            first_word = "my_circles " + "syria "
-              + d[1][0][1][0].AgtId + " " + "y" +
-              d[1][0][1][0].date.getUTCFullYear()
+          else if (current_author == "China") {
+            let all_actors = [];
+            d[1].forEach(function (x) {
+              all_actors.push(x[1][0].actor)
+            })
+            const specifiedCountries = ['Russia', 'France', 'United Kingdom', 'United States', 'China'];
+            let containsUnitedNations = all_actors.includes('United Nations');
+            let containsAllSpecifiedCountries = specifiedCountries.every(country => all_actors.includes(country));
+
+            if (china_highlight.includes(d[1][0][1][0].Agt)) {
+              return "my_circles " + "china_high"
+            }
+            else if (containsUnitedNations || containsAllSpecifiedCountries) {
+              return "my_circles " + "un_p5"
+
+            }
+            else {
+              return "my_circles"
+            }
           }
-          else {
-            first_word = "my_circles " +
-              " " + d[1][0][1][0].AgtId + " " + "y" +
-              d[1][0][1][0].date.getUTCFullYear()
-          }
-          return first_word;
         })
         .attr('r', 10)
         .style("fill", "#7B8AD6")
@@ -559,7 +586,7 @@ class ScrollerVis {
             .attr('cy', d => d.y)
         });
 
-      horizontal_svg.selectAll(".myXaxis").transition()
+      horizontal_svg.selectAll(".bee_x_axis").transition()
         .call(vis.x_axis)
         .style("stroke-dasharray", "5 5")
         .selectAll("text")
@@ -571,7 +598,7 @@ class ScrollerVis {
 
       horizontal_svg.selectAll(".domain")
         .attr("visibility", "hidden")
-      horizontal_svg.selectAll(".myXaxis, .tick line").transition()
+      horizontal_svg.selectAll(".bee_x_axis, .tick line").transition()
         .attr("visibility", "visible")
 
     }
@@ -590,7 +617,7 @@ class ScrollerVis {
         .attr('cx', -50)
         .attr('cy', height / 2)
 
-      horizontal_svg.selectAll(".myXaxis, .tick line").transition()
+      horizontal_svg.selectAll(".bee_x_axis, .tick line").transition()
         .attr("visibility", "hidden")
     }
   }
@@ -600,7 +627,12 @@ class ScrollerVis {
     console.log("step2", direction);
 
     if (direction == "down") {
-      d3.selectAll(".soviet").style("fill", "white")
+      if (this.selected_actor == "Russia") {
+        d3.selectAll(".soviet").style("fill", "white")
+      }
+      else if (this.selected_actor == "China") {
+        d3.selectAll(".china_high").style("fill", "white")
+      }
     }
     else if (direction == "up") {
       d3.selectAll(".my_circles").style("fill", "#7B8AD6")
@@ -612,11 +644,15 @@ class ScrollerVis {
     console.log("step3", direction);
 
     if (direction === "down") {
-      d3.selectAll(".soviet").style("fill", "#7B8AD6")
-      d3.selectAll(".syria").style("fill", "white")
-      console.log(this.selected_actor);
       if (this.selected_actor == "Russia") {
+        d3.selectAll(".soviet").style("fill", "#7B8AD6")
+        d3.selectAll(".syria").style("fill", "white")
         drawContext(context_data, height)
+      }
+      else if (this.selected_actor == "China") {
+        d3.selectAll(".my_circles").style("fill", "#7B8AD6")
+        d3.selectAll(".un_p5").style("fill", "white")
+
       }
 
       // horizontal_svg.selectAll('.my_circles')
@@ -632,11 +668,16 @@ class ScrollerVis {
       //   .attr("visibility", "visible")
     }
     else {
-      d3.selectAll(".soviet").style("fill", "white")
-      d3.selectAll(".syria").style("fill", "#7B8AD6")
-      d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories.")
       if (this.selected_actor == "Russia") {
+        d3.selectAll(".soviet").style("fill", "white")
+        d3.selectAll(".syria").style("fill", "#7B8AD6")
+        d3.select("#legend p").text("Peace agreements addressing conflicts in the former Soviet Union territories.")
         drawContext([], height)
+      }
+      else if (this.selected_actor == "China") {
+        d3.selectAll(".my_circles").style("fill", "#7B8AD6")
+        d3.selectAll(".china_high").style("fill", "white")
+
       }
     }
   }
@@ -647,7 +688,7 @@ class ScrollerVis {
 
     if (direction === "down") {
       drawContext([], height)
-      d3.selectAll(".syria").style("fill", "#7B8AD6")
+      d3.selectAll(".my_circles").style("fill", "#7B8AD6")
 
       const totalElements = horizontal_svg.selectAll('.my_circles').size();
       console.log(totalElements);
@@ -675,7 +716,7 @@ class ScrollerVis {
       //   .attr('cx', vis.width + 100)
       //   .attr('cy', vis.height / 2)
 
-      d3.selectAll(".myXaxis, .tick line").transition()
+      d3.selectAll(".bee_x_axis, .tick line").transition()
         .attr("visibility", "hidden")
       //   x_horizontal.domain(d3.extent(vis.year_division, function (d) {
       //     return d[1][0][0];
@@ -766,7 +807,7 @@ class ScrollerVis {
     }
     else if (direction == "up") {
       d3.selectAll(".syria").style("fill", "white")
-      horizontal_svg.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
+      horizontal_svg.selectAll(".bee_x_axis, .tick line").attr("visibility", "visible")
       horizontal_svg.selectAll('.my_circles')
         .data(vis.year_division)
         .join('circle')
@@ -776,6 +817,9 @@ class ScrollerVis {
         .attr('r', 10)
       if (this.selected_actor == "Russia") {
         drawContext(context_data, this.height)
+      }
+      else if (this.selected_actor == "China") {
+        d3.selectAll(".un_p5").style("fill", "white")
       }
 
     }
@@ -839,7 +883,8 @@ class ScrollerVis {
     if (direction == "down") {
       console.log(vis.chart_data);
       barchart_svg.selectAll("rect").remove()
-      barchart_svg.selectAll("text").remove()
+      barchart_svg.selectAll(".bar_text").remove()
+      barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 1)
       barchart_svg.append("g")
         .selectAll("g")
         .data(vis.chart_data)
@@ -866,24 +911,31 @@ class ScrollerVis {
         .selectAll("text")
         .data(function (d) { return vis.subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
         .join("text")
-        .text(function (d){
+        .attr("class", "bar_text")
+        .text(function (d) {
           console.log(d);
           return Math.round(d.value * 10) / 10 + "%"
         })
         .attr("fill", "white")
         .attr("text-anchor", "middle")
         .attr("font-size", "12px")
-        .attr("x", d => vis.xSubgroup(d.key) + (vis.xSubgroup.bandwidth()/2))
+        .attr("x", d => vis.xSubgroup(d.key) + (vis.xSubgroup.bandwidth() / 2))
         .attr("y", height)
         .transition().duration(800)
         .attr("y", d => vis.bar_y(d.value) - 5)
 
     }
     else if (direction == "up") {
-      barchart_svg.selectAll("rect")
+      barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 0)
+
+      barchart_svg.selectAll("rect, .bar_text")
         .transition().duration(800)
         .attr("y", height)
         .attr("height", 0)
+
+      barchart_svg.selectAll(".bar_text")
+        .transition().delay(900)
+        .style("opacity", 0)
     }
   }
 
@@ -901,16 +953,27 @@ class ScrollerVis {
     const vis = this;
     console.log("step14", direction);
     if (direction == "down") {
-      barchart_svg.selectAll("rect")
+      barchart_svg.selectAll("rect, .bar_text")
         .transition().duration(800)
         .attr("y", height)
         .attr("height", 0)
+      barchart_svg.selectAll(".bar_text")
+        .transition().delay(900)
+        .style("opacity", 0)
+      barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 0)
     }
     else if (direction == "up") {
+      barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 1)
       barchart_svg.selectAll("rect")
         .transition().duration(800)
         .attr("y", d => vis.bar_y(d.value))
         .attr("height", d => (height - 10) - vis.bar_y(d.value))
+      barchart_svg.selectAll(".bar_text")
+        .transition().duration(800)
+        .attr("y", d => vis.bar_y(d.value) - 5)
+      barchart_svg.selectAll(".bar_text")
+        .transition().delay(900)
+        .style("opacity", 1)
     }
 
   }

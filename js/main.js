@@ -371,9 +371,8 @@ Promise.all([
       all agreements signed. For more details on the categories see
       <a href="https://www.peaceagreements.org/files/Definitions_v7.pdf" target="_blank">here</a>.`)
 
-      d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation 
-      agreements and less framework-substantive comprehensive agreements and implementation 
-      agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
+      d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation agreements 
+      and less comprehensive and implementation agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
       d3.select(".p9").html(`Pre-negotiation agreements represent 29% of all agreements with 
       third-party signatories, but 35% of all agreements signed by Russia.</br></br><span class="dot2">
@@ -400,17 +399,22 @@ Promise.all([
     }
     else if (selected_actor == "China") {
       d3.select(".p1").html(`China is not the most prolific third-party signatory of
-      peace agreements since 1990, ranking XX of all actors, who have acted as 
+      peace agreements since 1990, ranking 15th of all actors, who have acted as 
       third-party signatories. In terms of frequency, this puts it alongside actors 
-      such as XX, XX, and XX. `)
+      such as Egypt, Kenya, and Nigeria.</br></br><span class="dot"></span><p id="leg_p">
+      Individual peace agreements signed by China (hover over for more detail)</p>`)
       d3.select(".p2").html(`As one of the UN Security Council (UNSC) permanent members, 
       China has participated in all major international conferences (e.g., for Cambodia, 
       Bosnia and Herzegovina, Afghanistan, Libya), with the key exception of negotiations 
-      relating to Israel and Palestine.`)
-      d3.select(".p3").html(`Nearly all agreements signed by China as a third-party have 
+      relating to Israel and Palestine. Nearly all agreements signed by China as a third-party have 
       been the result of large international conferences or UNSC resolutions. Most 
       agreements China has signed include the UN or other permanent members of the 
-      UN Security Council. `)
+      UN Security Council.</br></br><span class="dot1"></span><p id="leg_p">Peace agreements 
+      resulting from large international conferences or UNSC resolutions.</p>`)
+      d3.select(".p3").html(`Most agreements China has signed include the UN or other 
+      permanent members of the UN Security Council. </br></br>
+      <span class="dot1"></span><p id="leg_p">Peace agreements signed by China and 
+      the UN or other permanent members of the UNSC.`)
     }
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
