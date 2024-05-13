@@ -71,9 +71,9 @@ let piechart_svg = d3.select("#visualization05")
   .attr("width", width)
   .attr("height", height)
   .append("g")
-  .attr("transform", `translate(${width80 / 2},${height / 2 + 35})`);
+  .attr("transform", `translate(${width / 2},${height / 2 + 35})`);
 // The arc generator
-const radius = Math.min(width80, height) / 2 - 50
+const radius = Math.min(width, height) / 2 - 50
 const arc = d3.arc()
   .innerRadius(radius * 0.5)
   .outerRadius(radius * 0.80)
@@ -412,8 +412,6 @@ Promise.all([
       agreements China has signed include the UN or other permanent members of the 
       UN Security Council. `)
     }
-
-
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,
       year_division, the_array, agt_stage_group, multiline_data, fin_comb_chart,

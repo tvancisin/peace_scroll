@@ -481,13 +481,13 @@ class ScrollerVis {
       //voronoi
       const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
         voronoi = delaunay.voronoi([0, 0, vis.width, height]);
-        
+
       function containsSovietCountry(string) {
-          return soviet.some(country => string.includes(country));
-        }
+        return soviet.some(country => string.includes(country));
+      }
       function containsSyriaCountry(string) {
-          return syria.some(country => string.includes(country));
-        }
+        return syria.some(country => string.includes(country));
+      }
 
       //draw circles
       horizontal_svg.selectAll('.my_circles')
@@ -839,6 +839,7 @@ class ScrollerVis {
     if (direction == "down") {
       console.log(vis.chart_data);
       barchart_svg.selectAll("rect").remove()
+      barchart_svg.selectAll("text").remove()
       barchart_svg.append("g")
         .selectAll("g")
         .data(vis.chart_data)
@@ -857,9 +858,31 @@ class ScrollerVis {
         .attr("y", d => vis.bar_y(d.value))
         .attr("height", d => (height - 10) - vis.bar_y(d.value))
 
+      barchart_svg.append("g")
+        .selectAll("g")
+        .data(vis.chart_data)
+        .join("g")
+        .attr("transform", d => `translate(${vis.bar_x(d.group)}, 0)`)
+        .selectAll("text")
+        .data(function (d) { return vis.subgroups.map(function (key) { return { key: key, value: d[key] }; }); })
+        .join("text")
+        .text(function (d){
+          console.log(d);
+          return Math.round(d.value * 10) / 10 + "%"
+        })
+        .attr("fill", "white")
+        .attr("font-size", "12px")
+        .attr("x", d => vis.xSubgroup(d.key) + 2)
+        .attr("y", height)
+        .transition().duration(800)
+        .attr("y", d => vis.bar_y(d.value) - 5)
+
     }
     else if (direction == "up") {
-      barchart_svg.selectAll("rect").remove()
+      barchart_svg.selectAll("rect")
+        .transition().duration(800)
+        .attr("y", height)
+        .attr("height", 0)
     }
   }
 
@@ -876,6 +899,19 @@ class ScrollerVis {
   step14(direction) {
     const vis = this;
     console.log("step14", direction);
+    if (direction == "down") {
+      barchart_svg.selectAll("rect")
+        .transition().duration(800)
+        .attr("y", height)
+        .attr("height", 0)
+    }
+    else if (direction == "up") {
+      barchart_svg.selectAll("rect")
+        .transition().duration(800)
+        .attr("y", d => vis.bar_y(d.value))
+        .attr("height", d => (height - 10) - vis.bar_y(d.value))
+    }
+
   }
 
   goToStep(stepIndex, direction) {
