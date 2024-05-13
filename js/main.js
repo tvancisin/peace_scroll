@@ -119,14 +119,14 @@ map.on('load', () => {
     'type': 'fill',
     'source': 'states',
     'layout': {},
-    'paint': {
-      'fill-color': ['match', ['get', 'ADMIN'],
-        "Russia", 'white',
-        '#7B8AD6',
-        // 'white',
-      ],
-      'fill-opacity': 0.8
-    }
+    // 'paint': {
+    //   'fill-color': ['match', ['get', 'ADMIN'],
+    //     "Russia", 'white',
+    //     '#7B8AD6',
+    //     // 'white',
+    //   ],
+    //   'fill-opacity': 0.8
+    // }
   });
 
   map.addLayer({
@@ -343,6 +343,7 @@ Promise.all([
     d3.select("#yr_active").text(yr_period[0].getUTCFullYear() + " - " + yr_period[1].getUTCFullYear())
 
     if (selected_actor == "Russia") {
+      d3.select(".council_separator").text("Russia and other UN Security Council Permanent Members")
       d3.select(".p1").html(`Russia is the second most prolific international third-party
       signatory of peace agreements between 1990-2022. It follows the United Nations, and
       comes ahead of the United States, the African Union, and the European Union.</br></br>
@@ -373,31 +374,32 @@ Promise.all([
 
       d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation agreements 
       and less comprehensive and implementation agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
-      <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
+      <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
       d3.select(".p9").html(`Pre-negotiation agreements represent 29% of all agreements with 
       third-party signatories, but 35% of all agreements signed by Russia.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
-      <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
+      <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
       d3.select(".p10").html(`Comprehensive agreements represent 5% of all agreements signed,
        but only 3% of all agreements signed by Russia.</br></br> Implementation agreements 
        represent 20% of all agreements signed, but only 17% of all agreements 
        signed by Russia. </br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
-      <span class="dot3"></span><p id="leg_p">Russian signature (% of all).</p>`)
+      <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
 
 
       d3.select(".p12").html(`The geographic spread of Russian engagement as a 
       third-party signatory of peace agreements reflects its permanent seat on 
-      the United Nations Security Council and its role as a regional power. `)
-      d3.select(".p13").html(`Like other members of the Permanent Five, Russia 
-      participates in large international conferences and in UN Security Council 
-      resolutions that function as peace agreements. This gives it a global reach. `)
-      d3.select(".p14").html(`But most of its focus – and where its activity has 
+      the United Nations Security Council and its role as a regional power. Like 
+      other members of the Permanent Five, Russia participates in large international 
+      conferences and in UN Security Council resolutions that function as peace agreements. 
+      This gives it a global reach. `)
+      d3.select(".p13").html(`But most of its focus – and where its activity has 
       been over the last decade – relates to conflicts in its neighbourhood and a 
       number of select locales, where Russia is acting both as a military partner 
       and a peacemaker.`)
     }
     else if (selected_actor == "China") {
+      d3.select(".council_separator").text("China and other UN Security Council Permanent Members")
       d3.select(".p1").html(`China is not the most prolific third-party signatory of
       peace agreements since 1990, ranking 15th of all actors, who have acted as 
       third-party signatories. In terms of frequency, this puts it alongside actors 
@@ -415,6 +417,38 @@ Promise.all([
       permanent members of the UN Security Council. </br></br>
       <span class="dot1"></span><p id="leg_p">Peace agreements signed by China and 
       the UN or other permanent members of the UNSC.`)
+
+      d3.select(".p4").html(`China is the least prolific third-party signatory of 
+      peace agreements of all UN Security Council permanent members. China signed 38 
+      agreements as a third-party since 1990, in comparison to Russian 134 signatures 
+      and the US 127 signatures.`)
+
+      d3.select(".p6").html(`Chinese involvement as a third-party signatory seems to 
+      come at the point when there is a broad international consensus regarding a 
+      peace process. Implementation agreements are the biggest category and 
+      represent 31% of all agreements signed by China. For more details on the categories see
+      <a href="https://www.peaceagreements.org/files/Definitions_v7.pdf" target="_blank">here</a>.`)
+
+      d3.select(".p8").html(`Compared with all agreements, China signs more comprehensive and 
+      implementation agreements, and less ceasefires and partial ones. Comprehensive agreements 
+      present only 6% of all agreements signed by third-parties, but amount to 12% of all agreements 
+      signed by China. .</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
+      <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
+      d3.select(".p9").html(`Similarly, 32% of all agreements signed by China are implementation agreements, 
+      but the overall proportion of such agreements is 18%.</br></br><span class="dot2">
+      </span><p id="leg_p">Overall agreements (% of all).</p>
+      <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
+      d3.select(".p10").html(`In contrast, only 8% of all agreements signed by China are ceasefires, 
+      with the overall proportion of such agreements at 18%.</br></br><span class="dot2">
+      </span><p id="leg_p">Overall agreements (% of all).</p>
+      <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
+
+      d3.select(".p12").html(`The geographic spread of Chinese engagement as a third-party 
+      signatory of peace agreements reflects its permanent seat on the United 
+      Nations Security Council.`)
+      d3.select(".p13").html(`China has been involved in peace agreements in Asia, Europe, 
+      the Middle East and Africa, all geographic areas where the UNSC has been highly active.`)
+
     }
 
     scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data,

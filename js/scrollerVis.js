@@ -91,6 +91,7 @@ const drawContext = function (context, height) {
 }
 
 const drawDonut = function (data, direction) {
+  console.log(data);
   const data_ready = pie(data)
   console.log(data_ready);
 
@@ -157,6 +158,7 @@ class ScrollerVis {
     vis.width = vis.config.vis_width - vis.config.margin.left - vis.config.margin.right;
     vis.height = vis.config.vis_height - vis.config.margin.top - vis.config.margin.bottom;
     d3.select(".bee_x_axis").remove()
+    d3.selectAll(".area, .multiline").remove()
 
     //BEESWARM VISUALIZATION
     horizontal_svg.append("g")
@@ -210,6 +212,7 @@ class ScrollerVis {
       .datum(this.all_sorted)
       .attr("fill", "#379FDF")
       .attr("opacity", 0.7)
+      .attr("class", "area")
       .attr("stroke", "none")
       .attr("stroke-width", 2)
       .attr("d", d3.area()
@@ -230,6 +233,7 @@ class ScrollerVis {
     let sel_actor = this.selected_actor
 
     let multiline_path = multiline_svg.append("g")
+      .attr("class", "multiline")
       .attr("fill", "none")
       .selectAll("path")
       .data(multiline_groups.values())
@@ -466,6 +470,21 @@ class ScrollerVis {
     console.log("step1", direction);
 
     map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
+    if (this.selected_actor == "Russia") {
+      map.setPaintProperty(
+        'state-fills',
+        'fill-color',
+        ['match', ['get', 'ADMIN'], 'Russia', 'white', '#7B8AD6']
+      );
+    }
+    else if (this.selected_actor == "China") {
+      map.setPaintProperty(
+        'state-fills',
+        'fill-color',
+        ['match', ['get', 'ADMIN'], 'China', 'white', '#7B8AD6']
+      );
+    }
+
     horizontal_svg.selectAll(".tick").remove()
     if (direction === "down") {
       //adjust domain
