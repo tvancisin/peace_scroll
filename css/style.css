@@ -268,14 +268,15 @@ p {
   bottom: 0;
 }
 
-#vik {
-  float: rightleft;
+#vik1, #vik2, #vik3, #vik4, #vik5 {
+  float: left;
   margin: auto;
 }
 
 #publications {
   position: relative;
   transition: transform .2s;
+  height: 250px;
   /* Animation */
   -webkit-box-shadow: 0 0 8px 1px #868686;
   -moz-box-shadow: 0 0 8px 1px #868686;

@@ -39,9 +39,6 @@ d3.select("#map")
 d3.selectAll(".trigger")
   .style("padding-top", height100 / 3 + "px")
   .style("height", height100 + "px")
-d3.selectAll("#publications")
-  .style("height", 250 + "px")
-
 
 //BEESWARM VISUALIZATION
 let horizontal_svg = d3.select("#visualization")
@@ -397,6 +394,22 @@ Promise.all([
       been over the last decade – relates to conflicts in its neighbourhood and a 
       number of select locales, where Russia is acting both as a military partner 
       and a peacemaker.`)
+
+      d3.select("#research_header").text(`Read our research on Russia and its approaches to conflict, peace processes and mediation:`)
+
+      d3.select("#vik1").html(`<a href="https://peacerep.org/publication/third-parties-peace-agreements-data-trends/" target="_blank"><img
+            id="publications" src="img/m1.png" /></a>`)
+      d3.select("#vik2").html(`<a href="https://peacerep.org/publication/non-western-approaches-to-peacemaking-and-peacebuilding-state-of-the-art-and-an-agenda-for-research/"
+          target="_blank"><img id="publications" src="img/m2.png" /></a>`)
+      d3.select("#vik3").html(`<a href="https://www.taylorfrancis.com/chapters/edit/10.4324/9781003372011-6/competition-norms-kasia-houghton?context=ubx&refId=214196cc-d7dc-4753-b173-9aa154a0d415"
+          target="_blank"><img id="publications" src="img/m3.png" /></a>`)
+      d3.select("#vik4").html(`<a href="https://peacerep.org/publication/russias-engagement-mariani-2022/" target="_blank"><img
+            id="publications" src="img/m4.png" /></a>`)
+      d3.select("#vik5").html(`<a href="https://peacerep.org/publication/russia-and-china-in-liberal-peacebuilding/" target="_blank"><img
+            id="publications" src="img/m5.png" /></a>`)
+
+
+      
     }
     else if (selected_actor == "China") {
       d3.select(".council_separator").text("China and other UN Security Council Permanent Members")
@@ -448,6 +461,19 @@ Promise.all([
       Nations Security Council.`)
       d3.select(".p13").html(`China has been involved in peace agreements in Asia, Europe, 
       the Middle East and Africa, all geographic areas where the UNSC has been highly active.`)
+
+      d3.select("#research_header").text(`Read our research on China and its approaches to conflict, peace processes and mediation:`)
+
+      d3.select("#vik1").html(`<a href="https://peacerep.org/publication/third-parties-peace-agreements-data-trends/" target="_blank"><img
+            id="publications" src="img/c1.PNG" /></a>`)
+      d3.select("#vik2").html(`<a href="https://peacerep.org/publication/chinas-stance-on-the-war-in-ukraine/"
+          target="_blank"><img id="publications" src="img/c2.PNG" /></a>`)
+      d3.select("#vik3").html(`<a href="https://peacerep.org/publication/domestic-actors-china-international-conflict-management/"
+          target="_blank"><img id="publications" src="img/c3.PNG" /></a>`)
+      d3.select("#vik4").html(`<a href="https://peacerep.org/publication/global-china-and-the-quest-for-peace-in-bosnia-and-herzegovina/" target="_blank"><img
+            id="publications" src="img/c4.PNG" /></a>`)
+      d3.select("#vik5").html(`<a href="https://peacerep.org/publication/russia-and-china-in-liberal-peacebuilding/" target="_blank"><img
+            id="publications" src="img/c5.PNG" /></a>`)
 
     }
 
