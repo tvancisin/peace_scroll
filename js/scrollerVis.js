@@ -871,8 +871,9 @@ class ScrollerVis {
           return Math.round(d.value * 10) / 10 + "%"
         })
         .attr("fill", "white")
+        .attr("text-anchor", "middle")
         .attr("font-size", "12px")
-        .attr("x", d => vis.xSubgroup(d.key) + 2)
+        .attr("x", d => vis.xSubgroup(d.key) + (vis.xSubgroup.bandwidth()/2))
         .attr("y", height)
         .transition().duration(800)
         .attr("y", d => vis.bar_y(d.value) - 5)
