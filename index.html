@@ -9,6 +9,7 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
     integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-ajax/2.1.0/leaflet.ajax.min.js" crossorigin="anonymous"
     referrerpolicy="no-referrer"></script>
@@ -22,12 +23,14 @@
 
   <div id="header">
     <h1 id="title_header"></h1>
-    <img id="peace_img" src="img/logo.png" alt="PeaceRep Logo" />
+    <a href="https://peacerep.org/" target="_blank"><img alt="PeaceRep Logo" id="peace_img" src="img/logo.png" /></a>
+    <!-- <img id="peace_img" src="img/logo.png" alt="PeaceRep Logo" /> -->
     <img id="uoe_img" src="img/unilogo.png" alt="Uni Logo" />
     <img id="and_img" src="img/image10.png" alt="Uni Logo" />
   </div>
 
   <div id="story">
+
     <div class="dropdown">
       <button class="dropbtn">Select Actor</button>
       <div class="dropdown-content">
@@ -112,7 +115,7 @@
         <div class="trigger eight" data-step="7">
           <p class="p6"></p>
         </div>
-        <div class="nine" data-step="8" style="height: 300px;">
+        <div class="trigger nine" data-step="8">
           <p class="p7"></p>
         </div>
         <!-- <div class="trigger ten" data-step="9">
@@ -165,12 +168,10 @@
           <p class="p12"></p>
         </div>
         <div class="trigger sixteen" data-step="15">
-          <p13 class="p13">
-            </p>
+          <p class="p13"></p>
         </div>
         <div class="trigger seventeen" data-step="16">
-          <p13 class="p14">
-            </p>
+          <p13 class="p14"></p>
         </div>
       </div>
     </div>
@@ -183,7 +184,8 @@
     </div> -->
 
     <div id="separator1">
-      <div style="position: absolute; top: 80px; width: 100%; text-align: center;">
+      <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fa fa-arrow-up" style="color:white"></i></button>
+      <div style="position: absolute; top: 0px; width: 100%; text-align: center;">
         <h3 id="research_header"></h3>
       </div>
       <div id="vik1">
@@ -196,8 +198,9 @@
       </div>
       <div id="vik5">
       </div>
-      <div id="footer" style="position: absolute; bottom: 30px; width: 100%; text-align: center;">
-        <h5>Text: Mateja Peter and Sanja Badanjak</br>Data: Third Party to Peace Agreements Dataset. Sanja Badanjak and Niamh Henry (2024)</br>Visualisation: Tomas Vancisin</h5>
+      <div id="footer" style="position: absolute; bottom: 10px; width: 100%; text-align: center;">
+        <h5><b>Text</b>: Mateja Peter and Sanja Badanjak</br><b>Data</b>: Third Party to Peace Agreements Dataset. Sanja
+          Badanjak and Niamh Henry (2024)</br><b>Visualisation</b>: Tomas Vancisin</h5>
       </div>
     </div>
 

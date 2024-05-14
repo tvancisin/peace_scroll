@@ -2,6 +2,18 @@
 window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
+
+// Get the button
+let mybutton = document.getElementById("myBtn");
+
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+  document.body.scrollTop = 0;
+  document.documentElement.scrollTop = 0;
+}
+
+
+
 //get current width and height of the screen
 const width100 = window.innerWidth - 10, // minus scroll width 10 px
   height100 = window.innerHeight,
@@ -32,13 +44,20 @@ d3.selectAll(`.graphic__prose, .graphic__prose__05,
 d3.selectAll("#separator, #separator05, #separator1")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
+d3.selectAll("#separator05, #separator1")
+  .style("width", width100 + "px")
+  .style("height", height100 - 200 + "px")
 d3.select("#map")
   .style("width", width80 + "px")
   .style("height", height100 + "px")
   .style("left", 0 + "px")
 d3.selectAll(".trigger")
   .style("padding-top", height100 / 3 + "px")
-  .style("height", height100 + "px")
+  .style("height", height100 - 100 + "px")
+d3.selectAll(".four, .seventeen")
+  .style("height", 400 + "px")
+d3.selectAll(".nine")
+  .style("height", 100 + "px")
 
 //BEESWARM VISUALIZATION
 let horizontal_svg = d3.select("#visualization")
@@ -430,7 +449,7 @@ Promise.all([
       d3.select(".p3").html(`Most agreements China has signed include the UN or other 
       permanent members of the UN Security Council. </br></br>
       <span class="dot1"></span><p id="leg_p">Peace agreements signed by China and 
-      the UN or other permanent members of the UNSC.`)
+      the UN or all other permanent members of the UNSC.`)
 
       d3.select(".p4").html(`China is the least prolific third-party signatory of 
       peace agreements of all UN Security Council permanent members. China signed 38 
@@ -440,16 +459,16 @@ Promise.all([
 
       d3.select(".p6").html(`Chinese involvement as a third-party signatory seems to 
       come at the point when there is a broad international consensus regarding a 
-      peace process. Implementation agreements are the biggest category and 
-      represent 31% of all agreements signed by China. For more details on the categories see
+      peace process.</br></br> Implementation agreements are the biggest category and 
+      represent 31% of all agreements signed by China.</br></br> For more details on the categories see
       <a href="https://www.peaceagreements.org/files/Definitions_v7.pdf" target="_blank">here</a>.`)
 
       d3.select(".p8").html(`Compared with all agreements, China signs more comprehensive and 
-      implementation agreements, and less ceasefires and partial ones. Comprehensive agreements 
-      present only 6% of all agreements signed by third-parties, but amount to 11% of all agreements 
-      signed by China. .</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
+      implementation agreements, and less ceasefires and partial ones. .</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
-      d3.select(".p9").html(`Similarly, 32% of all agreements signed by China are implementation agreements, 
+      d3.select(".p9").html(`Comprehensive agreements 
+      present only 6% of all agreements signed by third-parties, but amount to 11% of all agreements 
+      signed by China.</br></br> Similarly, 32% of all agreements signed by China are implementation agreements, 
       but the overall proportion of such agreements is 20%.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
@@ -597,7 +616,7 @@ Promise.all([
         // tell our graphic to update with a specific step
         // graphic.update(nextStep)
       },
-      offset: '10%',  // trigger halfway up the viewport
+      offset: '60%',  // trigger halfway up the viewport
     })
   })
 

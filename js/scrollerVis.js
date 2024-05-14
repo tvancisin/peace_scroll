@@ -291,11 +291,11 @@ class ScrollerVis {
       const [x, y, k] = points[i];
       multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
       dot.attr("transform", `translate(${x},${y})`);
-      dot.select("text").text(k+" ("+these[i].unemployment+")")
+      dot.select("text").text(k + " (" + these[i].unemployment + ")")
         .style("fill", "white")
-        // .style("stroke", "black")
-        // .style("stroke-width", 2.5)
-        // .style("paint-order", "stroke");
+      // .style("stroke", "black")
+      // .style("stroke-width", 2.5)
+      // .style("paint-order", "stroke");
       multiline_svg.property("value", these[i]).dispatch("input", { bubbles: true });
     }
 
@@ -541,6 +541,7 @@ class ScrollerVis {
             }
             return first_word;
           }
+
           else if (current_author == "China") {
             let all_actors = [];
             d[1].forEach(function (x) {
@@ -548,24 +549,31 @@ class ScrollerVis {
             })
             const specifiedCountries = ['Russia', 'France', 'United Kingdom', 'United States', 'China'];
             let containsUnitedNations = all_actors.includes('United Nations');
+            let containsEurope = all_actors.includes('Conference on Security and Cooperation in Europe');
             let containsAllSpecifiedCountries = specifiedCountries.every(country => all_actors.includes(country));
-
-            if (china_highlight.includes(d[1][0][1][0].Agt)) {
-              return "my_circles " + "china_high"
-            }
-            else if (containsUnitedNations || containsAllSpecifiedCountries) {
-              return "my_circles " + "un_p5"
-
+            let last_agt = "Declaration of the Paris International Conference for Libya (12 November 2021)"
+            let china_classes;
+            if (!china_highlight.includes(d[1][0][1][0].Agt)) {
+              if (containsUnitedNations || containsAllSpecifiedCountries || containsEurope || d[1][0][1][0].AgtId == 2433) {
+                china_classes = "my_circles " + "china_high" + " un_p5"
+              }
+              else {
+                china_classes = "my_circles " + "china_high"
+              }
             }
             else {
-              return "my_circles"
+              china_classes = "my_circles"
             }
+            return china_classes
           }
         })
         .attr('r', 10)
         .style("fill", "#7B8AD6")
         .style("stroke", "black")
         .style("strokewidth", 0.5)
+        .on("click", function (d, i) {
+          window.open(i[1][0][1][0].PDF_Hyperlink);
+        })
         .on("mouseover", function (d, i) {
           d3.select(this).style("stroke", "white")
           d3.select("#hover_description")
@@ -712,7 +720,6 @@ class ScrollerVis {
       d3.selectAll(".my_circles").style("fill", "#7B8AD6")
 
       const totalElements = horizontal_svg.selectAll('.my_circles').size();
-      console.log(totalElements);
       const transitionDuration = 300; // Duration of transition in milliseconds
       const delayStep = transitionDuration / totalElements;
 
@@ -730,101 +737,8 @@ class ScrollerVis {
             .attr('cx', vis.width + 100)
             .attr('cy', height / 2)
         });
-
-      // horizontal_svg.selectAll('.my_circles')
-      //   .transition().delay(function (d, i) { return i * 2 })
-      //   .attr('r', 3)
-      //   .attr('cx', vis.width + 100)
-      //   .attr('cy', vis.height / 2)
-
       d3.selectAll(".bee_x_axis, .tick line").transition()
         .attr("visibility", "hidden")
-      //   x_horizontal.domain(d3.extent(vis.year_division, function (d) {
-      //     return d[1][0][0];
-      //   }))
-      //     .nice();
-      //   //initial simulation
-      //   let simulation = d3.forceSimulation(vis.year_division)
-      //     .force("y", d3.forceY(function (d) { return y_vertical(d[1][0][0]); }).strength(3))
-      //     .force("x", d3.forceX(120 / 2))
-      //     .force("collide", d3.forceCollide(4))
-      //     .stop();
-      //   //simulate
-      //   for (var i = 0; i < 200; ++i) { simulation.tick(); }
-      //   //voronoi
-      //   const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
-      //     voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
-      //   //draw circles
-      //   horizontal_svg.selectAll('.my_circles')
-      //     .data(vis.year_division)
-      //     .join('circle')
-      //     .transition().delay(function (d, i) { return i * 2 })
-      //     .attr('cx', d => d.x)
-      //     .attr('cy', d => d.y)
-      //     .attr('r', 4)
-
-      //   d3.selectAll(".graphic__vis, #visualization")
-      //     .transition().delay(500)
-      //     .style("width", 130 + "px")
-      //     .style("height", height100 + "px")
-
-      //   //move x axis to the left
-      //   d3.selectAll(".domain, .tick line").attr("visibility", "hidden")
-      //   vis.x_axis = d3.axisLeft(y_vertical).ticks(5);
-      //   horizontal_svg.selectAll(".myXaxis").attr("transform", `translate(15,0)`)
-      //   horizontal_svg.selectAll(".myXaxis").transition()
-      //     .call(vis.x_axis)
-      //     .selectAll("text")
-      //     .attr("transform", "translate(0,-4)rotate(45)")
-      //     .style("text-anchor", "start")
-      //     .style("font-size", "12px")
-      //     .style("font-family", "Montserrat");
-      // }
-      // else if (direction == "up") {
-      //   d3.selectAll(".syria").style("fill", "white")
-      //   d3.selectAll(".myXaxis, .tick line").attr("visibility", "visible")
-      //   //redraw x axis to horizontal
-      //   // vis.x_axis = d3.axisBottom(x_horizontal).tickSize(-vis.height).ticks(10);
-      //   vis.x_axis = d3.axisBottom(x_horizontal)
-      //   horizontal_svg.selectAll(".myXaxis")
-      //     .attr("transform", `translate(10, ` + vis.height + `)`)
-      //   horizontal_svg.selectAll(".myXaxis").transition()
-      //     .call(vis.x_axis)
-      //     .style("stroke-dasharray", "5 5")
-      //     .selectAll("text")
-      //     .attr("transform", "translate(0,-4)")
-      //     .style("fill", "white")
-      //     .style("text-anchor", "middle")
-      //     .style("font-size", "14px")
-      //     .style("font-family", "Montserrat");
-
-      //   d3.selectAll(".graphic__vis, #visualization, #visualization1")
-      //     .style("width", width100 + "px")
-      //     .style("height", height100 + "px")
-      //   //adjust domain
-      //   x_horizontal.domain(d3.extent(vis.year_division, function (d) { return d[1][0][0]; }))
-      //     .nice();
-      //   //initial simulation
-      //   let simulation = d3.forceSimulation(vis.year_division)
-      //     .force("x", d3.forceX(function (d) { return x_horizontal(d[1][0][0]); }).strength(3))
-      //     .force("y", d3.forceY(vis.height / 2))
-      //     .force("collide", d3.forceCollide(11))
-      //     .stop();
-      //   //simulate
-      //   for (var i = 0; i < 200; ++i) { simulation.tick(); }
-      //   //voronoi
-      //   const delaunay = d3.Delaunay.from(vis.year_division, d => d.x, d => d.y),
-      //     voronoi = delaunay.voronoi([0, 0, vis.width, vis.height]);
-      //   //draw circles
-      //   horizontal_svg.selectAll('.my_circles')
-      //     .data(vis.year_division)
-      //     .join('circle')
-      //     .transition().transition().delay(function (d, i) { return i * 2 })
-      //     .attr('cx', d => d.x)
-      //     .attr('cy', d => d.y)
-      //     .attr('r', 10)
-
-      //   drawContext(context_data, this.height)
     }
     else if (direction == "up") {
       d3.selectAll(".syria").style("fill", "white")
