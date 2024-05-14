@@ -975,25 +975,25 @@ class ScrollerVis {
     console.log("step14", direction);
     if (direction == "down") {
       barchart_svg.selectAll("rect, .bar_text")
-        .transition().duration(800)
+        .transition().duration(500)
         .attr("y", height)
         .attr("height", 0)
       barchart_svg.selectAll(".bar_text")
-        .transition().delay(900)
+        .transition().delay(500)
         .style("opacity", 0)
       barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 0)
     }
     else if (direction == "up") {
       barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 1)
       barchart_svg.selectAll("rect")
-        .transition().duration(800)
+        .transition().duration(500)
         .attr("y", d => vis.bar_y(d.value))
         .attr("height", d => (height - 10) - vis.bar_y(d.value))
       barchart_svg.selectAll(".bar_text")
-        .transition().duration(800)
+        .transition().duration(500)
         .attr("y", d => vis.bar_y(d.value) - 5)
       barchart_svg.selectAll(".bar_text")
-        .transition().delay(900)
+        .transition().delay(500)
         .style("opacity", 1)
     }
 
