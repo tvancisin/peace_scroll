@@ -268,11 +268,13 @@ class ScrollerVis {
 
     dot.append("circle")
       .attr("r", 5)
-      .style("fill", "white");
+      .style("fill", "white")
+      .style("stroke", "black");
 
     dot.append("text")
-      .attr("text-anchor", "middle")
-      .attr("y", -8);
+      .attr("text-anchor", "start")
+      .attr("y", -10)
+      .attr("x", 5);
 
     multiline_svg
       .on("pointerenter", pointerentered)
@@ -289,11 +291,11 @@ class ScrollerVis {
       const [x, y, k] = points[i];
       multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
       dot.attr("transform", `translate(${x},${y})`);
-      dot.select("text").text(k)
+      dot.select("text").text(k+" ("+these[i].unemployment+")")
         .style("fill", "white")
-      // .style("stroke", "black")
-      // .style("stroke-width", 3)
-      // .style("paint-order", "stroke fill");
+        // .style("stroke", "black")
+        // .style("stroke-width", 2.5)
+        // .style("paint-order", "stroke");
       multiline_svg.property("value", these[i]).dispatch("input", { bubbles: true });
     }
 

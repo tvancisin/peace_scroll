@@ -362,7 +362,9 @@ Promise.all([
 
       d3.select(".p4").html(`Russia is the most prolific signatory of
       peace agreements of all UN Security Council Permanent Members. In a number of years 
-      (1995, 2016-2018) it has signed more agreements than the United Nations.`)
+      (1995, 2016-2018) it has signed more agreements than the United Nations.
+      </br></br><span class="rec"></span><p id="leg_p">Overall agreements.</p>
+      <span class="rec1"></span><p id="leg_p">Russian agreements.</p>`)
 
       d3.select(".p6").html(`Russia primarily signs pre-negotiation and
       ceasefire agreements. These represent over half of
@@ -434,7 +436,8 @@ Promise.all([
       d3.select(".p4").html(`China is the least prolific third-party signatory of 
       peace agreements of all UN Security Council permanent members. China signed 38 
       agreements as a third-party since 1990, in comparison to Russian 134 signatures 
-      and the US 127 signatures.`)
+      and the US 127 signatures.</br></br><span class="rec"></span><p id="leg_p">Overall agreements.</p>
+      <span class="rec1"></span><p id="leg_p">Chinese agreements.</p>`)
 
       d3.select(".p6").html(`Chinese involvement as a third-party signatory seems to 
       come at the point when there is a broad international consensus regarding a 
