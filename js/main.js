@@ -311,6 +311,7 @@ Promise.all([
         })
       })
     })
+    console.log(the_array);
 
     //overview data
     const most = d3.groups(data, d => d.date.getUTCFullYear(), d => d.AgtId),
@@ -361,10 +362,10 @@ Promise.all([
       in Syria, Libya, and the Central African Republic.`)
 
       d3.select(".p4").html(`Russia is the most prolific signatory of
-      peace agreements of all UN Security Council Permanent Members. In a number of years 
+      peace agreements of all UN Security Council Permanent Members.</br></br> In a number of years 
       (1995, 2016-2018) it has signed more agreements than the United Nations.
       </br></br><span class="rec"></span><p id="leg_p">Overall agreements.</p>
-      <span class="rec1"></span><p id="leg_p">Russian agreements.</p>`)
+      <span class="rec1"></span><p id="leg_p">Russian agreements</br> (hover over lines for other actors).</p>`)
 
       d3.select(".p6").html(`Russia primarily signs pre-negotiation and
       ceasefire agreements. These represent over half of
@@ -374,12 +375,12 @@ Promise.all([
       d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation agreements 
       and less comprehensive and implementation agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
-      d3.select(".p9").html(`Pre-negotiation agreements represent 29% of all agreements with 
+      d3.select(".p9").html(`Pre-negotiation agreements represent 30% of all agreements with 
       third-party signatories, but 35% of all agreements signed by Russia.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
-      d3.select(".p10").html(`Comprehensive agreements represent 5% of all agreements signed,
-       but only 3% of all agreements signed by Russia.</br></br> Implementation agreements 
+      d3.select(".p10").html(`Comprehensive agreements represent 6% of all agreements signed,
+       but only 4% of all agreements signed by Russia.</br></br> Implementation agreements 
        represent 20% of all agreements signed, but only 17% of all agreements 
        signed by Russia. </br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
@@ -388,7 +389,7 @@ Promise.all([
 
       d3.select(".p12").html(`The geographic spread of Russian engagement as a 
       third-party signatory of peace agreements reflects its permanent seat on 
-      the United Nations Security Council and its role as a regional power. Like 
+      the United Nations Security Council and its role as a regional power.</br></br> Like 
       other members of the Permanent Five, Russia participates in large international 
       conferences and in UN Security Council resolutions that function as peace agreements. 
       This gives it a global reach. `)
@@ -424,9 +425,7 @@ Promise.all([
       China has participated in all major international conferences (e.g., for Cambodia, 
       Bosnia and Herzegovina, Afghanistan, Libya), with the key exception of negotiations 
       relating to Israel and Palestine. Nearly all agreements signed by China as a third-party have 
-      been the result of large international conferences or UNSC resolutions. Most 
-      agreements China has signed include the UN or other permanent members of the 
-      UN Security Council.</br></br><span class="dot1"></span><p id="leg_p">Peace agreements 
+      been the result of large international conferences or UNSC resolutions.</br></br><span class="dot1"></span><p id="leg_p">Peace agreements 
       resulting from large international conferences or UNSC resolutions.</p>`)
       d3.select(".p3").html(`Most agreements China has signed include the UN or other 
       permanent members of the UN Security Council. </br></br>
@@ -447,11 +446,11 @@ Promise.all([
 
       d3.select(".p8").html(`Compared with all agreements, China signs more comprehensive and 
       implementation agreements, and less ceasefires and partial ones. Comprehensive agreements 
-      present only 6% of all agreements signed by third-parties, but amount to 12% of all agreements 
+      present only 6% of all agreements signed by third-parties, but amount to 11% of all agreements 
       signed by China. .</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
       d3.select(".p9").html(`Similarly, 32% of all agreements signed by China are implementation agreements, 
-      but the overall proportion of such agreements is 18%.</br></br><span class="dot2">
+      but the overall proportion of such agreements is 20%.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
       d3.select(".p10").html(`In contrast, only 8% of all agreements signed by China are ceasefires, 

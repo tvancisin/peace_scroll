@@ -210,8 +210,8 @@ class ScrollerVis {
     // Add the area
     multiline_svg.append("path")
       .datum(this.all_sorted)
-      .attr("fill", "#379FDF")
-      .attr("opacity", 0.7)
+      .attr("fill", "#7B8AD6")
+      // .attr("opacity", 0.7)
       .attr("class", "area")
       .attr("stroke", "none")
       .attr("stroke-width", 2)
@@ -450,7 +450,7 @@ class ScrollerVis {
     // color palette = one color per subgroup
     vis.bar_color = d3.scaleOrdinal()
       .domain(vis.subgroups)
-      .range(['#379FDF', 'white'])
+      .range(['#7B8AD6', 'white'])
 
     vis._chart_data.forEach(obj => {
       if (obj.group === 'Framework-substantive, partial') {
@@ -935,7 +935,7 @@ class ScrollerVis {
         .attr("class", "bar_text")
         .text(function (d) {
           console.log(d);
-          return Math.round(d.value * 10) / 10 + "%"
+          return Math.round(d.value) + "%"
         })
         .attr("fill", "white")
         .attr("text-anchor", "middle")
