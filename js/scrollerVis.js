@@ -470,9 +470,12 @@ class ScrollerVis {
   step1(direction) {
     const vis = this;
     console.log("step1", direction);
+    console.log(vis.country_array);
 
-    map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
     if (this.selected_actor == "Russia") {
+      const countriesToRemove = ['France', 'United Kingdom', 'United States of America'];
+      const filteredCountries = vis.country_array.filter(country => !countriesToRemove.includes(country));
+      map.setFilter('state-fills', ['in', 'ADMIN', ...filteredCountries]);
       map.setPaintProperty(
         'state-fills',
         'fill-color',
@@ -480,6 +483,7 @@ class ScrollerVis {
       );
     }
     else if (this.selected_actor == "China") {
+      map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
       map.setPaintProperty(
         'state-fills',
         'fill-color',
