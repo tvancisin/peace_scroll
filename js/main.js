@@ -167,7 +167,7 @@ Promise.all([
   // d3.csv("data/agts_with_rus_uk_un_china.csv"),
   d3.csv("data/v8_all_agts_with_uk_rus_un_china.csv"),
   // d3.csv("data/v7_paax_all_with_third.csv"),
-  d3.csv("data/paax_practical_third_signatories.csv"),
+  d3.csv("data/paax_practical_third_labelled_signatories.csv"),
 ]).then(function (files) {
   //new multiline data
   let just_year_parser = d3.timeParse("%Y");
