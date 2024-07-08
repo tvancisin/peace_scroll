@@ -272,9 +272,9 @@ class ScrollerVis {
       .style("stroke", "black");
 
     dot.append("text")
-      .attr("text-anchor", "start")
+      // .attr("text-anchor", "middle")
       .attr("y", -10)
-      .attr("x", 5);
+      .attr("x", -10);
 
     multiline_svg
       .on("pointerenter", pointerentered)
@@ -291,6 +291,13 @@ class ScrollerVis {
       const [x, y, k] = points[i];
       multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
       dot.attr("transform", `translate(${x},${y})`);
+      console.log(x,width);
+      if (x >= width/2) {
+        dot.select("text").attr("text-anchor", "end")
+      }
+      else {
+        dot.select("text").attr("text-anchor", "start")
+      }
       dot.select("text").text(k + " (" + these[i].unemployment + ")")
         .style("fill", "white")
       // .style("stroke", "black")
@@ -579,6 +586,7 @@ class ScrollerVis {
           window.open(i[1][0][1][0].PDF_Hyperlink);
         })
         .on("mouseover", function (d, i) {
+          console.log(d, i);
           d3.select(this).style("stroke", "white")
           d3.select("#hover_description")
             .style("display", "block")
@@ -591,7 +599,7 @@ class ScrollerVis {
               }
             })
             .style("top", d.y + "px")
-            .html(i[1][0][1][0].Agt)
+            .html(i[1][0][1][0].agt_dat)
         })
         .on("mouseout", function (d, i) {
           d3.select(this).style("stroke", "black")

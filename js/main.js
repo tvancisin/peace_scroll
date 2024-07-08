@@ -158,15 +158,16 @@ map.on('load', () => {
 });
 
 //change date format to GMT
-let parser = d3.timeParse("%d/%m/%Y");
+let parser = d3.timeParse("%Y-%m-%d");
 
 Promise.all([
   d3.json("data/russia.json"),
   d3.csv("data/all_update.csv"),
   d3.csv("data/loc_correction.csv"),
-  d3.csv("data/agts_with_rus_uk_un_china.csv"),
-  d3.csv("data/v7_paax_all_with_third.csv"),
-  d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_stacked.csv"),
+  // d3.csv("data/agts_with_rus_uk_un_china.csv"),
+  d3.csv("data/v8_all_agts_with_uk_rus_un_china.csv"),
+  // d3.csv("data/v7_paax_all_with_third.csv"),
+  d3.csv("data/paax_practical_third_signatories.csv"),
 ]).then(function (files) {
   //new multiline data
   let just_year_parser = d3.timeParse("%Y");
@@ -199,10 +200,10 @@ Promise.all([
   let four_group = d3.groups(files[3], (d) => d.global_actor),
     russia = four_group[0][1],
     united_kingdom = four_group[1][1],
-    united_nations = four_group[2][1],
-    china = four_group[3][1];
+    china = four_group[2][1],
+    united_nations = four_group[3][1];
 
-  // console.log(russia);
+    console.log(four_group);
 
   //data for multiline chart
   const multiline_data = d3.groups(files[3], d => d.global_actor, d => +d.year, d => d.AgtId);
@@ -352,7 +353,8 @@ Promise.all([
     d3.select("#title_header").text(actor + " as a Third-Party in Peace Agreements")
     let num_pp = d3.groups(data, (d) => d.PPName).length
     d3.select("#num_pp").text(num_pp)
-    let num_agt = d3.groups(data, (d) => d.Agt).length
+    let num_agt = d3.groups(data, (d) => d.agt_dat).length
+    console.log(data, num_agt);
     d3.select("#num_agt").text(num_agt)
     let num_act = d3.groups(data, (d) => d.actor_name).length
     d3.select("#num_act").text(num_act)
