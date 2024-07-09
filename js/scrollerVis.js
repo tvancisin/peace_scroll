@@ -272,9 +272,9 @@ class ScrollerVis {
       .style("stroke", "black");
 
     dot.append("text")
-      .attr("text-anchor", "start")
+      // .attr("text-anchor", "middle")
       .attr("y", -10)
-      .attr("x", 5);
+      .attr("x", -10);
 
     multiline_svg
       .on("pointerenter", pointerentered)
@@ -291,6 +291,13 @@ class ScrollerVis {
       const [x, y, k] = points[i];
       multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
       dot.attr("transform", `translate(${x},${y})`);
+      console.log(x,width);
+      if (x >= width/2) {
+        dot.select("text").attr("text-anchor", "end")
+      }
+      else {
+        dot.select("text").attr("text-anchor", "start")
+      }
       dot.select("text").text(k + " (" + these[i].unemployment + ")")
         .style("fill", "white")
       // .style("stroke", "black")
@@ -340,6 +347,7 @@ class ScrollerVis {
       d[1] = [];
     })
     const data_ready = pie(this.agt_stage_group)
+    console.log(data_ready);
     //prepare donut for drawing
     path = piechart_svg
       .selectAll('path')
@@ -470,7 +478,6 @@ class ScrollerVis {
   step1(direction) {
     const vis = this;
     console.log("step1", direction);
-    console.log(vis.country_array);
 
     if (this.selected_actor == "Russia") {
       const countriesToRemove = ['France', 'United Kingdom', 'United States of America'];
@@ -549,7 +556,7 @@ class ScrollerVis {
           else if (current_author == "China") {
             let all_actors = [];
             d[1].forEach(function (x) {
-              all_actors.push(x[1][0].actor)
+              all_actors.push(x[1][0].actor_name)
             })
             const specifiedCountries = ['Russia', 'France', 'United Kingdom', 'United States', 'China'];
             let containsUnitedNations = all_actors.includes('United Nations');
@@ -557,7 +564,7 @@ class ScrollerVis {
             let containsAllSpecifiedCountries = specifiedCountries.every(country => all_actors.includes(country));
             let last_agt = "Declaration of the Paris International Conference for Libya (12 November 2021)"
             let china_classes;
-            if (!china_highlight.includes(d[1][0][1][0].Agt)) {
+            if (!china_highlight.includes(d[1][0][1][0].agt_dat)) {
               if (containsUnitedNations || containsAllSpecifiedCountries || containsEurope || d[1][0][1][0].AgtId == 2433) {
                 china_classes = "my_circles " + "china_high" + " un_p5"
               }
@@ -591,7 +598,7 @@ class ScrollerVis {
               }
             })
             .style("top", d.y + "px")
-            .html(i[1][0][1][0].Agt)
+            .html(i[1][0][1][0].agt_dat)
         })
         .on("mouseout", function (d, i) {
           d3.select(this).style("stroke", "black")

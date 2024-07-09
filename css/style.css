@@ -2,7 +2,41 @@ body {
   color: white;
   font-family: 'Montserrat';
   background-color: black;
+  overflow: hidden;
 }
+
+#remove-screen-btn {
+  visibility: hidden;
+}
+
+#remove-screen-btn {
+  border: none;
+  border-radius: 2px;
+  font-family: "Montserrat";
+  color: black;
+  padding: 0.6em 2em;
+  cursor: pointer;
+  background: #FDD92F;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.5);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+#initial_screen {
+  background-color: black;
+  color: white;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Ensure it is above other elements */
+  visibility: visible;
+}
+
 
 #header {
   position: fixed;
@@ -13,6 +47,14 @@ body {
   display: flex;
   width: 100%;
   z-index: 999;
+  visibility: hidden;
+}
+
+#story {
+  position: absolute;
+  left: 0px;
+  top: 45px;
+  visibility: hidden;
 }
 
 #peace_img {
@@ -41,11 +83,6 @@ h1 {
   font-size: 28px;
 }
 
-#story {
-  position: absolute;
-  left: 0px;
-  top: 45px;
-}
 
 #legend {
   position: absolute;
