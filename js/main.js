@@ -165,7 +165,7 @@ Promise.all([
   d3.csv("data/all_update.csv"),
   d3.csv("data/loc_correction.csv"),
   // d3.csv("data/agts_with_rus_uk_un_china.csv"),
-  d3.csv("data/v8_all_agts_with_uk_rus_un_china.csv"),
+  d3.csv("data/agts_rus_china.csv"),
   // d3.csv("data/v7_paax_all_with_third.csv"),
   d3.csv("data/paax_practical_third_labelled_signatories.csv"),
 ]).then(function (files) {
@@ -197,11 +197,11 @@ Promise.all([
   })
 
   //four actors division
-  let four_group = d3.groups(files[3], (d) => d.global_actor),
+  let four_group = d3.groups(files[3], (d) => d.global_actor);
     russia = four_group[0][1],
-    united_kingdom = four_group[1][1],
-    china = four_group[2][1],
-    united_nations = four_group[3][1];
+    china = four_group[1][1];
+    // united_kingdom = four_group[1][1],
+    // united_nations = four_group[3][1];
 
     console.log(four_group);
 
@@ -222,8 +222,8 @@ Promise.all([
   // const all_year_agt = d3.groups(files[4], d => +d.year, d => d.AgtId);
   const all_stage_agt = d3.groups(files[4], d => d.stage_label, d => d.AgtId);
   const ru_stage_agt = d3.groups(russia, d => d.stage_label, d => d.AgtId);
-  const un_stage_agt = d3.groups(united_nations, d => d.stage_label, d => d.AgtId);
-  const uk_stage_agt = d3.groups(united_kingdom, d => d.stage_label, d => d.AgtId);
+  // const un_stage_agt = d3.groups(united_nations, d => d.stage_label, d => d.AgtId);
+  // const uk_stage_agt = d3.groups(united_kingdom, d => d.stage_label, d => d.AgtId);
   const ch_stage_agt = d3.groups(china, d => d.stage_label, d => d.AgtId);
   //generate objects with percentages
   const object_calc = function (data) {
@@ -243,8 +243,8 @@ Promise.all([
   //ready data
   let all_percent_bar = object_calc(all_stage_agt)
   let ru_percent_bar = object_calc(ru_stage_agt)
-  let uk_percent_bar = object_calc(uk_stage_agt)
-  let un_percent_bar = object_calc(un_stage_agt)
+  // let uk_percent_bar = object_calc(uk_stage_agt)
+  // let un_percent_bar = object_calc(un_stage_agt)
   let ch_percent_bar = object_calc(ch_stage_agt)
 
   //dropdown functions for different actors
@@ -396,12 +396,12 @@ Promise.all([
       d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation agreements 
       and less comprehensive and implementation agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
-      d3.select(".p9").html(`Pre-negotiation agreements represent 30% of all agreements with 
+      d3.select(".p9").html(`Pre-negotiation agreements represent 29% of all agreements with 
       third-party signatories, but 35% of all agreements signed by Russia.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
       d3.select(".p10").html(`Comprehensive agreements represent 6% of all agreements signed,
-       but only 4% of all agreements signed by Russia.</br></br> Implementation agreements 
+       but only 4% of all agreements signed by Russia.</br></brImplementation agreements 
        represent 20% of all agreements signed, but only 17% of all agreements 
        signed by Russia. </br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
@@ -433,7 +433,7 @@ Promise.all([
             id="publications" src="img/m5.png" /></a>`)
 
 
-      
+
     }
     else if (selected_actor == "China") {
       d3.select(".council_separator").text("China and other UN Security Council Permanent Members")
@@ -454,9 +454,9 @@ Promise.all([
       the UN or all other permanent members of the UNSC.`)
 
       d3.select(".p4").html(`China is the least prolific third-party signatory of 
-      peace agreements of all UN Security Council permanent members. China signed 38 
+      peace agreements of all UN Security Council permanent members. China signed 39 
       agreements as a third-party since 1990, in comparison to Russian 134 signatures 
-      and the US 127 signatures.</br></br><span class="rec"></span><p id="leg_p">Overall agreements.</p>
+      and the US 132 signatures.</br></br><span class="rec"></span><p id="leg_p">Overall agreements.</p>
       <span class="rec1"></span><p id="leg_p">Chinese agreements.</p>`)
 
       d3.select(".p6").html(`Chinese involvement as a third-party signatory seems to 
@@ -469,13 +469,13 @@ Promise.all([
       implementation agreements, and less ceasefires and partial ones. .</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
       d3.select(".p9").html(`Comprehensive agreements 
-      present only 6% of all agreements signed by third-parties, but amount to 11% of all agreements 
-      signed by China.</br></br> Similarly, 32% of all agreements signed by China are implementation agreements, 
+      present only 6% of all agreements signed by third-parties, but amount to 10% of all agreements 
+      signed by China.</br></br> Similarly, 31% of all agreements signed by China are implementation agreements, 
       but the overall proportion of such agreements is 20%.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
       d3.select(".p10").html(`In contrast, only 8% of all agreements signed by China are ceasefires, 
-      with the overall proportion of such agreements at 18%.</br></br><span class="dot2">
+      with the overall proportion of such agreements at 19%.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
 
@@ -506,6 +506,17 @@ Promise.all([
   }
 
   prepare_data(russia, ru_percent_bar, "Russia")
+
+  //loading screen
+  d3.select("#init_load").html(`<button id="remove-screen-btn">Click to Enter</button>`)
+  d3.select("#remove-screen-btn").style("visibility", "visible")
+
+  d3.select("#remove-screen-btn").on("click", function () {
+    d3.select("body").style("overflow", "auto")
+    window.scrollTo(0, 0);
+    d3.selectAll('#header, #story').style("visibility", "visible");
+    d3.selectAll('#initial_screen, #remove-screen-btn').style("visibility", "hidden");
+  })
 
   // let scrollerVis = new ScrollerVis({ storyElement: '#story', mapElement: 'map' }, data_for_scroll, year_division, the_array);
   // helper function to map over dom selection
