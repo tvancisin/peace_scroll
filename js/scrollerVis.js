@@ -91,9 +91,7 @@ const drawContext = function (context, height) {
 }
 
 const drawDonut = function (data, direction) {
-  console.log(data);
   const data_ready = pie(data)
-  console.log(data_ready);
 
   if (direction == "down") {
     path.data(data_ready).transition().duration(1000)
@@ -136,10 +134,10 @@ class ScrollerVis {
       map: _config.mapElement,
       vis_width: width100,
       vis_height: height100,
-      margin: { top: 50, right: 10, bottom: 20, left: 10 },
+      margin: { top: 50, right: 10, bottom: 20, left: 20 },
       steps: ['step1', 'step2', 'step3', 'step4', 'step5', 'step6',
         'step7', 'step8', 'step9', 'step10', 'step11', 'step12',
-        'step13', 'step14']
+        'step13', 'step14', 'step15', 'step16', 'step17']
     }
     this.raw_data = _raw;
     this.year_division = _year;
@@ -291,8 +289,8 @@ class ScrollerVis {
       const [x, y, k] = points[i];
       multiline_path.style("stroke", ({ z }) => z === k ? "white" : "black").filter(({ z }) => z === k).raise();
       dot.attr("transform", `translate(${x},${y})`);
-      console.log(x,width);
-      if (x >= width/2) {
+      console.log(x, width);
+      if (x >= width / 2) {
         dot.select("text").attr("text-anchor", "end")
       }
       else {
@@ -347,7 +345,7 @@ class ScrollerVis {
       d[1] = [];
     })
     const data_ready = pie(this.agt_stage_group)
-    console.log(data_ready);
+
     //prepare donut for drawing
     path = piechart_svg
       .selectAll('path')
@@ -475,9 +473,18 @@ class ScrollerVis {
     }, 800);
   }
 
+
+
+
+
+
+
+
+
   step1(direction) {
     const vis = this;
     console.log("step1", direction);
+
 
     if (this.selected_actor == "Russia") {
       const countriesToRemove = ['France', 'United Kingdom', 'United States of America'];
@@ -488,6 +495,10 @@ class ScrollerVis {
         'fill-color',
         ['match', ['get', 'ADMIN'], 'Russia', 'white', '#7B8AD6']
       );
+      map.flyTo({
+        center: [70, 40],
+        essential: true // this animation is considered essential with respect to prefers-reduced-motion
+    });
     }
     else if (this.selected_actor == "China") {
       map.setFilter('state-fills', ['in', 'ADMIN', ...vis.country_array]);
@@ -496,10 +507,15 @@ class ScrollerVis {
         'fill-color',
         ['match', ['get', 'ADMIN'], 'China', 'white', '#7B8AD6']
       );
+      map.flyTo({
+        center: [100, 20],
+        essential: true // this animation is considered essential with respect to prefers-reduced-motion
+    });
     }
 
     horizontal_svg.selectAll(".tick").remove()
     if (direction === "down") {
+      d3.select("#bee_icon").classed("active", true)
       //adjust domain
       x_horizontal
         .domain(d3.extent(vis.year_division, (d) => d[1][0][0]))
@@ -523,8 +539,10 @@ class ScrollerVis {
         return syria.some(country => string.includes(country));
       }
       let current_author = this.selected_actor
-      let china_highlight = ['Text of Joint Statement (29/09/2005)', 'Agreement on the Resolution of the Conflict in the Republic of South Sudan (ARCSS) (17/08/2015)',
+      let china_highlight = ['Text of Joint Statement (29/09/2005)',
+        'Agreement on the Resolution of the Conflict in the Republic of South Sudan (ARCSS) (17/08/2015)',
         'Agreement on the Cessation of Hostilities, Protection of Civilians and Humanitarian Access, Republic of South Sudan (21/12/2017)',
+        'Joint Trilateral Statement by the People’s Republic of China, the Kingdom of Saudi Arabia, and the Islamic Republic of Iran (10/03/2023)',
         'The Nationwide Ceasefire Agreement (NCA) between The Government of the Republic of the Union of Myanmar and the Ethnic Armed Organizations (EAO) (15/10/2015)']
       //draw circles
       horizontal_svg.selectAll('.my_circles')
@@ -644,6 +662,7 @@ class ScrollerVis {
     }
 
     else if (direction == "up") {
+      d3.select("#bee_icon").classed("active", false)
       d3.selectAll(".soviet")
         .transition()
         .style("fill", "#7B8AD6")
@@ -665,6 +684,7 @@ class ScrollerVis {
   step2(direction) {
     const vis = this;
     console.log("step2", direction);
+
 
     if (direction == "down") {
       if (this.selected_actor == "Russia") {
@@ -776,6 +796,16 @@ class ScrollerVis {
     const vis = this;
     console.log("step5", direction);
 
+    if (direction == "down") {
+      d3.select("#bee_icon").classed("active", false)
+      d3.select("#area_icon").classed("active", true)
+    }
+    else if (direction == "up") {
+      d3.select("#bee_icon").classed("active", true)
+      d3.select("#area_icon").classed("active", false)
+
+    }
+
   }
 
   step6(direction) {
@@ -798,10 +828,14 @@ class ScrollerVis {
     if (direction == "down") {
       drawDonut(this.agt_stage_group, direction)
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 1)
+      d3.select("#pie_icon").classed("active", true)
+      d3.select("#area_icon").classed("active", false)
     }
     else if (direction == "up") {
       drawDonut(zero_donut, direction)
       d3.selectAll(".polyline, .polytext").transition().style("opacity", 0)
+      d3.select("#pie_icon").classed("active", false)
+      d3.select("#area_icon").classed("active", true)
     }
   }
 
@@ -827,7 +861,9 @@ class ScrollerVis {
     const vis = this;
     console.log("step11", direction);
     if (direction == "down") {
-      console.log(vis.chart_data);
+      d3.select("#pie_icon").classed("active", false)
+      d3.select("#chart_icon").classed("active", true)
+
       barchart_svg.selectAll("rect").remove()
       barchart_svg.selectAll(".bar_text").remove()
       barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 1)
@@ -859,7 +895,6 @@ class ScrollerVis {
         .join("text")
         .attr("class", "bar_text")
         .text(function (d) {
-          console.log(d);
           return Math.round(d.value) + "%"
         })
         .attr("fill", "white")
@@ -872,6 +907,9 @@ class ScrollerVis {
 
     }
     else if (direction == "up") {
+      d3.select("#pie_icon").classed("active", true)
+      d3.select("#chart_icon").classed("active", false)
+
       barchart_svg.selectAll(".x_axis, .y_axis").style("opacity", 0)
 
       barchart_svg.selectAll("rect, .bar_text")
@@ -922,6 +960,34 @@ class ScrollerVis {
         .style("opacity", 1)
     }
 
+  }
+
+  step15(direction) {
+    const vis = this;
+    console.log("step15", direction);
+
+    if(direction == "down") {
+      d3.select("#globe_icon").classed("active", true)
+      d3.select("#chart_icon").classed("active", false)
+    }
+    else if (direction == "up") {
+      d3.select("#globe_icon").classed("active", false)
+      d3.select("#chart_icon").classed("active", true)
+    }
+
+  }
+
+  step16(direction) {
+    console.log("step16", direction);
+  }
+  step17(direction) {
+    console.log("step17", direction);
+    if(direction == "down") {
+      d3.select("#globe_icon").classed("active", false)
+    }
+    else if (direction == "up") {
+      d3.select("#globe_icon").classed("active", true)
+    }
   }
 
   goToStep(stepIndex, direction) {
