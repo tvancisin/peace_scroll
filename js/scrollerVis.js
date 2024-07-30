@@ -608,14 +608,14 @@ class ScrollerVis {
           d3.select("#hover_description")
             .style("display", "block")
             .style("left", function () {
-              if (d.x >= width100 / 2) {
-                return d.x - width20 - 150 + "px"
+              if (i.x >= width100 / 2) {
+                return i.x - 140 + "px"
               }
               else {
-                return d.x - width20 + 20 + "px"
+                return i.x + 40 + "px"
               }
             })
-            .style("top", d.y + "px")
+            .style("top", i.y + "px")
             .html(i[1][0][1][0].agt_dat)
         })
         .on("mouseout", function (d, i) {
