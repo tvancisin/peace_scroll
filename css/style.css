@@ -14,10 +14,6 @@ body {
   scrollbar-width: none;
 }
 
-/* body::-webkit-scrollbar {
-  display: none;
-} */
-
 #remove-screen-btn {
   visibility: hidden;
 }
@@ -37,7 +33,6 @@ body {
 #remove-screen-btn:hover {
   transition: color 0.3s;
   color: white;
-  /* transition: background-color 0.3s; */
   background-color: #AA4197;
 }
 
@@ -53,13 +48,11 @@ body {
   justify-content: center;
   align-items: center;
   z-index: 9999;
-  /* Ensure it is above other elements */
   visibility: visible;
 }
 
 #header {
   position: fixed;
-  /* background-color: #0F1826; */
   background-color: black;
   height: 45px;
   top: 0px;
@@ -73,7 +66,7 @@ body {
 #indicator {
   width: 20px;
   position: fixed;
-  top: 80px;
+  top: 60px;
   z-index: 999;
 }
 
@@ -93,7 +86,7 @@ body {
 }
 
 #uoe_img {
-  position: fixed;
+  position: absolute;
   top: 50px;
   right: 5px;
   height: 40px;
@@ -101,7 +94,7 @@ body {
 }
 
 #and_img {
-  position: fixed;
+  position: absolute;
   top: 7px;
   right: 5px;
   height: 40px;
@@ -109,6 +102,7 @@ body {
 }
 
 #chart_icon,
+#research_icon,
 #area_icon,
 #pie_icon,
 #globe_icon,
@@ -135,16 +129,6 @@ body {
   font-weight: 600;
   border-radius: 1px;
 }
-
-/* #time_title,
-#area_title {
-  width: 200px;
-  opacity: 1;
-  position: absolute;
-  z-index: 999;
-  left: 18px;
-} */
-
 
 #bee_icon:hover {
   opacity: 1;
@@ -174,11 +158,14 @@ body {
   transition: 0.2s;
 }
 
+#research_icon:hover {
+  opacity: 1;
+}
+
 h1 {
   margin: auto;
   font-size: 28px;
 }
-
 
 #legend {
   position: absolute;
@@ -191,7 +178,6 @@ h1 {
   height: 20px;
   width: 20px;
   background-color: #7B8AD6;
-  /* border-radius: 50%; */
   display: inline-block;
   position: absolute;
   margin-right: 3px;
@@ -259,7 +245,6 @@ h1 {
   line-height: 15px;
 }
 
-
 #separator {
   position: relative;
   display: flex;
@@ -319,7 +304,6 @@ p {
   padding: 15px;
   font-size: 16px;
   line-height: 20px;
-  /* box-shadow: 0px 1px 2px #232323, 0px -1px 2px #232323; */
 }
 
 @media (max-width: 1250px) {
@@ -507,12 +491,14 @@ h5 {
 .dropbtn {
   border-radius: 2px;
   font-family: "Montserrat";
-  background-color: #313461;
-  color: white;
+  /* background-color: #313461; */
+  background: #FDD92F;
+  color: black;
   padding: 8px;
   font-size: 14px;
   border: none;
   cursor: pointer;
+  font-weight: 600;
 }
 
 /* The container <div> - needed to position the dropdown content */
@@ -556,7 +542,8 @@ h5 {
 
 /* Change the background color of the dropdown button when the dropdown content is shown */
 .dropdown:hover .dropbtn {
-  background-color: #04AA6D;
+  background-color: #AA4197;
+  color: white;
 }
 
 #break {
@@ -570,20 +557,24 @@ a {
 }
 
 #myBtn {
-  position: absolute;
+  position: fixed;
   bottom: 20px;
-  left: 30px;
+  left: 8px;
   z-index: 100;
-  font-size: 18px;
+  font-size: 16px;
   border: none;
   outline: none;
-  background-color: #313461;
-  color: white;
+  /* background-color: #313461; */
+  background-color: #FDD92F;
+  color: black;
   cursor: pointer;
-  padding: 5px 15px;
+  padding: 2px 10px;
   border-radius: 2px;
+  opacity: 0;
+  transition: 0.3s;
 }
 
 #myBtn:hover {
-  background-color: #04AA6D;
+  background-color: #AA4197;
+  color: white;
 }

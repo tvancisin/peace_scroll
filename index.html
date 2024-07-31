@@ -26,18 +26,24 @@
 
   <div id="header">
     <h1 id="title_header"></h1>
-    <a href="https://peacerep.org/" target="_blank"><img alt="PeaceRep Logo" id="peace_img" src="img/logo.png" /></a>
-    <div class="dropdown">
-      <button class="dropbtn">Select Actor</button>
-      <div class="dropdown-content">
-        <a href="#" id="russia">Russia</a>
-        <a href="#" id="china">China</a>
-      </div>
-    </div>
   </div>
 
-  <a href="https://www.st-andrews.ac.uk/" target="_blank"><img id="and_img" src="img/image10.png" alt="Uni Logo" /></a>
-  <a href="https://www.ed.ac.uk/" target="_blank"><img id="uoe_img" src="img/unilogo.png" alt="Uni Logo" /></a>
+  <a href="https://peacerep.org/" target="_blank">
+    <img alt="PeaceRep Logo" id="peace_img" src="img/logo.png" />
+  </a>
+  <div class="dropdown">
+    <button class="dropbtn">Select Actor</button>
+    <div class="dropdown-content">
+      <a href="#" id="russia">Russia</a>
+      <a href="#" id="china">China</a>
+    </div>
+  </div>
+  <a href="https://www.st-andrews.ac.uk/" target="_blank">
+    <img id="and_img" src="img/image10.png" alt="Uni Logo" />
+  </a>
+  <a href="https://www.ed.ac.uk/" target="_blank">
+    <img id="uoe_img" src="img/unilogo.png" alt="Uni Logo" />
+  </a>
 
   <div id="story">
 
@@ -58,18 +64,15 @@
 
     <div id="indicator">
       <svg id="indicator_svg" style="width: 20px;">
-        <line id="indicator_line" x1="8.5" y1="5" x2="8.5" style="stroke:white; stroke-width:1; opacity: 0.3" />
+        <line id="indicator_line" x1="8.5" y1="5" x2="8.5" style="stroke:white; stroke-width:1; opacity: 0.5" />
         <circle id="movingCircle" cx="8.5" cy="9" r="6" style="stroke: white; fill: black;">
       </svg>
       <img id="bee_icon" src="img/bees.png" alt="Uni Logo" />
-      <!-- <p id="time_title" style="background-color: transparent; padding: 0; font-size: 12px;">Agreement Timeline</p> -->
-
       <img id="area_icon" src="img/area.png" alt="Uni Logo" />
-      <!-- <p id="area_title" style="background-color: transparent; padding: 0; font-size: 12px;">UN Security Council</p> -->
-
       <img id="globe_icon" src="img/world.png" alt="Uni Logo" />
       <img id="chart_icon" src="img/chart.png" alt="Uni Logo" />
       <img id="pie_icon" src="img/pie.png" alt="Uni Logo" />
+      <img id="research_icon" src="img/research.png" alt="Uni Logo" />
       <div id="icon_tooltip"></div>
     </div>
 
@@ -199,8 +202,9 @@
     <div id="break"></div>
 
     <div id="separator1">
-      <button onclick="topFunction()" id="myBtn" title="Go to top"><i class="fa fa-arrow-up"
-          style="color:white"></i></button>
+      <button onclick="topFunction()" id="myBtn" title="Go to top">
+        <i class="fa fa-arrow-up"></i>
+      </button>
       <div style="position: absolute; top: 0px; width: 100%; text-align: center;">
         <h3 id="research_header"></h3>
       </div>

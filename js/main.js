@@ -2,7 +2,15 @@
 window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
-
+// When the user clicks on the button, scroll to the top of the document
+function topFunction() {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "smooth",
+  });
+}
+//URLs for different selections
 document.addEventListener('DOMContentLoaded', (event) => {
   const urlParams = new URLSearchParams(window.location.search);
   const subset = urlParams.get('subset');
@@ -18,47 +26,48 @@ document.addEventListener('DOMContentLoaded', (event) => {
     loadData("Russia")
   }
 });
-
+//highlight research icon when at the end of page
+$(window).scroll(function () {
+  if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+    d3.select("#research_icon").classed("active", true)
+  }
+  else {
+    d3.select("#research_icon").classed("active", false)
+  }
+});
+//moving the circle indicator
 window.addEventListener('scroll', function () {
   let scrollPosition = window.scrollY;
-
+  if (scrollPosition == 0) {
+    d3.select("#myBtn").style("opacity", 0)
+  }
+  else {
+    d3.select("#myBtn").style("opacity", 1)
+  }
   // Get the maximum scrollable height (excluding the viewport height)
   let story_height = d3.select("#story").node().getBoundingClientRect()
-
-  let svgHeight = window.innerHeight - 100;
-
+  let svgHeight = d3.select("#indicator_line").node().getBoundingClientRect()
   // Calculate the new Y position for the circle based on the scroll position
-  let newY = (scrollPosition / story_height.height) * (svgHeight - 30) + 9; // 10 is the circle diameter, so subtract it to keep the circle within bounds
-
+  let newY = (scrollPosition / story_height.height) * (svgHeight.height + 20) + 10; // 10 is the circle diameter, so subtract it to keep the circle within bounds
   let circle = document.getElementById('movingCircle');
   circle.setAttribute('cy', newY);
 });
 
-// Get the button
-let mybutton = document.getElementById("myBtn");
-
-// When the user clicks on the button, scroll to the top of the document
-function topFunction() {
-  document.body.scrollTop = 0;
-  document.documentElement.scrollTop = 0;
-}
 
 //get current width and height of the screen
 const width100 = window.innerWidth - 10, // minus scroll width 10 px
   height100 = window.innerHeight,
   width80 = width100 * 0.8,
   width20 = width100 * 0.2;
-// width50 = width100 * 0.5;
 //margins for visualization
 const margin = { top: 50, right: 10, bottom: 20, left: 10 },
   height = height100 - margin.top - margin.bottom,
   width = width80 - margin.top - margin.bottom;
-
 //adjusting width and height for current screen
 d3.selectAll("#indicator, #indicator_svg")
-  .style("height", height100 - 150 + "px")
+  .style("height", height100 - 100 + "px")
 d3.select("#indicator_line")
-  .attr("y2", height100 - 150 - 10)
+  .attr("y2", height100 - 130)
 d3.selectAll("#story")
   .style("width", width100 + "px")
 d3.selectAll(`.graphic__vis, .graphic__vis__1,
@@ -105,7 +114,6 @@ let y_vertical = d3.scaleTime()
   .range([10, height])
 let line = horizontal_svg.append("g") //contex line
 
-
 //MULTILINE VISUALIZATION
 let multiline_svg = d3.select("#visualization075")
   .attr("width", width + 30)
@@ -113,7 +121,6 @@ let multiline_svg = d3.select("#visualization075")
   // .attr("viewBox", [0, 0, width, height])
   .append("g")
   .attr("transform", `translate(20,${margin.top})`);
-
 
 //DONUTCHART VISUALIZATION
 let piechart_svg = d3.select("#visualization05")
@@ -136,7 +143,6 @@ const color = d3.scaleOrdinal()
   .domain(["Pre-negotiation", "Ceasefire", "Implementation", "Framework-substantive, partial", "Framework-substantive, comprehensive", "Renewal", "Other"])
   // .range(d3.schemeDark2);
   .range(["rgb(255, 221, 123)", "rgb(255, 87, 51)", "rgb(255, 64, 129)", "rgb(61, 105, 62)", "white", "gray", "rgb(29, 0, 255)"]);
-
 
 //BARCHART VISUALIZATION
 let barchart_svg = d3.select("#visualization06")
@@ -168,14 +174,6 @@ map.on('load', () => {
     'type': 'fill',
     'source': 'states',
     'layout': {},
-    // 'paint': {
-    //   'fill-color': ['match', ['get', 'ADMIN'],
-    //     "Russia", 'white',
-    //     '#7B8AD6',
-    //     // 'white',
-    //   ],
-    //   'fill-opacity': 0.8
-    // }
   });
 
   map.addLayer({
@@ -193,8 +191,9 @@ map.on('load', () => {
 //change date format to GMT
 let parser = d3.timeParse("%Y-%m-%d");
 
+//init function
 function loadData(subset) {
-
+  //read in the data
   Promise.all([
     d3.json("data/russia.json"),
     d3.csv("data/all_update.csv"),
@@ -233,8 +232,6 @@ function loadData(subset) {
     let four_group = d3.groups(files[3], (d) => d.global_actor);
     russia = four_group[0][1],
       china = four_group[1][1];
-    // united_kingdom = four_group[1][1],
-    // united_nations = four_group[3][1];
 
     //data for multiline chart
     const multiline_data = d3.groups(files[3], d => d.global_actor, d => +d.year, d => d.AgtId);
@@ -253,8 +250,6 @@ function loadData(subset) {
     // const all_year_agt = d3.groups(files[4], d => +d.year, d => d.AgtId);
     const all_stage_agt = d3.groups(files[4], d => d.stage_label, d => d.AgtId);
     const ru_stage_agt = d3.groups(russia, d => d.stage_label, d => d.AgtId);
-    // const un_stage_agt = d3.groups(united_nations, d => d.stage_label, d => d.AgtId);
-    // const uk_stage_agt = d3.groups(united_kingdom, d => d.stage_label, d => d.AgtId);
     const ch_stage_agt = d3.groups(china, d => d.stage_label, d => d.AgtId);
     //generate objects with percentages
     const object_calc = function (data) {
@@ -274,8 +269,6 @@ function loadData(subset) {
     //ready data
     let all_percent_bar = object_calc(all_stage_agt)
     let ru_percent_bar = object_calc(ru_stage_agt)
-    // let uk_percent_bar = object_calc(uk_stage_agt)
-    // let un_percent_bar = object_calc(un_stage_agt)
     let ch_percent_bar = object_calc(ch_stage_agt)
 
     //dropdown functions for different actors
@@ -284,20 +277,12 @@ function loadData(subset) {
       d3.select("#separator").style("background-image", "url(img/ru.PNG)")
       prepare_data(russia, ru_percent_bar, "Russia")
     })
-    // d3.select("#kingdom").on("click", function () {
-    //   d3.select("#separator").style("background-image", "url(img/uk.PNG)")
-    //   prepare_data(united_kingdom, uk_percent_bar, "United Kingdom")
-    // })
-    // d3.select("#nations").on("click", function () {
-    //   d3.select("#separator").style("background-image", "url(img/un.png)")
-    //   prepare_data(united_nations, un_percent_bar, "United Nations")
-    // })
     d3.select("#china").on("click", function () {
       updateURL('china');
       d3.select("#separator").style("background-image", "url(img/ch.PNG)")
       prepare_data(china, ch_percent_bar, "China")
     })
-
+    //change URL based on selected country
     function updateURL(subset) {
       const url = new URL(window.location);
       url.searchParams.set('subset', subset);
@@ -400,17 +385,20 @@ function loadData(subset) {
 
       if (selected_actor == "Russia") {
         d3.select(".council_separator").text("Russia and other UN Security Council Permanent Members")
+
         d3.select(".p1").html(`Russia is the second most prolific international third-party
       signatory of peace agreements between 1990-2022. It follows the United Nations, and
       comes ahead of the United States, the African Union, and the European Union.</br></br>
       <span class="dot"></span><p id="leg_p">Individual peace agreements signed by Russia 
       (hover over for more detail)</p>`)
+
         d3.select(".p2").html(`Russia has most often acted as a third-party signatory
       in the 1990s. Majority of these agreements relate to the dissolution
       of the Soviet Union. Many of these are protracted conflicts, where
       Russia continues acting as a third - party signatory of peace agreements.</br></br>
       <span class="dot1"></span><p id="leg_p">Peace agreements addressing conflicts in the 
       former Soviet Union territories.</p>`)
+
         d3.select(".p3").html(`Over the last decade, Russia increasingly acts
       as a signatory on agreements related to conflicts in Syria and, reflecting
       its increased engagements in Africa: Libya, and the Central African Republic.
@@ -433,10 +421,12 @@ function loadData(subset) {
         d3.select(".p8").html(`Compared with all agreements, Russia signs more pre-negotiation agreements 
       and less comprehensive and implementation agreements.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
+
         d3.select(".p9").html(`Pre-negotiation agreements represent 29% of all agreements with 
       third-party signatories, but 35% of all agreements signed by Russia.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
+
         d3.select(".p10").html(`Comprehensive agreements represent 6% of all agreements signed,
        but only 4% of all agreements signed by Russia.</br></brImplementation agreements 
        represent 20% of all agreements signed, but only 17% of all agreements 
@@ -444,13 +434,13 @@ function loadData(subset) {
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Russian signature (% of all signed by Russia).</p>`)
 
-
         d3.select(".p12").html(`The geographic spread of Russian engagement as a 
       third-party signatory of peace agreements reflects its permanent seat on 
       the United Nations Security Council and its role as a regional power.</br></br> Like 
       other members of the Permanent Five, Russia participates in large international 
       conferences and in UN Security Council resolutions that function as peace agreements. 
       This gives it a global reach. `)
+
         d3.select(".p13").html(`But most of its focus – and where its activity has 
       been over the last decade – relates to conflicts in its neighbourhood and a 
       number of select locales, where Russia is acting both as a military partner 
@@ -468,23 +458,25 @@ function loadData(subset) {
             id="publications" src="img/m4.png" /></a>`)
         d3.select("#vik5").html(`<a href="https://peacerep.org/publication/russia-and-china-in-liberal-peacebuilding/" target="_blank"><img
             id="publications" src="img/m5.png" /></a>`)
-
-
-
       }
+
+
       else if (selected_actor == "China") {
         d3.select(".council_separator").text("China and other UN Security Council Permanent Members")
+
         d3.select(".p1").html(`China is not the most prolific third-party signatory of
       peace agreements since 1990, ranking 15th of all actors, who have acted as 
       third-party signatories. In terms of frequency, this puts it alongside actors 
       such as Egypt, Kenya, and Nigeria.</br></br><span class="dot"></span><p id="leg_p">
       Individual peace agreements signed by China (hover over for more detail)</p>`)
+
         d3.select(".p2").html(`As one of the UN Security Council (UNSC) permanent members, 
       China has participated in all major international conferences (e.g., for Cambodia, 
       Bosnia and Herzegovina, Afghanistan, Libya), with the key exception of negotiations 
       relating to Israel and Palestine. Nearly all agreements signed by China as a third-party have 
       been the result of large international conferences or UNSC resolutions.</br></br><span class="dot1"></span><p id="leg_p">Peace agreements 
       resulting from large international conferences or UNSC resolutions.</p>`)
+
         d3.select(".p3").html(`Most agreements China has signed include the UN or other 
       permanent members of the UN Security Council. </br></br>
       <span class="dot1"></span><p id="leg_p">Peace agreements signed by China and 
@@ -505,12 +497,14 @@ function loadData(subset) {
         d3.select(".p8").html(`Compared with all agreements, China signs more comprehensive and 
       implementation agreements, and less ceasefires and partial ones.</br></br><span class="dot2"></span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
+
         d3.select(".p9").html(`Comprehensive agreements 
       present only 6% of all agreements signed by third-parties, but amount to 10% of all agreements 
       signed by China.</br></br> Similarly, 31% of all agreements signed by China are implementation agreements, 
       but the overall proportion of such agreements is 20%.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
       <span class="dot3"></span><p id="leg_p">Chinese signature (% of all signed by China).</p>`)
+
         d3.select(".p10").html(`In contrast, only 8% of all agreements signed by China are ceasefires, 
       with the overall proportion of such agreements at 19%.</br></br><span class="dot2">
       </span><p id="leg_p">Overall agreements (% of all).</p>
@@ -519,6 +513,7 @@ function loadData(subset) {
         d3.select(".p12").html(`The geographic spread of Chinese engagement as a third-party 
       signatory of peace agreements reflects its permanent seat on the United 
       Nations Security Council.`)
+
         d3.select(".p13").html(`China has been involved in peace agreements in Asia, Europe, 
       the Middle East and Africa, all geographic areas where the UNSC has been highly active.`)
 
@@ -548,8 +543,6 @@ function loadData(subset) {
       prepare_data(china, ch_percent_bar, "China")
     }
 
-
-
     let icons_height = d3.select("#story").node().getBoundingClientRect()
     let svg_height = d3.select("#indicator").node().getBoundingClientRect()
 
@@ -560,97 +553,112 @@ function loadData(subset) {
     let pie_position = d3.select(".graphic05").node().getBoundingClientRect()
     let bar_position = d3.select(".graphic06").node().getBoundingClientRect()
     let geo_position = d3.select(".graphic1").node().getBoundingClientRect()
-
-    d3.select("#time_title").style("top", scrolly_parts(bee_position.top) + 20 + "px")
-    d3.select("#area_title").style("top", scrolly_parts(lines_position.top) + 20 + "px")
-
-
+    let research_position = d3.select("#separator1").node().getBoundingClientRect()
 
     d3.select("#bee_icon").style("top", scrolly_parts(bee_position.top) + "px")
-    .on("mouseover", function(){
-      d3.select("#icon_tooltip")
-      .style("top", scrolly_parts(bee_position.top) - 5 + "px")
-      .style("visibility", "visible").text("Agreement Timeline")
-    })
-    .on("mouseout", function() {
-      d3.select("#icon_tooltip").style("visibility", "hidden")
-    })
-    .on("click", function () {
-      window.scrollTo({
-        top: bee_position.top,
-        left: 0,
-        behavior: "smooth",
-      });
-    })
+      .on("mouseover", function () {
+        d3.select("#icon_tooltip")
+          .style("top", scrolly_parts(bee_position.top) - 5 + "px")
+          .style("visibility", "visible").text("Agreement Timeline")
+      })
+      .on("mouseout", function () {
+        d3.select("#icon_tooltip").style("visibility", "hidden")
+      })
+      .on("click", function () {
+        window.scrollTo({
+          top: bee_position.top,
+          left: 0,
+          behavior: "smooth",
+        });
+      })
 
-    d3.select("#area_icon").style("top", scrolly_parts(lines_position.top) + "px")
-    .on("mouseover", function(){
-      d3.select("#icon_tooltip")
-      .style("top", scrolly_parts(lines_position.top) + "px")
-      .style("visibility", "visible").text("UN Council")
-    })
-    .on("mouseout", function() {
-      d3.select("#icon_tooltip").style("visibility", "hidden")
-    })
-    .on("click", function () {
-      window.scrollTo({
-        top: lines_position.top,
-        left: 0,
-        behavior: "smooth",
-      });
-    })
+    d3.select("#area_icon").style("top", scrolly_parts(lines_position.top) - 3 + "px")
+      .on("mouseover", function () {
+        d3.select("#icon_tooltip")
+          .style("top", scrolly_parts(lines_position.top) + "px")
+          .style("visibility", "visible").text("UN Council")
+      })
+      .on("mouseout", function () {
+        d3.select("#icon_tooltip").style("visibility", "hidden")
+      })
+      .on("click", function () {
+        window.scrollTo({
+          top: lines_position.top,
+          left: 0,
+          behavior: "smooth",
+        });
+      })
 
-    d3.select("#globe_icon").style("top", scrolly_parts(geo_position.top) + 10 + "px")
-    .on("mouseover", function(){
-      d3.select("#icon_tooltip")
-      .style("top", scrolly_parts(geo_position.top) + 3 + "px")
-      .style("visibility", "visible").text("Geography")
-    })
-    .on("mouseout", function() {
-      d3.select("#icon_tooltip").style("visibility", "hidden")
-    })
-    .on("click", function () {
-      window.scrollTo({
-        top: geo_position.top,
-        left: 0,
-        behavior: "smooth",
-      });
-    })
+    d3.select("#pie_icon").style("top", scrolly_parts(pie_position.top) - 5 + "px")
+      .on("mouseover", function () {
+        d3.select("#icon_tooltip")
+          .style("top", scrolly_parts(pie_position.top) - 5 + "px")
+          .style("visibility", "visible").text("Agreement Stages")
+      })
+      .on("mouseout", function () {
+        d3.select("#icon_tooltip").style("visibility", "hidden")
+      })
+      .on("click", function () {
+        window.scrollTo({
+          top: pie_position.top,
+          left: 0,
+          behavior: "smooth",
+        });
+      })
 
-    d3.select("#chart_icon").style("top", scrolly_parts(bar_position.top) + "px")
-    .on("mouseover", function(){
-      d3.select("#icon_tooltip")
-      .style("top", scrolly_parts(bar_position.top) - 5 + "px")
-      .style("visibility", "visible").text("Stage Comparison")
-    })
-    .on("mouseout", function() {
-      d3.select("#icon_tooltip").style("visibility", "hidden")
-    })
+    d3.select("#chart_icon").style("top", scrolly_parts(bar_position.top) - 10 + "px")
+      .on("mouseover", function () {
+        d3.select("#icon_tooltip")
+          .style("top", scrolly_parts(bar_position.top) - 5 + "px")
+          .style("visibility", "visible").text("Stage Comparison")
+      })
+      .on("mouseout", function () {
+        d3.select("#icon_tooltip").style("visibility", "hidden")
+      })
 
-    .on("click", function () {
-      window.scrollTo({
-        top: bar_position.top,
-        left: 0,
-        behavior: "smooth",
-      });
-    })
+      .on("click", function () {
+        window.scrollTo({
+          top: bar_position.top,
+          left: 0,
+          behavior: "smooth",
+        });
+      })
 
-    d3.select("#pie_icon").style("top", scrolly_parts(pie_position.top) + "px")
-    .on("mouseover", function(){
-      d3.select("#icon_tooltip")
-      .style("top", scrolly_parts(pie_position.top) - 5 + "px")
-      .style("visibility", "visible").text("Agreement Stages")
-    })
-    .on("mouseout", function() {
-      d3.select("#icon_tooltip").style("visibility", "hidden")
-    })
-    .on("click", function () {
-      window.scrollTo({
-        top: pie_position.top,
-        left: 0,
-        behavior: "smooth",
-      });
-    })
+    d3.select("#globe_icon").style("top", scrolly_parts(geo_position.top) - 10 + "px")
+      .on("mouseover", function () {
+        d3.select("#icon_tooltip")
+          .style("top", scrolly_parts(geo_position.top) + 3 + "px")
+          .style("visibility", "visible").text("Geography")
+      })
+      .on("mouseout", function () {
+        d3.select("#icon_tooltip").style("visibility", "hidden")
+      })
+      .on("click", function () {
+        window.scrollTo({
+          top: geo_position.top,
+          left: 0,
+          behavior: "smooth",
+        });
+      })
+
+
+
+    d3.select("#research_icon").style("top", scrolly_parts(research_position.top) - 20 + "px")
+      .on("mouseover", function () {
+        d3.select("#icon_tooltip")
+          .style("top", scrolly_parts(research_position.top) - 5 + "px")
+          .style("visibility", "visible").text("Agreement Timeline")
+      })
+      .on("mouseout", function () {
+        d3.select("#icon_tooltip").style("visibility", "hidden")
+      })
+      .on("click", function () {
+        window.scrollTo({
+          top: research_position.top,
+          left: 0,
+          behavior: "smooth",
+        });
+      })
 
 
     //loading screen
