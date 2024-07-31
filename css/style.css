@@ -96,7 +96,7 @@ body {
 #and_img {
   position: absolute;
   top: 7px;
-  right: 5px;
+  right: 15px;
   height: 40px;
   z-index: 999;
 }
