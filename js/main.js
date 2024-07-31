@@ -55,7 +55,7 @@ window.addEventListener('scroll', function () {
 
 
 //get current width and height of the screen
-const width100 = window.innerWidth - 10, // minus scroll width 10 px
+const width100 = window.innerWidth, // minus scroll width 10 px
   height100 = window.innerHeight,
   width80 = width100 * 0.8,
   width20 = width100 * 0.2;
@@ -68,7 +68,7 @@ d3.selectAll("#indicator, #indicator_svg")
   .style("height", height100 - 100 + "px")
 d3.select("#indicator_line")
   .attr("y2", height100 - 130)
-d3.selectAll("#story")
+d3.selectAll("body, #story")
   .style("width", width100 + "px")
 d3.selectAll(`.graphic__vis, .graphic__vis__1,
  .graphic__vis__05, .graphic__vis__06, .graphic__vis__075`)
@@ -543,6 +543,7 @@ function loadData(subset) {
       prepare_data(china, ch_percent_bar, "China")
     }
 
+    //indicator icons
     let icons_height = d3.select("#story").node().getBoundingClientRect()
     let svg_height = d3.select("#indicator").node().getBoundingClientRect()
 
@@ -666,7 +667,7 @@ function loadData(subset) {
     d3.select("#remove-screen-btn").style("visibility", "visible")
 
     d3.select("#remove-screen-btn").on("click", function () {
-      d3.select("body").style("overflow", "auto")
+      // d3.select("body").style("overflow", "auto")
       window.scrollTo(0, 0);
       d3.selectAll('#header, #story').style("visibility", "visible");
       d3.selectAll('#initial_screen, #remove-screen-btn').style("visibility", "hidden");
