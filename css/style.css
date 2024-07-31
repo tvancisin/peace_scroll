@@ -1,9 +1,8 @@
 html {
   overflow: scroll;
   -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
+  overflow-x: hidden;
 }
 
 body {
@@ -12,20 +11,19 @@ body {
   background-color: black;
   overflow: scroll;
   -ms-overflow-style: none;
-  /* IE and Edge */
   scrollbar-width: none;
-  /* Firefox */
 }
 
-body::-webkit-scrollbar {
+/* body::-webkit-scrollbar {
   display: none;
-}
+} */
 
 #remove-screen-btn {
   visibility: hidden;
 }
 
 #remove-screen-btn {
+  font-weight: 600;
   border: none;
   border-radius: 2px;
   font-family: "Montserrat";
@@ -95,7 +93,7 @@ body::-webkit-scrollbar {
 }
 
 #uoe_img {
-  position: absolute;
+  position: fixed;
   top: 50px;
   right: 5px;
   height: 40px;
@@ -103,7 +101,7 @@ body::-webkit-scrollbar {
 }
 
 #and_img {
-  position: absolute;
+  position: fixed;
   top: 7px;
   right: 5px;
   height: 40px;

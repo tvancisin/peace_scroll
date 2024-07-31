@@ -46,7 +46,7 @@ function topFunction() {
 //get current width and height of the screen
 const width100 = window.innerWidth - 10, // minus scroll width 10 px
   height100 = window.innerHeight,
-  width80 = width100 * 0.75,
+  width80 = width100 * 0.8,
   width20 = width100 * 0.2;
 // width50 = width100 * 0.5;
 //margins for visualization
