@@ -171,7 +171,7 @@ class ScrollerVis {
     //MULTILINE CHART
     let multiline_x = d3.scaleUtc()
       .domain(d3.extent(this.unemployment, d => d.date))
-      .range([margin.left, width - margin.right]);
+      .range([margin.left, width + 30]);
     let multiline_y = d3.scaleLinear()
       .domain([0, 100]).nice()
       .range([height - margin.bottom, margin.top]);
@@ -180,7 +180,7 @@ class ScrollerVis {
       .attr("transform", `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(multiline_x).ticks(5))
       .selectAll("text")
-      .style("font-size", "12px")
+      .style("font-size", "14px")
       .style("font-family", "Montserrat");
     let points = this.unemployment.map((d) => [multiline_x(d.date), multiline_y(d.unemployment), d.division]);
     let delaunay = d3.Delaunay.from(points)
@@ -472,12 +472,6 @@ class ScrollerVis {
       hovno = 1;
     }, 800);
   }
-
-
-
-
-
-
 
 
 

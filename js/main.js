@@ -57,8 +57,8 @@ window.addEventListener('scroll', function () {
 //get current width and height of the screen
 const width100 = window.innerWidth, // minus scroll width 10 px
   height100 = window.innerHeight,
-  width80 = width100 * 0.7,
-  width20 = width100 * 0.3;
+  width80 = width100 * 0.75,
+  width20 = width100 * 0.25;
 //margins for visualization
 const margin = { top: 50, right: 10, bottom: 20, left: 10 },
   height = height100 - margin.top - margin.bottom,
@@ -117,9 +117,8 @@ let line = horizontal_svg.append("g") //contex line
 let multiline_svg = d3.select("#visualization075")
   .attr("width", width + 30)
   .attr("height", height)
-  // .attr("viewBox", [0, 0, width, height])
   .append("g")
-  .attr("transform", `translate(20,${margin.top})`);
+  .attr("transform", `translate(20,60)`);
 
 //DONUTCHART VISUALIZATION
 let piechart_svg = d3.select("#visualization05")
@@ -575,7 +574,7 @@ function loadData(subset) {
     d3.select("#area_icon").style("top", scrolly_parts(lines_position.top) - 3 + "px")
       .on("mouseover", function () {
         d3.select("#icon_tooltip")
-          .style("top", scrolly_parts(lines_position.top) + "px")
+          .style("top", scrolly_parts(lines_position.top) - 5 + "px")
           .style("visibility", "visible").text("UN Council")
       })
       .on("mouseout", function () {
@@ -589,7 +588,7 @@ function loadData(subset) {
         });
       })
 
-    d3.select("#pie_icon").style("top", scrolly_parts(pie_position.top) - 5 + "px")
+    d3.select("#pie_icon").style("top", scrolly_parts(pie_position.top) + "px")
       .on("mouseover", function () {
         d3.select("#icon_tooltip")
           .style("top", scrolly_parts(pie_position.top) - 5 + "px")
@@ -609,7 +608,7 @@ function loadData(subset) {
     d3.select("#chart_icon").style("top", scrolly_parts(bar_position.top) - 10 + "px")
       .on("mouseover", function () {
         d3.select("#icon_tooltip")
-          .style("top", scrolly_parts(bar_position.top) - 5 + "px")
+          .style("top", scrolly_parts(bar_position.top) - 15 + "px")
           .style("visibility", "visible").text("Stage Comparison")
       })
       .on("mouseout", function () {
@@ -627,7 +626,7 @@ function loadData(subset) {
     d3.select("#globe_icon").style("top", scrolly_parts(geo_position.top) - 10 + "px")
       .on("mouseover", function () {
         d3.select("#icon_tooltip")
-          .style("top", scrolly_parts(geo_position.top) + 3 + "px")
+          .style("top", scrolly_parts(geo_position.top) - 15 + "px")
           .style("visibility", "visible").text("Geography")
       })
       .on("mouseout", function () {
@@ -646,7 +645,7 @@ function loadData(subset) {
     d3.select("#research_icon").style("top", scrolly_parts(research_position.top) - 20 + "px")
       .on("mouseover", function () {
         d3.select("#icon_tooltip")
-          .style("top", scrolly_parts(research_position.top) - 5 + "px")
+          .style("top", scrolly_parts(research_position.top) - 25 + "px")
           .style("visibility", "visible").text("Agreement Timeline")
       })
       .on("mouseout", function () {
