@@ -561,7 +561,21 @@ function loadData(subset) {
     let bar_position = d3.select(".graphic06").node().getBoundingClientRect()
     let geo_position = d3.select(".graphic1").node().getBoundingClientRect()
 
-    d3.select("#bee_icon").style("top", scrolly_parts(bee_position.top) + "px").on("click", function () {
+    d3.select("#time_title").style("top", scrolly_parts(bee_position.top) + 20 + "px")
+    d3.select("#area_title").style("top", scrolly_parts(lines_position.top) + 20 + "px")
+
+
+
+    d3.select("#bee_icon").style("top", scrolly_parts(bee_position.top) + "px")
+    .on("mouseover", function(){
+      d3.select("#icon_tooltip")
+      .style("top", scrolly_parts(bee_position.top) - 5 + "px")
+      .style("visibility", "visible").text("Agreement Timeline")
+    })
+    .on("mouseout", function() {
+      d3.select("#icon_tooltip").style("visibility", "hidden")
+    })
+    .on("click", function () {
       window.scrollTo({
         top: bee_position.top,
         left: 0,
@@ -569,7 +583,16 @@ function loadData(subset) {
       });
     })
 
-    d3.select("#area_icon").style("top", scrolly_parts(lines_position.top) + "px").on("click", function () {
+    d3.select("#area_icon").style("top", scrolly_parts(lines_position.top) + "px")
+    .on("mouseover", function(){
+      d3.select("#icon_tooltip")
+      .style("top", scrolly_parts(lines_position.top) + "px")
+      .style("visibility", "visible").text("UN Council")
+    })
+    .on("mouseout", function() {
+      d3.select("#icon_tooltip").style("visibility", "hidden")
+    })
+    .on("click", function () {
       window.scrollTo({
         top: lines_position.top,
         left: 0,
@@ -577,14 +600,34 @@ function loadData(subset) {
       });
     })
 
-    d3.select("#globe_icon").style("top", scrolly_parts(geo_position.top) + 10 + "px").on("click", function () {
+    d3.select("#globe_icon").style("top", scrolly_parts(geo_position.top) + 10 + "px")
+    .on("mouseover", function(){
+      d3.select("#icon_tooltip")
+      .style("top", scrolly_parts(geo_position.top) + 3 + "px")
+      .style("visibility", "visible").text("Geography")
+    })
+    .on("mouseout", function() {
+      d3.select("#icon_tooltip").style("visibility", "hidden")
+    })
+    .on("click", function () {
       window.scrollTo({
         top: geo_position.top,
         left: 0,
         behavior: "smooth",
       });
     })
-    d3.select("#chart_icon").style("top", scrolly_parts(bar_position.top) + "px").on("click", function () {
+
+    d3.select("#chart_icon").style("top", scrolly_parts(bar_position.top) + "px")
+    .on("mouseover", function(){
+      d3.select("#icon_tooltip")
+      .style("top", scrolly_parts(bar_position.top) - 5 + "px")
+      .style("visibility", "visible").text("Stage Comparison")
+    })
+    .on("mouseout", function() {
+      d3.select("#icon_tooltip").style("visibility", "hidden")
+    })
+
+    .on("click", function () {
       window.scrollTo({
         top: bar_position.top,
         left: 0,
@@ -592,7 +635,16 @@ function loadData(subset) {
       });
     })
 
-    d3.select("#pie_icon").style("top", scrolly_parts(pie_position.top) + "px").on("click", function () {
+    d3.select("#pie_icon").style("top", scrolly_parts(pie_position.top) + "px")
+    .on("mouseover", function(){
+      d3.select("#icon_tooltip")
+      .style("top", scrolly_parts(pie_position.top) - 5 + "px")
+      .style("visibility", "visible").text("Agreement Stages")
+    })
+    .on("mouseout", function() {
+      d3.select("#icon_tooltip").style("visibility", "hidden")
+    })
+    .on("click", function () {
       window.scrollTo({
         top: pie_position.top,
         left: 0,
