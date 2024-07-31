@@ -57,8 +57,8 @@ window.addEventListener('scroll', function () {
 //get current width and height of the screen
 const width100 = window.innerWidth, // minus scroll width 10 px
   height100 = window.innerHeight,
-  width80 = width100 * 0.8,
-  width20 = width100 * 0.2;
+  width80 = width100 * 0.7,
+  width20 = width100 * 0.3;
 //margins for visualization
 const margin = { top: 50, right: 10, bottom: 20, left: 10 },
   height = height100 - margin.top - margin.bottom,
@@ -74,7 +74,7 @@ d3.selectAll(`.graphic__vis, .graphic__vis__1,
  .graphic__vis__05, .graphic__vis__06, .graphic__vis__075`)
   .style("width", width80 + "px")
   .style("height", height100 + "px")
-  .style("left", width20 + 50 + "px")
+  .style("left", width20 + "px")
 d3.selectAll(`#visualization, #visualization05,
  #visualization06,#visualization075, #visualization1`)
   .style("width", width80 + "px")
@@ -82,7 +82,6 @@ d3.selectAll(`#visualization, #visualization05,
 d3.selectAll(`.graphic__prose, .graphic__prose__05,
  .graphic__prose__06, .graphic__prose__075, .graphic__prose__1`)
   .style("width", width20 + "px")
-  .style("left", 45 + "px")
 d3.selectAll("#separator, #separator05, #separator1")
   .style("width", width100 + "px")
   .style("height", height100 + "px")
