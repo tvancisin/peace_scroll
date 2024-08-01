@@ -646,7 +646,7 @@ function loadData(subset) {
       .on("mouseover", function () {
         d3.select("#icon_tooltip")
           .style("top", scrolly_parts(research_position.top) - 25 + "px")
-          .style("visibility", "visible").text("Agreement Timeline")
+          .style("visibility", "visible").text("Research")
       })
       .on("mouseout", function () {
         d3.select("#icon_tooltip").style("visibility", "hidden")
