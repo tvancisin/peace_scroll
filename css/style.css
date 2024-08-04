@@ -14,6 +14,39 @@ body {
   scrollbar-width: none;
 }
 
+#info_button {
+  position: absolute;
+  top: 8px;
+  height: 34px;
+  left: 250px;
+  background-color: #fdd900;
+  border: none;
+  color: black;
+  padding: 5px 20px;
+  text-align: center;
+  font-size: 20px;
+  display: inline-block;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+#info {
+    overflow: hidden;
+    color: white;
+    position: fixed;
+    top: 47px;
+    z-index: 900;
+    padding: 0px;
+    background-color: black;
+    border-radius: 2px;
+}
+
+#info_content {
+    overflow-y: auto;
+    border-radius: 2px;
+}
+
 #remove-screen-btn {
   visibility: hidden;
 }
@@ -87,8 +120,8 @@ body {
 
 #uoe_img {
   position: absolute;
-  top: 50px;
-  right: 5px;
+  top: 7px;
+  right: 160px;
   height: 40px;
   z-index: 999;
 }

@@ -64,6 +64,9 @@ const margin = { top: 50, right: 10, bottom: 20, left: 10 },
   height = height100 - margin.top - margin.bottom,
   width = width80 - margin.top - margin.bottom;
 //adjusting width and height for current screen
+d3.selectAll("#peace_process, #info")
+    .style("width", width20 + "px")
+    .style("right", - width20 + "px")
 d3.selectAll("#indicator, #indicator_svg")
   .style("height", height100 - 100 + "px")
 d3.select("#indicator_line")
@@ -99,6 +102,24 @@ d3.selectAll(".four, .seventeen")
   .style("height", 400 + "px")
 d3.selectAll(".nine")
   .style("height", 100 + "px")
+
+
+let counter_collab = 0;
+// info button dis/appear
+d3.select("#info_button").on("click", function () {
+  counter_collab += 1;
+  if (counter_collab % 2 !== 0) {
+      d3.select("#info")
+          .transition().duration(500)
+          .style("right", 5 + "px")
+  }
+  else {
+      d3.select("#info")
+          .transition().duration(500)
+          .style("right", - width20 + "px")
+  }
+})
+
 
 //BEESWARM VISUALIZATION
 let horizontal_svg = d3.select("#visualization")
