@@ -5,6 +5,7 @@ html {
   overflow-x: hidden;
 }
 
+
 body {
   color: white;
   font-family: 'Montserrat';
@@ -31,20 +32,26 @@ body {
   border-radius: 2px;
 }
 
+#info_button:hover {
+  background-color: #AA4197;
+}
+
 #info {
-    overflow: hidden;
-    color: white;
-    position: fixed;
-    top: 47px;
-    z-index: 9999;
-    padding: 0px;
-    background-color: black;
-    border-radius: 2px;
+  overflow-y: auto;
+  color: white;
+  position: fixed;
+  top: 47px;
+  z-index: 9999;
+  padding: 0px;
+  background-color: black;
+  border-radius: 2px;
+  visibility: hidden;
+  color-scheme: dark;
 }
 
 #info_content {
-    overflow-y: auto;
-    border-radius: 2px;
+  overflow-y: auto;
+  border-radius: 2px;
 }
 
 #remove-screen-btn {
@@ -342,7 +349,7 @@ p {
 
 @media (max-width: 1250px) {
   p {
-      font-size: 14px;
+    font-size: 14px;
   }
 }
 
@@ -456,13 +463,13 @@ h5 {
 
 @media (max-width: 1300px) {
   #publications {
-      height: 250px;
+    height: 250px;
   }
 }
 
 @media (max-width: 1160px) {
   #publications {
-      height: 200px;
+    height: 200px;
   }
 }
 
