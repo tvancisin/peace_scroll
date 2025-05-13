@@ -66,7 +66,7 @@ const margin = { top: 50, right: 10, bottom: 20, left: 10 },
 //adjusting width and height for current screen
 d3.selectAll("#info")
     .style("width", width20 + "px")
-    .style("height", height - 50 + "px")
+    .style("height", height *0.6 + "px")
     .style("left", - width20 + "px")
 d3.selectAll("#indicator, #indicator_svg")
   .style("height", height100 - 100 + "px")
@@ -689,7 +689,7 @@ function loadData(subset) {
     d3.select("#remove-screen-btn").on("click", function () {
       // d3.select("body").style("overflow", "auto")
       window.scrollTo(0, 0);
-      d3.selectAll('#header, #story').style("visibility", "visible");
+      d3.selectAll('#header, #story, #info').style("visibility", "visible");
       d3.selectAll('#initial_screen, #remove-screen-btn').style("visibility", "hidden");
     })
 
